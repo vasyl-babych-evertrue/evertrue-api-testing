@@ -1,0 +1,3435 @@
+Skip to content
+Navigation Menu
+evertrue
+auth
+
+Type / to search
+Code
+Issues
+18
+Pull requests
+1
+Actions
+Projects
+Wiki
+Security
+133
+Insights
+Settings
+Endpoint Documentation
+
+Dan McGuane edited this page on Jul 7, 2021 · 189 revisions
+EVERY. SINGLE. ENDPOINT. Requires authorization headers (preferred) or parameters unless otherwise specified!
+
+Contents
+Introduction
+Making requests
+Application Keys
+Application Tokens
+Authorization
+EvertrueAuthToken strategy (user session tokens)
+EvertrueAppToken strategy (godmode tokens for backend services)
+EvertrueBasicAuth strategy (email & password)
+EvertruePrimeToken strategy (long-lived user session tokens)
+EvertrueLinkToken strategy) (one-off user credentials managed by backend services) New!
+LinkedinAccessToken strategy (LinkedIn OAuth tokens)
+EvertrueTemporaryToken strategy (short-lived user session tokens)
+Providing OID Context
+API Status
+Sessions
+Scoped Sessions
+Prime Tokens
+Link Tokens
+Login Management
+Users
+Users Search (ElasticSearch)
+Organizations
+Organization Purge
+Roles
+Affiliations
+Affiliation Roles
+Affiliation Requests
+Affiliation Invitations
+CSV Invites
+Affiliation Attributes
+School Division Departments
+Applications
+User Identities
+Identity Providers
+User Registration
+User Password Reset
+Password Policy
+User Account Update
+User Confirmation
+Restriction/SSO By Product
+Integrations
+Example Objects
+Introduction
+Entity Relationship Diagram
+ER Diagram (7/17/2017)
+
+Postman Org
+You can use whichever REST request client you wish, but it's suggested that you use Postman so that you have access to all the requests we have saved there for Auth API and other projects. Download the app here, and reach out to one of our project admins to get added to the Postman org. As of 6/11/2021, these include: Amy Lashley, George Rose, Dan McGuane, PJ Gray, Josh Foster, Adam Zielinski and Shelley Talbot.
+
+Making Requests
+The base URL for the Auth API is https://api.evertrue.com/auth, all request examples show the /auth for clarity.
+When sending a request body of JSON data, the Content-Type header must be present and set to application/json.
+When expecting JSON responses, the Accept header must be present and set to application/json.
+As noted above, all requests require an application key to be provided (unless otherwise specified)
+As noted above, all requests require authorization to be provided (unless otherwise specified). If receiving an unexpected 401 error response, check documentation for authorization details.
+User requests should be authenticated with the User's session token ("auth tokens"), which can be generated with various authorization strategies. Typically this involves exchanging a credential (LinkedIn token, email+password, etc) to create a session, then using that session's token for future reqests.
+Requests from backend EverTrue services use static tokens ("app tokens").
+Application Keys
+See also Provisioning New App Keys (Keys & Tokens)
+
+All applications must provide their public application key on every request. An application key ("App Key") is a public alpha-numeric string that is used to identify the application making the request. This is NOT a form of authentication. Platform services will use this identifier to gate features and/or data from being served to certain applications. For example, the Contacts API will not serve giving data to the Community application even if the given user is authorized to receive that data had they been logged into the GivingTree application.
+
+The application key can be provided as an HTTP header (Application-Key) or HTTP query string parameter (app_key) but not both.
+
+HTTP Header Example
+Application-Key: 590b6855ec417400015682e454c6acec8f371adf861b830b031fa9ad3ac84c90
+Authorization: OnFCbVA1WXI4SmtLakFNajJNaFJZ
+Authorization-Provider: EvertrueAuthToken
+HTTP Query String Parameter Example
+GET /auth/users/me?app_key=590b6855ec417400015682e454c6acec8f371adf861b830b031fa9ad3ac84c90&auth=OnFCbVA1WXI4SmtLakFNajJNaFJZ&auth_provider=evertrueauthtoken
+Existing Applications (STAGING AND PRODUCTION)
+Application	App KEY
+auth_api	388e0c953a1f80539b9468f90cf09b386b0d560f539865b8488a0a1f40373402
+contacts_api	4e04e428cefe60b4df22eff60c1b3045fa7de2d8847eba6b84ccd3906cc23654
+lids_api	84731a780476587920ee41a93feba4b0b69f66f444fc1c2ff7111eafdf7cb946
+console	89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f
+community	590b6855ec417400015682e454c6acec8f371adf861b830b031fa9ad3ac84c90
+givingtree	815e8d01be8f78a41d1c71eb652b8be124b89058b74d284c6bb752a034dbb301
+capi_migrator	a9f518459b91dcde5b6576241dbb9a7afb35a20062e33a764ecf62d71b3fe919
+csv_importer	ef571795d45d5be4994a3beebbf2fcb9d24466d45cbf6877250ba822420d3c64
+reds_api	e9042aa96d9df1633652e79274c4b1e12f866afd63813a12e1df4618ec8f79d5
+reds_shuttle	ce3f8f84b193fcb9f2478067fa840d4f35a6909b8230325d3bf88e11f7f2f65f
+reporting_api	1d5a39ffe6214709661cc681d285af5d8748aca1e4b23269564154ec29487caf
+search_api	5a787185cebe2bab517fc3061ee94c1f7e7f0b01000eddaeff1eea897e490f07
+storm	e83f22bc52f446ecc09c5274dc7a930535925f36995bffa7dea21d6fa17972f7
+ems_api	b120b0d16f15251de408af6428836dd0d1986e0d845c0372c8f30217feafc28e
+dna_api	425431e00e7b1f257c4923227a4a0ab1e58120fb8b8f1863b70f45bb063a902c
+hadoop	5087f1d0493aa43c0bbcadd674400b5381f54a5aa852176e5993e1c14622aabc
+upload	d6e29212be59dfca79f4233a69a6a3d58003a584716214c5c7f8576e284bda4b
+scout_auth_api	1d347e8d5949aa2c43c1c97a0961d1c35cb1b72acebb953723ac762e483d6049
+scout_contacts_api	bb4abe5756d78fce3e7df7c941e15c78d6011a0568a9203a5642c4b68bcc5815
+scout_lids_api	911fec246fa64f88e35151e3dc291123e9211752cd0bae7eedcb411233e2f764
+scout_importer	dfa19b7fe7c30a755e809f2460819fd7e4e1c37ddcd3e21cbb68d4ea8a5bcb2b
+scout_ems_api	f7c2413c3f9540468d32660c2e8e63a9d5afed3355a3a9f9b2f45b02b5063b92
+scout_dna_api	c8e01d6a34886269cb2939068afb62b056ec8d19194276c8ea7a61692c0bff93
+soda_fountain	574d8cb82aed95447e2e0cd4ff9bb8adfd9eefcba4fa5cab7789ab82e4835931
+buoys	85afd59f40d96f9f07b0045ebf62d40cbd74d1848deb142c31be69f6754bf199
+ugc_api	70037042b0fd1b999add0962e14a5959f526409b51ef5411db3a95aac644ee00
+harbormaster	79f75cc77a83bd935c3400d0996951501739e70366d4e3e9476be09c6aa8ce50
+payments_api	63c1272b1063657c7cc1e5be012e51487237715aa39c997dd1636cd281f63a3a
+windlass	e45bfeb7b5b0cf5b7e97c5de7ba8d83b4c88128dbabf1355186d569c96d48ae0
+salesforce_syncer	b023f41b87581779da604caadcf78134e59d5507cb2d992515db837e1c752917
+volunteers_api	67f058495b1e266de2cf0b28feb57acec271320653950a4cd1b6d5ade767eef2
+volunteers	7cb9b8d4451567b725e81b998cdf46cfc58426f9936916c714acddbc9f082546
+Application Tokens
+See also Provisioning New App Keys (Keys & Tokens)
+
+For requests not being made on behalf of an authenticated user (that is to say, requests being made on behalf of the application itself), an EvertrueAppToken ("App(lication) Token") must be used. This behaves the same exact way as an EvertrueAuthToken ("Auth Token"), but instead of being backed by a Session, the token is static and does not expire. The applications must store its app token in a secure secret store (Vault).
+
+Application Tokens are only available for backend applications ("services"). This is because these tokens are essentially "godmode" passwords that would not be secure in a client-side app.
+
+App tokens for production services can be found in the production Auth database. The field representing the App Token is on the applications table, field name lazy_token.
+
+Existing Applications (STAGING ONLY)
+Application	App TOKEN
+auth_api	MTpiY2VWZTRNU3pGV3M3dkZwQThEcg==
+contacts_api	MjpyMmlqbWhnV0hRb0J4MlFueWFIcA==
+lids_api	Mzpmd0hTbUtTeTlrNGlFWThiNUc4cg==
+capi_migrator	NzppRm9RLWRudV9FQWZudkdFOXZoRA==
+csv_importer	ODp2X1NIY1EzY3pNelNKaVAtd3NURA==
+reds_api	OTpTLW14U2ViczFvOVhDZTJyblB0Sg==
+reporting_api	MTE6WnktLUZ5WUwzb1RXRVc1cmJRY20=
+search_api	MTI6eDY2WThILUxKMWJ6ajN2Y19oQTE=
+storm	MTM6cXlXeWFyVk5YSmRXdDVXWnlHNnA=
+ems_api	MTQ6NTdDQzVXQVBTeUMzbko1Z29kekM=
+dna_api	MTU6aVpzWU1SRUNmazdIcWUxb2JLanM=
+hadoop	MTY6VUtFNndXNFVTV1Z2ZUctN1pidHk=
+upload	MTc6bmIxQ2g1UXlBeWNTeHhGcUVxdXg=
+scout_auth_api	MTg6YXN6V25uWGNyV2pRcDZ5bVl5YUE=
+scout_contacts_api	MTk6OHFRc3Q4UmZ6cC1SUnpzcGItdTc=
+scout_lids_api	MjA6LUhzN0h6NWJNN1J5ekVUdGRYeTk=
+scout_importer	MjE6dEFfR3ZDbVluU0sxZU5kTlI1YXo=
+scout_ems_api	MjI6dTlnNDZ6X1JweFFwRzUtbUVhQm4=
+scout_dna_api	MjQ6X25feDliQ2haUmZfTmd3ekNNVTg=
+soda_fountain	MjU6dFI4TVl5emJFZGZTV19vbng5d1Y=
+buoys	MjY6dWc3d3prbVJNVmV6ellDdXg5Nlk=
+ugc_api	Mjc6RDNHUVZSODFRdWZ6aFlIY2hnTXM=
+harbormaster	Mjg6eDNEM3hjc0p1N0d6OC1NZlZtazY=
+payments_api	Mjk6WXcxM0RlMllBcFdXeXFnRHM5SFE=
+salesforce_syncer	MzE6ZzREcG5HemgxVEpkcjNYdXFoQkI=
+volunteers_api	MzI6X0ZrcW9mWktZS2YzelZHc01FRXc=
+Authorization
+Each auth strategy supported by the Auth service provides two interfaces. The preferred interface is through the standard HTTP Basic Authentication header "Authorization" along with a custom EverTrue header "Authorization-Provider". An additional interface, using HTTP request parameters (in the query string), is supported purely out of convenience. By using the HTTP header interface, other EverTrue services can do a simple passthrough (of these and other applicable headers) to the auth service, without altering the request URL. Passing the Authorization or Authorization Provider via both interfaces at the same time is not allowed.
+
+For all strategies the Authorization-Provider header or auth_provider parameter are case-insensitive.
+
+EvertrueAuthToken (user session tokens)
+This auth strategy authenticates the user with their session token.
+
+When an auth provider is not provided, it is assumed the client is using this auth strategy. To obtain an EvertrueAuthToken, the user must first exchange a higher form of credential to create a session (which contains the EvertrueAuthToken).
+
+See Create A Session for details.
+
+Auth
+Tip: Use the Paw app to easily create an encoded Basic Auth header. Right click in any input area and select Authorization > HTTP Basic Auth
+
+Interface	Raw	Base64 Encoded
+Header*	Authorization:  OnFCbVA1WXI4SmtLakFNajJNaFJZ	Authorization: Basic Ok9uRkNiVkExV1hJNFNtdExha0ZOYWpKTmFGSlo=
+Param**	?auth=OnFCbVA1WXI4SmtLakFNajJNaFJZ	?auth=Basic+Ok9uRkNiVkExV1hJNFNtdExha0ZOYWpKTmFGSlo=
+* You may pass the raw auth token as the Authorization header (without base 64 encoding). Standard Base64 encoded basic authorization is also supported. The unencrypted auth token (currently stored in the database as lazy_token on the sessions table, to be deprecated in future), should be used as the "password" piece of the basic auth (no username).
+
+** In the Base64 encoded version of the query string param, the space between Basic and the encoded token is URL encoded as either a + or %20
+
+Provider
+Interface	Raw
+Header	Authorization-Provider:  EvertrueAuthToken
+Param	?auth_provider=evertrueauthtoken
+EvertrueAppToken (godmode tokens for backend services)
+Used to make authenticated requests on behalf of an application or service. Uses Application Tokens. Used in the same way as an EvertrueAuthToken strategy, but use the authorization provider value of EvertrueAppToken.
+
+EvertrueBasicAuth (Email & Password)
+Note: This strategy can ONLY be used to generate Sessions and/or Prime Tokens (for use with the EvertrueAuthToken and EvertruePrimeToken strategies).
+
+This strategy uses encoded user credentials for the Authorization value. Encoded credentials can be passed in a request the same way as in the EvertrueAuthToken strategy, using the standard Basic Authorization header or query string parameter.
+
+Encoding credentials:
+The user's email is provided as the "username" and their plaintext password as the "password". Pass the encoded credentials the same way you would pass the encoded auth token in the EvertrueAuthToken strategy, but using the Authorization Provider "EvertrueBasicAuth".
+
+Raw credentials	Base64 encoded credentials
+andrew@evertrue.com:mypassword	YW5kcmV3QGV2ZXJ0cnVlLmNvbTpteXBhc3N3b3Jk
+EvertruePrimeToken (long-lived user session tokens)
+Note: This strategy can ONLY be used to generate Sessions (for use with the EvertrueAuthToken strategy.
+
+It uses a previously generated Prime Token for the Authorization value but also requires an additional data field; Device ID. See Generating a Session and Prime Token.
+
+EvertrueLinkToken (one-off user credentials managed by backend services)
+Note: This strategy can ONLY be used to generate Sessions and/or Prime Tokens (for use with the EvertrueAuthToken and EvertruePrimeToken strategies).
+
+Link Tokens are another type of Auth token that can be used to authenticate an Auth user. Link Tokens are tokens that are generated at the request of an EverTrue application (like Volunteers API) on behalf of one of its users (like a volunteer), rather than as the result of direct action taken by the user themselves (such as a login). A Link Token's sole purpose is to help the application re-authenticate a known user. This is different from a Prime Token or a Session Token in that a Link Token does not serve the purpose of maintaining a session for tracking purpose.
+
+The primary use case for a Link Token is when a backend EverTrue service wants to send an Auth credential to a known user. This is helpful because the Link Token can be used in a URL, for example, to bring the user directly into an authenticated state in an EverTrue application.
+
+When a client application receives a Link Token, authenticating a request to EverTrue APIs is the same as any other type of EverTrue Authorization, just use the Authorization-Provider header or auth_provider query param with the value EvertrueLinkToken (case insensitive). Creation of Sessions and Prime Tokens with a Link Token is subject to Multi-factor Authentication rules if the user has 2-Step Verification enabled.
+
+token type	similarities
+Prime Token
+A Link Token is similar to a Prime token in that it is used to generate Session Tokens
+For 2FA users, attempting to generate a session with a Magic Link will result in a Login Code prompt
+Session Token
+A Link Token is similar to a Session token in that its expiration automatically extends with continued use.
+unique
+Link Tokens are device agnostic.
+A Link Token can be used to generate a Prime Token.
+A Link Token does not expire as fast as a session.
+An expired Link Token can be used to request a new, valid, Link Token from the application that granted it.
+A user cannot choose to create a Link Token, they are created at the discretion of backend EverTrue services.
+See Link Tokens section for endpoints.
+
+LinkedinAccessToken (LI OAuth 2 Token)
+Note: Before a LinkedIn Access Token can be used to authenticate a user, the client must "activate" the token with the SODAS service. See SODAS docs for details.
+
+Note: This strategy can ONLY be used to generate Sessions and/or Prime Tokens (for use with the EvertrueAuthToken and EvertruePrimeToken strategies).
+
+This strategy uses a LinkedIn OAuth 2.0 Access Token as the Authorization value. Encoded credentials can be passed in a request the same way as in the EvertrueAuthToken strategy, using the standard Basic Auth header or query string parameter.
+
+Raw LI Token	Base64 encoded LI Token
+AQUFDMOWde-ic0vkle9eJTtYKk26Mtj\_4mMrSuHtKieON8ML4VWNOmi22Bq6
+VxZ0JVm22St_5Rks9ussiQBM\_sOcCuNyhj2z6DxflYsrjZq5yGZpd62dfHOc
+JbLJb02mev6GE6SwEnF617UwB8QiW-M9iuy-o6bpKr\_iesKoPqd-i-ZD5d8
+|
+OkFRVUZETU9XZGUtaWMwdmtsZTllSlR0WUtrMjZNdGpfNG1NclN1SHRLaWVP
+TjhNTDRWV05PbWkyMkJxNlZ4WjBKVm0yMlN0XzVSa3M5dXNzaVFCTV9zT2ND
+dU55aGoyejZEeGZsWXNyalpxNXlHWnBkNjJkZkhPY0piTEpiMDJtZXY2R0U2
+U3dFbkY2MTdVd0I4UWlXLU05aXV5LW82YnBLcl9pZXNLb1BxZC1pLVpENWQ4
+UPDATE: A recent update removed the constraint that a LinkedIn identity only be linked to a single user account. This means a single LinkedIn identity can resolve to more than one user. Because of this, clients should implement a "user picker" user interface which allows the user to pick which account they want to log in to. See User Picker Flow for complete details.
+
+SsoAccessToken (Amazon Cognito OAuth 2 Tokens)
+Note: This strategy can ONLY be used to generate Sessions and Prime Tokens (for use with the EvertrueAuthToken and EvertruePrimeToken strategies).
+
+This strategy uses an Amazon Congito JSON Web Token containing OAuth2 access, id, and refresh tokens as the authentication parameters. The access_token is provided as the Authorization value, the id token is provided in the Id-Token header, and the refresh token is provided in the Refresh-Token header. Encoded credentials can be passed in a request the same way as in the EvertrueAuthToken strategy, using the standard Basic Auth header or query string parameter.
+
+Example Request:
+
+Authorization-Provider: SsoAccessTokenStrategy
+Authorization: <access token>
+Application-Key: <app key>
+Id-Token: <id token>
+Refresh-Token: <refresh token>
+
+POST /auth/session
+EvertrueTemporaryToken (short-lived user session tokens)
+The EvertrueTemporaryTokenStrategy allows a user to generate a short-lived session token based on their existing token, which can be used for a short period of time outside of the encrypted skiff cookie. An example request/response, replace values wrapped in #{} with the requested variable:
+
+Request:
+
+POST https://api.evertrue.com/auth/session
+Application-Key: #{app_key}
+Authorization-Provider: EvertrueTemporaryTokenStrategy
+Content-Type: application/json
+Authorization: #{existing_session_token}
+
+{
+  "type": "SCOPED",
+  "oid": #{oid}
+}
+
+Response:
+
+{
+    "app_key": #{app_key},
+    "app_name": #{app_name},
+    "device_id": #{device_id},
+    "expire_at": #{expire_at}, # this is set to a short duration in the future, 5 minutes by default
+    "oid": #{oid},
+    "org_slug": #{org_slug},
+    "trusted_device": #{trusted_device},
+    "type": "SCOPED",
+    "user_id": #{user_id},
+    "token": #{short_lived_auth_token},
+    "created_at": #{created_at},
+    "updated_at": #{updated_at},
+    user: {
+        ...
+    },
+    ...
+}
+Providing OID Context
+Since users in Auth are "global" users, meaning that they can be affiliated with multiple organizations, it can make tracking usage based on organization difficult. Auth provides an optional interface for specifying which organization a given request is being made for. The backend support for this feature is very simple; a list of OIDs is tracked on each session.
+
+Add the following header/param to any request to auth and the OID will be tracked on the current session.
+
+Interface	Single OID	Multiple OIDs
+Header	Authorization-OID:  1	Authorization-OID:  1,2,3
+Param	?auth_oid=1	?auth_oid=1,2,3
+API Status
+Note: These endpoints do not require authentication or app keys.
+
+Health check for load balancers
+This endpoint will return no content. It returns a 204 No Content on success and 500 Internal Server Error when the Auth API has fatal errors.
+
+OPTIONS /auth
+Health check alias for browsers
+This endpoint will return JSON content rather than just a 204 No Content which is not convenient to people who don't have robot eyes.
+
+GET /auth/status
+Sessions
+Create a new session by exchanging a higher form of credentials. The token property on the returned Session object represents an EvertrueAuthToken which should be used as the method of authentication for subsequent requests. See EvertrueAuthToken strategy.
+
+notes on Scoped Sessions
+Valid Auth strategies that can be used to generate a SESSION for a normal user include:
+
+EvertruePrimeToken (recommended)
+EvertrueBasicAuth
+EvertrueLinkToken
+LinkedinAccessToken
+Create a session (login)
+Example Request:
+Authorization-Provider: EvertruePrimeToken
+Authorization: <prime token>
+Application-Key: <app key>
+POST /auth/session
+Response: Session Object
+
+Generating a Session and Prime Token
+Prime Tokens are long-lived device-specific credentials that make it unnecessary to store more sensative user credentials once authorization has completed. Long-lived Prime Tokens are used to generate short-lived sessions when the user re-visits the application after the previous session has expired.
+
+Prime Tokens can be generated when creating a new session by simply providing an additional field of data: a device ID. The Device ID should be generated by the client and it should be a long lived (ideally permanent) ID that stays the same between installs or upgrades. Ideally, both the Prime Token and the Device ID would be stored in a location accessible by all EverTrue apps on the same device. This would allow the same user to automatically be logged in when installing additional EverTrue applications.
+
+The same exact Device ID must be used on subsequent session creation requests when using the EvertruePrimeToken strategy. The Device ID should only be sent along in session creation requests, not on all requests. The only exception is the Registration endpoint, which can be passed a Device ID to retrieve a Prime Token with the registration object.
+
+The response is a standard Session object with a token field as well as an additional prime_token field. The token is the standard EvertrueAuthToken that should be used to authenticate subsequent requests. The prime_token represents an EvertruePrimeToken which should be stored for future session renewals.
+
+TL;DR
+Use one of EvertrueBasicAuth, LinkedinAccessToken, or EvertrueLinkToken strategies PLUS a Device ID to GENERATE a Session AND Prime Token.
+Then use the EvertruePrimeToken strategy PLUS the same Device ID to generate subsequent sessions.
+Example Request:
+Note: Device ID can alternatively be provided in the query string as device_id
+
+Accept: application/json
+Content-Type: application/json
+Authorization: <Encoded EverTrue user credentials or LinkedIn access token>
+Authorization-Provider: <EvertrueBasicAuth or LinkedinAccessToken>
+Application-Key: <app key>
+Device-ID: 25231ee1f89c1da7a5ec29891cdcef6900c9174c37ab95fc2da964bdef363161
+POST /auth/session
+Response: Session Object with Prime Token
+
+Get the current session
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/session
+Response: Session Object
+
+Destroy a session (log out)
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/session
+Response: HTTP 200
+
+Link Tokens
+Application endpoints for creating Link Tokens for its users to use with the EvertrueLinkToken authentication strategy. A service can only create Link Tokens, it cannot read them. Unused Link Tokens expire on the third day at the end of the day. Using a Link Token extends the expiration by 3 days.
+
+Create a Link Token (application endpoint)
+Requirements:
+
+Service must use both its own App Token and App Key pair.
+The application property should match an application name in the Auth database. A Link Token can only authenticate the user with a single application. The application must be a user-facing application, distinguished by the lack of a token value in the Auth database. Current valid values for application are community, volunteers, givingtree, and console.
+Services must not store Link Tokens once generated. They should be "used" immediately, for example, sent in an email to the user.
+Example Request:
+
+Accept: application/json
+Content-Type: application/json
+Authorization: <Volunteers API App Token>
+Authorization-Provider: EvertrueAppToken
+Application-Key: <Volunteers API App Key>
+POST /auth/link_tokens
+{
+    "application": "volunteers",
+    "user_id": 136
+}
+Example Response:
+
+{
+  "token": "NTM3MGJiYzY1MTE0NGEyYzpvTlJhUkF4LW0tUkxTVXlTTHUycg==",
+  "user": {
+    "id": 136,
+    "name": "Andrew Hammond",
+    "email": "andrew@evertrue.com"
+  }
+}
+Exchange an expired Link Token
+Services can exchange an expired Link Token for another one. The application must match the value given in the original request. If token is not expired, the same token will be given back with its expiration extended. The token and user_id params must not be supplied in the same request or the response will be 422 Unprocessable Entity. If the token is invalid, response will be 404 Not Found.
+
+Example Request:
+
+Accept: application/json
+Content-Type: application/json
+Authorization: <Volunteers API App Token>
+Authorization-Provider: EvertrueAppToken
+Application-Key: <Volunteers API App Key>
+POST /auth/link_tokens
+{
+    "application": "volunteers",
+    "token": "NTM3MGJiYzY1MTE0NGEyYzpvTlJhUkF4LW0tUkxTVXlTTHUycg=="
+}
+Example Response:
+
+{
+  "token": "NTM3MGJiYzY1MTE0NGEyYzpvTlJhUkF4LW0tUkxTVXlTTHUycg==",
+  "user": {
+    "id": 136,
+    "name": "Andrew Hammond",
+    "email": "andrew@evertrue.com",
+  }
+}
+Login Management
+Auth provides a way for a user to view all the active logins they have outstanding. This includes one-off Sessions as well as Prime Tokens. These endpoints refer to either of these objects generically as a "login". A login object with a type of prime_token may represent many sessions on a single device (even accross multiple ET applications). Terminating a prime_token login will immediately invalidate the prime token itself, as well as all Session logins that were generated with it. Sessions generated by a Prime Token are nested inside the Prime Token object, but only for Super Users. Terminating a session login that was not generated by a prime token will only terminate the session login itself.
+
+See GitHub's session mangement options here.
+
+List all active logins for the current user
+A login's key is only a unique identifier for login management endpoints; it cannot be used for making authenticated requests. The key cannot be calculated by the client and this is by design.
+
+Example Request:
+Note: Prompts for 2FA re-up if enabled.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/settings/logins
+Response: Array of Login Objects
+
+Get a single login by key
+Useful mostly for super-user applications, to re-load child sessions of Prime Tokens after terminating one.
+
+Example Request:
+Note: Prompts for 2FA re-up if enabled.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/settings/logins/{login.key}
+Response: A single Login Object
+
+Terminate a login
+Example Request:
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/settings/logins/{login.key}
+Response: HTTP 204 No Content
+
+Users
+Most user endpoints require organization context via the oid param. Responses will be filtered to only include relevant information about the user(s) for that organization. Only affiliations/roles/requests for the given organization will be returned. Generally, where oid is required, admin authorization is required.
+
+Get logged in user
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users/me
+Gets the logged in user record
+
+Response: User Object
+
+Get user by ID
+This version requires oid and will filter out affiliations, etc that do not match that oid. This endpoint can be used by customer admins.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users/{user_id}?oid={oid}
+Response: OID-Filtered User Object
+
+Get user by ID (super-user version)
+This version requires super user authentication and will return all affiliations, etc.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users/id/{user_id}
+Response: Full User Object
+
+Get user by email (super-user endpoint)
+Requires super user authentication.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users/email/{email}
+Response: Full User Object
+
+Get user by contact ID
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users/contact_id/{contact_id}?oid={oid}
+Response: OID-Filtered User Object
+
+List users by role
+Gets users with the given role. This endpoint is only available to organization admins (and super admins). Inherently sorted by organization as well.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users?role={role_id}&oid={oid}
+Or by multiple roles (OR'd):
+
+Note: this support will be added when 2FA is rolled out
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users?role[]={role_id}&role[]={other_role_id}&oid={oid}
+Response: User Collection
+
+Bulk fetch users by IDs, roles, contact IDs, names, or emails
+This is a paginated POST endpoint to support large numbers of filters. Filters can be passed as query params or in the request body. All filters are combined as "AND" filters. Keep in mind that very large numbers of filters will result in slower responses.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/users/bulk_fetch?oid={oid}
+{
+  "id": [11, 25, 146],
+  "contact_id":[438485],
+  "name_or_email": "andrew@evertrue.com",
+  "role": [838,839],
+  "role_name": ["Volunteer Lead"]
+}
+Response:
+
+Note: The response from this endpoint is a simplified version of the User object, containing only user attributes and simplified roles collection (not affiliation_roles). No organization or affiliation objects are included. The contact_id from the affiliation is provided on the user object.
+
+{
+  "users": [
+    {
+      "id": 11,
+      "name": "Andrew J Hammond",
+      "email": "andrew@evertrue.com",
+      "contact_id": 438485,
+      "affiliation_id": 764,
+      "mfa_state": "enabled",
+      "super_user": true,
+      "super_admin": true,
+      "can_delete_orgs": true,
+      "mfa_enabled_at": 1479437921000,
+      "confirmed_at": 1394223915000,
+      "unconfirmed_email": null,
+      "confirmation_sent_at": null,
+      "changed_at": 1490649156000,
+      "created_at": 1383070889000,
+      "updated_at": 1497359238000,
+      "roles": [
+        {
+          "id": 838,
+          "remote_id": null,
+          "name": "Volunteer Lead",
+          "organization_id": 158,
+          "default": false,
+          "can_see_private_data": false,
+          "created_at": 1490648514000,
+          "updated_at": 1490648514000
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "total": 190,
+    "limit": 1,
+    "count": 1,
+    "total_pages": 190,
+    "current_page": 1,
+    "next_page": 2,
+    "prev_page": null,
+    "first_page": true,
+    "last_page": false,
+    "out_of_range": false
+  }
+}
+Create a user (super-admin endpoint)
+A user can be created and given affiliations and roles in a single request. New users will not have a password, although they will be able to request a password reset link and set one for themselves.
+
+This is a super-admin endpoint only! The reason for this is because an admin of a single organization would not be able to explicitly create a user account without affecting potential users of other communities. For the purpose of granting a person access to the community with a given set of roles, see the Affiliation Invitation endpoint.
+
+User accounts created with this endpoint will not be sent a confirmation email (they will be automatically confirmed). This flow is discouraged because the user may have problems logging in if they don't have full access to the email address the super user chose to create their account with (if the email gets sent to spam or is blocked by the email provider). By having users register their own user accounts, they will have the option to use whichever email they prefer (Gmail accounts and the like are better at spam control and are less likely to block EverTrue than a .edu email provider). Also, if they experience the issue right away during registration (email doesn't show up) they have time to seek support before there is critical need of using the app.
+
+Request:
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/users
+{
+    "affiliations": [
+        {
+            "organization_id": 1,
+            "contact_id": 23456,
+            "role_ids": [
+                1,
+                2
+            ]
+        },
+        {
+            "organization_id": 2,
+            "contact_id": 23457,
+            "role_ids": [
+                3,
+                4
+            ]
+        }
+    ],
+    "email": "admin@evertrue.com",
+    "name": "Andrew",
+    "super_user": true,
+    "email_locked": false
+}
+Note: The only required property on the affiliation objects is organization_id
+
+Response: User Object
+
+Update a user (super-admin endpoint)
+A super admin can update some user fields directly. Currently, the only supported fields are name, email*, email_locked, and super_user**. For updating the logged-in user's profile, including their email address, see User Account Update.
+
+*Updating the email field will result in an email alert being sent to the original email address which notifies the user of the change. No action is required on the user's part and there is no confirmation link/email.
+
+**The super_user flag should be granted sparingly and only to user accounts belonging to a single EverTrue employee. Do not grant super user privileges to a shared user account. Super user accounts should be using @evertrue.com email addresses.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/users/{id}
+{
+    "name": "Scott Pilgrim"
+}
+Delete a user (super-admin endpoint)
+This will delete all the user's affiliations and disable their access to all apps. Use with caution.
+
+Request:
+
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/users/{id}
+Response: HTTP 204
+
+Users Search
+Auth exposes a lightweight proxy interface to the users index of the Search API. Because Auth does little but pass the input query to the Search API and filter the results, knowledge of EverTrue Search DSL query syntax is required to use this endpoint. It is also useful to have a working knowledge of the ElasticSearch API.
+
+Auth enforces the following security protocols:
+
+Search proxy is currently only supported for super users and organization admins (defined as having one of a select list of roles).
+The oid parameter is required for non-super users.
+A filter is added to the input query to limit results to those affiliated with oid or with an Affiliation Request for oid. For super users, omitting oid will result in no oid filter being added.
+A filter is added to limit results to non-super users. This is only added for non-super users.
+Results have their Affiliations and Affiliation Requests for organizations other than oid stripped out. For super users, this filtering will not happen.
+Note: User Searches support User Impersonation!
+
+Basic Users Search
+Example Request:
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/users/search?oid=1
+{
+  "must": [{
+    "email": {
+      "wildcard": "*drew"
+    }
+  }]
+}
+Response:
+
+{
+  "total": 2,
+  "users": [
+    {
+      "id": 794,
+      "name": "Drew Burch",
+      "email": "drew@evertrue.com",
+      "super_user": false,
+      "changed_at": 1423776722000,
+      "created_at": 1423762337000,
+      "updated_at": 1423776722000,
+      "confirmed_at": 1423762337000,
+      "affiliations": [
+        {
+          "id": 714,
+          "user_id": 794,
+          "organization_id": 132,
+          "contact_id": null,
+          "created_at": 1423762337000,
+          "updated_at": 1423776722000,
+          "affiliation_roles": []
+        }
+      ],
+      "affiliation_requests": []
+    },
+    {
+      "id": 372,
+      "name": "Andrew Hammond",
+      "email": "andrew@evertrue.com",
+      "super_user": false,
+      "changed_at": 1415658802000,
+      "created_at": 1393440984000,
+      "updated_at": 1415658802000,
+      "confirmed_at": 1393441024000,
+      "affiliations": [
+        {
+          "id": 221,
+          "user_id": 372,
+          "organization_id": 93,
+          "contact_id": 44180,
+          "created_at": 1393441126000,
+          "updated_at": 1393441128000,
+          "affiliation_roles": [
+            {
+              "id": 284,
+              "role_id": 162,
+              "affiliation_id": 221,
+              "creator_user_id": null,
+              "created_at": 1393441126000,
+              "updated_at": 1393441126000
+            }
+          ]
+        }
+      ],
+      "affiliation_requests": [
+        {
+          "id": 159,
+          "organization_id": 93,
+          "user_id": 372,
+          "status": "APPROVED",
+          "affiliation_id": 221,
+          "approved": true,
+          "moderated_by": 317,
+          "moderated_at": 1393441127000,
+          "created_at": 1393441076000,
+          "updated_at": 1393441128000
+        }
+      ]
+    }
+  ]
+}
+Cross-org Email Users Search
+Cross-org searches are only allowed for super users.
+
+Example Request:
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/users/search
+{
+  "must": [
+    {
+      "email": {
+        "wildcard": "*@evertrue.com"
+      }
+    }
+  ]
+}
+Sorted Users Search
+Example Request:
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/users/search?oid=1
+{
+  "must": [
+    {
+      "email": {
+        "wildcard": "*@evertrue.com"
+      }
+    }
+  ],
+  "sort": [
+    {
+      "name": {
+        "order": "asc"
+      }
+    }
+  ]
+}
+Role Filtered Users Search
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/users/search?oid=1
+{
+  "must": [
+    {
+      "affiliations.affiliation_roles.role_id": {
+        "match": 577
+      }
+    }
+  ]
+}
+Organizations
+Get all organizations
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/organizations
+Note: this endpoint is public and does not require authorization (app_key is still required)
+
+Response: Organization Collection
+
+Get an organization by its slug
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/organizations/slug/{organization_slug}
+Note: this endpoint is public and does not require authorization (app_key is still required)
+
+Response: Organization Object
+
+Get an organization by ID
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/organizations/{organization_id}
+Note: this endpoint is public and does not require authorization (app_key is still required)
+
+Response: Organization Object
+
+Create a new organization (super admin endpoint)
+Super admins can create new organizations. This will not create any roles for the organization.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/organizations
+{
+    "name": "Champlain College",
+    "slug": "champlain"
+}
+Response: Organization Object
+
+Update an existing organization (super admin endpoint)
+Super admins can update organizations. The only field currently supported is name
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/organizations/{organization_id}
+{
+    "name": "Champlain College"
+}
+Response: Organization Object
+
+Organization Purge
+See also: et_purger, a commandline org purge client!
+
+"Purging" an organization is a complete and total, non-recoverable, way of deleting customer data from the EverTrue Platform. A full spec of this feature, along with implementation recommendations, can be found on the Auth Wiki page Organization Purge Spec.
+
+Purging an organization is a two step process, at least in terms of Auth API requests... The UX might break this process into more steps when guiding the end user through.
+
+Requires user authentication for a user with the super_user and can_delete_orgs flags.
+
+Step 1) Request an organization purge
+The client must first request a purge in order to retrieve a Purge Token and other important information including a URL to a CAPTCHA image which the user must convert to text. Again, read the full spec for details.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /organizations/{oid}/purge
+Response:
+
+{
+    "purge_token": "87fa8b28c0636bcc28b287a286369aa2",
+    "captcha_image": "https://api.evertrue.com/auth/captcha/87fa8b28c0636bcc28b287a286369aa2.png",
+    "min_timeout": 20,
+    "max_timeout": 300,
+    "org_stats": [
+        { "label": "Total Records", "value": "23769" },
+        { "label": "Total Users", "value": "2430" },
+        { "label": "Sessions Last 30 Days", "value": "4000" },
+        { "label": "Products", "value": "Community, GivingTree" },
+        { "label": "Created On", "value": "May 23, 2011" }
+    ]
+}
+Step 2) Confirm the purge
+Pass the purge_token and the user's translation of the text in the CAPTCHA image (as captcha_secret) to the organization delete endpoint to confirm the organization puge.
+
+Confirm a purge request:
+
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /organizations/{oid}?
+    purge_token=87fa8b28c0636bcc28b287a286369aa2
+    &captcha_secret=DEVRY%20A7BC8F
+Response:
+
+{
+    "scheduled_str": "Tuesday, 29 Jul 2014 11AM EDT",
+    "scheduled": 1406646000000
+}
+Roles
+Get all roles for the organization
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/roles?oid={oid}
+Response: Role Collection
+
+Get a single role by ID
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/roles/{id}?oid={oid}
+Response: Role Object
+
+Create a new role for the organization
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/roles?oid={oid}
+{
+    "can_see_private_data": false,
+    "default": false,
+    "name": "Faculty",
+    "remote_id": "FAC"
+}
+Response: Role Object
+
+Update a role
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/roles/{id}?oid={oid}
+{
+    "can_see_private_data": true,
+    "default": false,
+    "name": "Facultyyyyyy",
+    "remote_id": "FACULTYYYYY"
+}
+Response: Role Object
+
+Delete a single role
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/roles/{id}?oid={oid}
+Response: HTTP 204
+
+Affiliations
+Get a user's affiliation(s)
+Deprecation notice: This is only supported for the currently authorized user. As in, the user_id params must be the same as the auth'd user. The output will be the current user's affiliations.
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/users/{user_id}/affiliations
+Response: Affiliation Object
+
+Create a new affiliation (admin endpoint)
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /affiliations?oid={oid}
+{
+  "user_id": 4,
+  "role_ids": [3, 4],
+  "contact_id": 2345
+}
+Note: contact_id is optional. If contact_id is provided, a CAPI contact lookup is performed (using current user's authentication) for validation before the affiliation is saved. If no contact_id is provided, a CAPI contact lookup is queued as a background job.
+
+Response: Affiliation Object
+
+Overwrite all of a user's affiliation roles (admin endpoint)
+Use this endpoint to OVERWRITE an affiliation's list of Affiliation Roles. This can be depended on being an idempotent operation when the response is a success. For appending to the list of affiliation roles, see the PATCH endpoint below.
+
+Note: Currently, only the role_ids and contact_id properties can be modified via PUT.
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/affiliations/{affiliation_id}?oid={oid}
+{
+  "role_ids": [3, 4]
+}
+Response: Affiliation Object
+
+Update a user's contact ID or other affiliation properties (admin endpoint)
+Use this endpoint to update the contact ID for the affiliation. The contact_id will be validated by an ID lookup to CAPI using the authenticated user's credentials.
+
+Note: Currently, only the role_ids and contact_id properties can be modified via PUT.
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/affiliations/{affiliation_id}?oid={oid}
+{
+  "contact_id": 9876,
+  "role_ids": [3, 4]
+}
+Response: Affiliation Object
+
+Add a role to a user's affiliation (admin endpoint)
+Use this endpoint to APPEND to an affiliation's list of Affiliation Roles. This is an idempotent operation, meaning if the affiliation already has the role(s), the response is still a success. For overwriting the list of affiliation roles, see the PUT endpoint above.
+
+Note: Currently, only the role_ids property can be modified via PATCH.
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PATCH /auth/affiliations/{affiliation_id}?oid={oid}
+{
+  "role_ids": [6,8]
+}
+Response: Affiliation Object
+
+Remove a user from an organization / revoke affiliation (admin endpoint)
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/affiliations/{affiliation_id}?oid={oid}
+Response: HTTP 204
+
+Affiliation Roles
+Get all roles a user has for an affiliation
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/affiliations/{affiliation_id}/affiliation_roles
+Response: Array of Affiliation Role Objects
+
+Get a specific affiliation role
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/affiliations/{affiliation_id}/affiliation_roles/{affiliation_role_id}
+OR
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/affiliation_roles/{affiliation_role_id}
+Note: Take notice that this requires the affiliation_role_id, not the actual role ID!
+
+Response: Affiliation Role Object
+
+Remove a role from a user's affiliation (admin endpoint)
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/affiliations/{affiliation_id}/affiliation_roles/{affiliation_role_id}
+OR
+
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/affiliation_roles/{affiliation_role_id}
+Note: Take notice that this requires the affiliation_role_id, not the actual role ID!
+
+Response: HTTP 204
+
+Affiliation Requests
+Get moderation requests (for admins)
+Retrieve a list of the organization's current affiliation requests. Must be an admin (have a role with can_see_private_data set to true). Currently returns APPROVED affiliation requests in addition to the PENDING requests.
+
+Example Request:
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/affiliation_requests?oid={oid}
+Response: Array of Affiliation Request Objects
+
+Request access to an organization (for users)
+Request access to a new organization. Subject to admin moderation. Pending and recently approved affiliation requests will be included in the logged-in user's User Object. The client can specify arbitrary custom data fields in the data property. These data fields should be key/value pairs that represent user-entered data that will aid in the moderation process. In this example, presumably the client has (following a dry-run where the match was unsuccessful) prompted the user with a form with three fields; "Class Year", "Previous Last Name", and "Other Custom Key". With this custom data logged in the database, another client like Console could display this data dynamically, or even pre-populate a set of search results/filters to expedite the user experience of manually searching for a match.
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_requests?oid={oid}
+{
+    "commit": true,
+    "data": {
+        "class_year": 2010,
+        "previous_last_name": "O'Hoolihan",
+        "other_custom_key": "value"
+    }
+}
+Note: The commit property is optional, and defaults to true when not provided.
+
+Response: Affiliation Request Object
+
+"Dry Run"
+The client may want to check if the user will be auto-accepted ("auto matched") into the organization and take special action based on the outcome. To attempt an affiliation request without triggering moderation emails and any backend events, pass the commit option with a value of false.
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_requests?oid={oid}
+{
+    "commit": false
+}
+Example Response:
+The response on a "dry run" affiliation request will be different depending on the outcome of the match attempt. If a match was successfully made, the affiliation request is saved and committed and the response will contain a true value for committed. If no match was made, the response contains no id, and includes a value of false for committed.
+
+See: Dry Run example for Affiliation Request Object
+
+Moderate an affiliation request
+Approve an affiliation request by supplying the contact ID to use as the match (if applicable), and/or the desired roles to give the user for the affiliation.
+
+The client is responsible for presenting the moderator with a UI for searching the Contacts API to pick a valid contact ID. No two users can have affiliations with the same contact_id. Auth validates that the contact_id belongs to the same organization as the affiliation request.
+
+An affiliation request can be updated at any time, even if it has already been moderated one or more times. Keep in mind that an Approval triggers background jobs that will send send an email to the user notifying them of their acceptance. Denials generate no emails or background jobs, but will destroy the affiliation (and its roles) if the request was already previously approved. Take care to not make it too easy for the user to moderate a request multiple times, as the emails generated would be problematic in that they would cause confusion for the user. This endpoint is meant for allowing or denying requests to join the community, and is explicitly not meant as another entry point for editing an affiliation. Make a direct call to the affiliation to edit the contact ID or roles once the request is approved.
+
+Example Request (Approval):
+Providing the Contact ID is optional**, as is specifying the roles. Notes on roles:
+
+When contact_id is provided and role_ids is not, the roles on the contact record are used.
+When contact_id is provided and role_ids IS also provided, the role_ids will be used (no merging with contact roles will take place; it is a full override).
+When neither are specified, the default roles for the organization are used.
+** A user would not have a contact record if they are not an actual constituent of the organization. A staff member would not have a contact record.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_requests/{id}/moderate?oid={oid}
+{
+    "contact_id": 3,
+    "role_ids": [6,7,10],
+    "approve": true
+}
+Example Request (Denial):
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_requests/{id}/moderate?oid={oid}
+{
+    "approve": false
+}
+Response: Affiliation Request Object
+
+Affiliation Invitations
+Affiliation Invitations generate an email to the given email address containing a unique link. Clicking on the link will bring the recipient to the targeted EverTrue client application (GivingTree, Volunteers, etc) along with the unique invite token. The client application can send along the invite token in a user registration request. This will "claim" the roles specified in the invite and apply them to the resulting user account.
+
+Retrieve an existing invitation (admin endpoint)
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/affiliation_invitations/{affiliation_invitation_id}?oid={oid}
+Response: Affiliation Invitation Object
+
+List invitations for organization (admin endpoint)
+By default, invitations are filtered to invites to the current application (as identified by the app_key). To request invites to all applications, pass the app=all param. Alternatively, request invites to a different application by passing the app name (i.e. app=volunteers).
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/affiliation_invitations?oid={oid}
+Response: Affiliation Invitation Object
+
+Send an invitation (admin endpoint)
+This section covers sending invitations for non-SSO enabled organizations. For sending invitations for SSO-enabled organizations, see: Sending a single invitation for an SSO-enabled organization
+
+Sending an invitation requires an email address and an oid. The desired roles to be granted to the user must be provided via role_ids. At least one role ID is required. Validation will take place on the server to make sure that the roles provided are valid for the given organization. If the email belongs to an existing user that is already affiliated with the organization, validation will take place to ensure that at least 1 new role ID is being granted. This is to prevent invitation emails being sent that have no effect on the user after they go through all the work of accepting the invitation (click email and then LI auth).
+
+Invitations should always result in a user having the provided email address. The exception to this is when the invite is claimed by an already logged in user via the POST /auth/registrations/invited endpoint. In this case the user's email address will remain the same. If there is an existing user with the email address (at the time of registering with the invite token), the invite roles will be applied to that user, if not, a new user will be created with the intended email address and roles.
+
+An invitation email will always be sent to the email address specified in the invite, even if a user with the email already exists. The invite email will contain a link with a unique invite code. The affiliation/roles are not applied to any user, whether new or existing, until they have clicked the invite link and completed the invite flow in the application.
+
+Client applications can specify which EverTrue application the invite is for. While an EverTrue user is a global user and can potentially use all EverTrue applications, the invite email that is generated must direct the user to just one application. Valid app values at this time are givingtree and volunteers. Adding support for new application invites entails updating the AffiliationInvitationsController and AffiliationInvitationMailer source files. Leaving the application value blank will default to the current client application making the request (i.e. sending an invite from GivingTree will send the GivingTree invite email which directs users to GivingTree).
+
+At least one role that grants the user access to the given app must be present in the role_ids array. (i.e. a GivingTree invite must specify at least one of GivingTree User or GivingTree Owner role, in addition to any other roles).
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_invitations?oid={oid}
+{
+    "app": "givingtree",
+    "email": "doge@evertrue.com",
+    "role_ids": [
+        3,
+        4
+    ]
+}
+Response: Affiliation Invitation Object
+
+Sending a single invitation for an SSO-enabled organization
+Invitations to SSO-enabled organizations differ than those to non-SSO enabled organizations in that they take in a few extra parameters (saml_user_id, first_name, and last_name), and take in a single role_name instead of a list of role_ids. All of these fields are required under the affiliation_invitation json object root, along with email. Optionally, you may specify contact_id at invitation time as well. The role to add to a new SSO user is determined by both the Application-Key and the role_name provided in the request body. For example, an Application-Key for GivingTree with a role_name of "user" will translate to the GivingTree User role, whereas an Application-Key for Volunteers and a role_name of "user" will translate to "Volunteer" on the backend. The response code for a bulk invitation request will be either 200 OK or a 4xx client error (usually 400 Bad Request or 422 Unprocessable Entity), depending on whether any issues arise due to the parameters passed in the request. An example request might look like this:
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_invitations?oid={oid}
+{
+  "affiliation_invitation": {
+    "email": "admin@sampleorg.com", // required
+    "saml_user_id": "admin1",       // required
+    "role_name": "owner",           // required
+    "first_name": "first",          // required
+    "last_name": "last"             // required
+  }
+}
+Response:
+
+{
+  "id": 510,
+  "invited_by": 1132,
+  "email": "admin@sampleorg.com",
+  "name": "first last",
+  "contact_id": null,
+  "role_ids": ["399"],
+  "affiliation_id": 1036,
+  "application_name": "givingtree",
+  "saml_user_id": "admin1",
+  "created_at": 1511296276847,
+  "updated_at": 1511296276847,
+  "accepted_at": 1511296276497,
+  "invite_email_sent_at": null
+}
+Sending a bulk invitation for an SSO-enabled organization
+Invitations for SSO-enabled organizations support bulk creation. This endpoint takes in a list of objects each with three parameters: email, saml_user_id, and role_name. Email and SAML User ID should be straightforward, whereas role names are determined by both the Application-Key and the role_name provided in the request body. For example, an Application-Key for GivingTree with a role_name of "user" will translate to the GivingTree User role, whereas an Application-Key for Volunteers and a role_name of "user" will translate to "Volunteer" on the backend. The response code for a bulk invitation request will always return 200 ok, but it may contain one or more successful_invitations and/or one or more failed_invitations. Each of these can be found in the response body under its respective root element name. An example request might look like this:
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/affiliation_invitations/bulk?oid={oid}
+{
+  "affiliation_invitations": [
+    {
+      "email": "admin@sampleorg.com",           // required
+      "saml_user_id": "admin1",                 // required
+      "role_name": "owner",                     // required
+      "first_name": "first",                    // required
+      "last_name": "last"                       // required
+    },
+    {
+      "email": "user@sampleorg.com",            // required
+      "saml_user_id": "justanormalusername",    // required
+      "role_name": "user",                      // required
+      "first_name": "first",                    // required
+      "last_name": "last"                       // required
+    },
+    {
+      "email": "existinguser@sampleorg.com",    // required
+      "saml_user_id": "duplicateuserlol",       // required
+      "role_name": "user",                      // required
+      "first_name": "first",                    // required
+      "last_name": "last"                       // required
+    }
+  ]
+}
+Response:
+
+{
+  "successful_invitations": [
+    {
+      "user": {
+        "id": 1134,
+        "name": "admin",
+        "email": "admin@sampleorg.com",
+        ...
+        "affiliations": [
+          {
+            "id": 1031,
+            "organization_id": 1,
+            "remote_user_id": null,
+            "contact_id": null,
+            "legacy_user_id": null,
+            "created_at": 1511211557000,
+            "updated_at": 1511211557000,
+            "organization": {
+              "id": 1,
+              "name": "EverTrue",
+              "slug": "evertrue",
+              "sso_method": "saml"
+            },
+            "affiliation_roles": [
+              {
+                "id": 2007,
+                "role_id": 630,
+                "creator_user_id": 1132,
+                "created_at": 1511211557000,
+                "updated_at": 1511211557000,
+                "role": {
+                  "id": 630,
+                  "remote_id": "GivingTree Owner",
+                  "organization_id": 1,
+                  "name": "GivingTree Owner",
+                  "default": false,
+                  "can_see_private_data": true
+                }
+              }
+            ]
+          }
+        ],
+        "affiliation_requests": []
+      },
+      "invitation": {
+        "id": 505,
+        "invited_by": 1132,
+        "email": "admin@sampleorg.com",
+        "name": null,
+        "contact_id": null,
+        "role_ids": [
+          630
+        ],
+        "affiliation_id": 1031,
+        "application_name": "givingtree",
+        "created_at": 1511211558519,
+        "updated_at": 1511211558519,
+        "accepted_at": 1511211558068,
+        "invite_email_sent_at": null
+      }
+    },
+    {
+      user: {
+        "id": 1135,
+        "name": "user",
+        "email": "user@sampleorg.com",
+        ...
+        "affiliations": [
+          {
+            "id": 1032,
+            "organization_id": 1,
+            "remote_user_id": null,
+            "contact_id": null,
+            "legacy_user_id": null,
+            "created_at": 1511211557000,
+            "updated_at": 1511211557000,
+            "organization": {
+              "id": 1,
+              "name": "EverTrue",
+              "slug": "evertrue",
+              "sso_method": "saml"
+            },
+            "affiliation_roles": [
+              {
+                "id": 2008,
+                "role_id": 631,
+                "creator_user_id": 1132,
+                "created_at": 1511211557000,
+                "updated_at": 1511211557000,
+                "role": {
+                  "id": 631,
+                  "remote_id": "GivingTree User",
+                  "organization_id": 1,
+                  "name": "GivingTree User",
+                  "default": false,
+                  "can_see_private_data": true
+                }
+              }
+            ]
+          }
+        ],
+        "affiliation_requests": []
+      },
+      "invitation": {
+        "id": 506,
+        "invited_by": 1132,
+        "email": "user@sampleorg.com",
+        "name": null,
+        "contact_id": null,
+        "role_ids": [
+          631
+        ],
+        "affiliation_id": 1032,
+        "application_name": "givingtree",
+        "created_at": 1511211558519,
+        "updated_at": 1511211558519,
+        "accepted_at": 1511211558068,
+        "invite_email_sent_at": null
+      }
+    }
+  ],
+  "failed_invitations": [
+    {
+      "invitation": {
+        "email": "existinguser@sampleorg.com",
+        "saml_user_id": "duplicateuserlol",
+        "role_name": "user"
+      },
+      "error": "user with email=existinguser@sampleorg.com"
+    }
+  ]
+}
+Cancel an invitation (admin endpoint)
+If an invitation has not yet been accepted, it is possible to cancel it. Keep in mind any emails sent out can not be withdrawn. If a user attempts to complete a canceled invitation, they will receive a message (possibly after filling out a registration form) telling them it has been cancelled.
+
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/affiliation_invitations/{affiliation_invitation_id}?oid={oid}
+Accept an Invitation (user endpoint)
+The client application can send along the invite_token in any user registration request. See User Registration endpoints for cases where there is no logged in user.
+
+For clients receiving an invite_token with an already logged in user, the invite can be claimed while remaining logged in. Care should be taken to ensure the invite is being claimed by the intended recipient. It may be a good idea to present the user with an option to login to an existing user account before claiming an invite code automatically. This could prevent unintended duplicate accounts if they are already a user of an EverTrue app.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/registrations/invited
+{
+  "user": {
+    "invite_token": "MTp5dGtVZndZb3BFclF5REVkaWZmVQ=="
+  }
+}
+CSV Invites
+CSV invites are used to bulk invite users to the core platform using a standard set of headers. This used to exist as a bulk user creation page, but due to performance and maintainability reasons we rewrote this as a CSV import. The POST request is what actually creates and sends the invitations, while the other requests simply return metadata associated with the s3 file.
+
+GET csv_invites
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /csv_invites
+Example Response
+{
+    "csv_invites":
+    [
+        {
+            "id": 1,
+            "organization_id": 158,
+            "csv_file_name": "invite1.csv",
+            "csv_content_type": "application/octet-stream",
+            "csv_file_size": 421,
+            "created_at": "2019-07-29T19:36:59.000Z",
+            "updated_at": "2019-07-29T19:36:59.000Z",
+            "url": "https://s3.amazonaws.com/auth.stage.evertrue.com/bulk_invites/<org_slug>/1"
+        },
+        {
+            "id": 2,
+            "organization_id": 248,
+            "csv_file_name": "invite2.csv",
+            "csv_content_type": "application/octet-stream",
+            "csv_file_size": 1024,
+            "created_at": "2019-07-29T19:36:59.000Z",
+            "updated_at": "2019-07-29T19:36:59.000Z",
+            "url": "https://s3.amazonaws.com/auth.stage.evertrue.com/bulk_invites/<org_slug>/2"
+        }
+    ]
+}
+GET csv_invite by ID
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /csv_invite/:id
+Example Response
+{
+    "csv_invite":
+    {
+        "id": 2,
+        "organization_id": 248,
+        "csv_file_name": "invite2.csv",
+        "csv_content_type": "application/octet-stream",
+        "csv_file_size": 1024,
+        "created_at": "2019-07-29T19:36:59.000Z",
+        "updated_at": "2019-07-29T19:36:59.000Z",
+        "url": "https://s3.amazonaws.com/auth.stage.evertrue.com/bulk_invites/<org_slug>/2"
+    }
+}
+POST csv_invite
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+POST /csv_invite
+{
+    "data": <base64 string>
+}
+Example Response
+{
+    "csv_invite":
+    {
+        "id": 2,
+        "organization_id": 248,
+        "csv_file_name": "invite2.csv",
+        "csv_content_type": "application/octet-stream",
+        "csv_file_size": 1024,
+        "created_at": "2019-07-29T19:36:59.000Z",
+        "updated_at": "2019-07-29T19:36:59.000Z",
+        "url": "https://s3.amazonaws.com/auth.stage.evertrue.com/bulk_invites/<org_slug>/2"
+    }
+}
+DELETE csv_invite
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+DELETE /csv_invite/:id
+Example Response
+200 OK
+
+Affiliation Attributes
+GET Affiliation Attributes for User
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /affiliation_attributes?oid=<oid>
+Example Response
+{
+    "affiliation_attributes":
+    [
+        {
+            "id": 1,
+            "title": "Title",
+            "persona": "Other",
+            "seniority": "President / VP / Executive Director",
+            "user_profile_picture_url": "https://stage-api.evertrue.com/lids/users/1234/linkedin/avatar",
+            "user_profile_picture_source": "sodas",
+            "user_profile_picture_last_updated": "2021-07-07T01:00:47.000Z",
+            "nps_score": 5,
+            "nps_score_date": "2021-07-07T01:00:47.000Z",
+            "created_at": 1566421553000,
+            "updated_at": 1625619647000,
+            "affiliation":
+            {
+                <affiliation_object>
+            },
+            "school_division_department":
+            {
+                <school_division_department_object
+            }
+        },
+        {
+            "id": 2,
+            "title": "Another Title",
+            "persona": "Other",
+            "seniority": "President / VP / Executive Director",
+            "user_profile_picture_url": "https://stage-api.evertrue.com/lids/users/4567/linkedin/avatar",
+            "user_profile_picture_source": "sodas",
+            "user_profile_picture_last_updated": "2021-07-07T01:00:47.000Z",
+            "nps_score": 5,
+            "nps_score_date": "2021-07-07T01:00:47.000Z",
+            "created_at": 1566421553000,
+            "updated_at": 1625619647000,
+            "affiliation":
+            {
+                <affiliation_object>
+            },
+            "school_division_department":
+            {
+                <school_division_department_object
+            }
+        }
+    ]
+}
+GET Affiliation Attributes by ID
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /affiliation_attributes/:id?oid=<oid>
+Example Response
+{
+    "affiliation_attribute":
+    {
+        "id": 2,
+        "title": "Another Title",
+        "persona": "Other",
+        "seniority": "President / VP / Executive Director",
+        "user_profile_picture_url": "https://stage-api.evertrue.com/lids/users/4567/linkedin/avatar",
+        "user_profile_picture_source": "sodas",
+        "user_profile_picture_last_updated": "2021-07-07T01:00:47.000Z",
+        "nps_score": 5,
+        "nps_score_date": "2021-07-07T01:00:47.000Z",
+        "created_at": 1566421553000,
+        "updated_at": 1625619647000,
+        "affiliation":
+        {
+            <affiliation_object>
+        },
+        "school_division_department":
+        {
+            <school_division_department_object
+        }
+    }
+}
+POST Affiliation Attributes
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+POST /affiliation_attributes?oid=<oid>
+{
+    "title": "Another Title",
+    "persona": "Other",
+    "seniority": "President / VP / Executive Director",
+    "user_profile_picture_url": "https://stage-api.evertrue.com/lids/users/4567/linkedin/avatar",
+    "user_profile_picture_source": "sodas",
+    "user_profile_picture_last_updated": "2021-07-07T01:00:47.000Z",
+    "nps_score": 5,
+    "nps_score_date": "2021-07-07T01:00:47.000Z",
+    "created_at": 1566421553000,
+    "updated_at": 1625619647000,
+    "affiliation":
+    {
+        <affiliation_object>
+    },
+    "school_division_department":
+    {
+        <school_division_department_object
+    }
+}
+Example Response
+{
+    "affiliation_attribute":
+    {
+        "id": 2,
+        "title": "Another Title",
+        "persona": "Other",
+        "seniority": "President / VP / Executive Director",
+        "user_profile_picture_url": "https://stage-api.evertrue.com/lids/users/4567/linkedin/avatar",
+        "user_profile_picture_source": "sodas",
+        "user_profile_picture_last_updated": "2021-07-07T01:00:47.000Z",
+        "nps_score": 5,
+        "nps_score_date": "2021-07-07T01:00:47.000Z",
+        "created_at": 1566421553000,
+        "updated_at": 1625619647000,
+        "affiliation":
+        {
+            <affiliation_object>
+        },
+        "school_division_department":
+        {
+            <school_division_department_object
+        }
+    }
+}
+PUT/PATCH Affiliation Attributes by ID
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+PUT/PATCH /affiliation_attributes/:id?oid=<oid>
+{
+    "title": "Changed Title",
+    "nps_score": 4,
+}
+Example Response
+{
+    "affiliation_attribute":
+    {
+        "id": 2,
+        "title": "Changed Title",
+        "persona": "Other",
+        "seniority": "President / VP / Executive Director",
+        "user_profile_picture_url": "https://stage-api.evertrue.com/lids/users/4567/linkedin/avatar",
+        "user_profile_picture_source": "sodas",
+        "user_profile_picture_last_updated": "2021-07-07T01:00:47.000Z",
+        "nps_score": 4,
+        "nps_score_date": "2021-07-07T01:00:47.000Z",
+        "created_at": 1566421553000,
+        "updated_at": 1625619647000,
+        "affiliation":
+        {
+            <affiliation_object>
+        },
+        "school_division_department":
+        {
+            <school_division_department_object
+        }
+    }
+}
+DELETE Affiliation Attributes
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+DELETE /affiliation_attributes/:id?oid=<oid>
+Example Response
+200 OK
+
+GET Personas
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /personas
+Example Response
+[
+    {
+        "id": 1,
+        "value": "Advancement Leadership (VP or above)"
+    },
+    {
+        "id": 2,
+        "value": "Advancement Services"
+    },
+    {
+        "id": 3,
+        "value": "Alumni Relations / Career Development"
+    },
+    {
+        "id": 4,
+        "value": "Annual Fund (incl. Volunteer Managers)"
+    },
+    {
+        "id": 5,
+        "value": "Communications / Social Media"
+    },
+    {
+        "id": 6,
+        "value": "Donor Experience Officer"
+    },
+    {
+        "id": 7,
+        "value": "Gift Officer (and support staff)"
+    },
+    {
+        "id": 8,
+        "value": "Prospect Research / Management / Development"
+    },
+    {
+        "id": 9,
+        "value": "Other"
+    }
+]
+GET Seniorities
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /seniorities
+Example Response
+[
+    {
+        "id": 1,
+        "value": "AVP"
+    },
+    {
+        "id": 2,
+        "value": "Director / Assistant Director"
+    },
+    {
+        "id": 3,
+        "value": "Individual Contributor"
+    },
+    {
+        "id": 4,
+        "value": "Manager or Below"
+    },
+    {
+        "id": 5,
+        "value": "President / VP / Executive Director"
+    }
+]
+School Division Departments
+Used by the affiliation attributes table to further group users into a department at the organization (i.e. Department of Computer Science). Mostly used for reporting in Mixpanel.
+
+GET School Division Departments
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /school_division_departments?oid=<oid>
+Example Response
+[
+    {
+        "id": 1,
+        "value": "Department 1",
+        "created_at": 1560368489000,
+        "updated_at": 1560369183000,
+        "organization":
+        {
+            <org_object>
+        }
+    },
+    {
+        "id": 2,
+        "value": "Department 2",
+        "created_at": 1560368489000,
+        "updated_at": 1560369183000,
+        "organization":
+        {
+            <org_object>
+        }
+    }
+]
+GET School Division Department By ID
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /school_division_departments/:id?oid=<oid>
+Example Response
+{
+    "id": 1,
+    "value": "Department 1",
+    "created_at": 1560368489000,
+    "updated_at": 1560369183000,
+    "organization":
+    {
+        <org_object>
+    }
+}
+POST School Division Department
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+POST /school_division_departments?oid=<oid>
+{
+    "value": "Department Z",
+}
+Example Response
+{
+    "id": 3,
+    "value": "Department Z",
+    "created_at": 1560368489000,
+    "updated_at": 1560369183000,
+    "organization":
+    {
+        <org_object>
+    }
+}
+PUT/PATCH School Division Departments
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+PUT/PATCH /school_division_departments?oid=<oid>
+{
+    "value": "Department Z",
+}
+Example Response
+{
+    "id": 3,
+    "value": "Department Z",
+    "created_at": 1560368489000,
+    "updated_at": 1560369183000,
+    "organization":
+    {
+        <org_object>
+    }
+}
+DELETE School Division Department
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+DELETE /school_division_departments/:id?oid=<oid>
+Example Response
+200 OK
+
+Applications
+Your service may need to be aware of other Auth clients (applications/services). With an EvertrueAppToken you can retrieve information about other applications.
+
+Get list of all Auth applications (super-admin only)
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/applications
+Response: Array of Application Objects
+
+Get application by ID or key (super-admin only)
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/applications/{application_id}
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/applications/key/{application_key}
+Response: Application Object
+
+User Identities
+The identities endpoints are only available to super users and applications (super users with an app token). These endpoints provide applications with a way to record, and subsequently search on, user identities within the application's domain. There are two types of identities. The first type is a unique identifier; these are key value pairs that can be used to identify the user, but not authenticate them. That brings us to the second type of identity - a credential; these are key value pairs that can identify AND authenticate a user. An example of a credential would be an OAuth Access Token, which only the user can obtain, thus it can authenticate them, whereas an ID could be returned in search results, for example, and therefore cannot be used to authenticate a user.
+
+Note: Identity schemas must be configured on an application-by-application basis before these endpoints will work. There are currently no endpoints for identity schema management.
+
+UPDATE: The original constraint that required an identity to be unique to a single user has been removed. This means identities can potentially resolve to more than one user. See Shared Identities
+
+Identity Lookup
+Accept: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <app token>
+Application-Key: <app key>
+GET /auth/identities/{identity_key}?identity={identity_value}
+Note: Must provide app token authorization headers!
+
+Example Request
+Accept: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <app token>
+Application-Key: <app key>
+GET /auth/identities/linkedin_id?identity=derpa
+Example Response
+This will return an array of Identity objects that match the value given.
+
+[
+  {
+    "key": "linkedin_id",
+    "value": "derpa",
+    "is_credential": false,
+    "proxy_app_id": 6,
+    "updated_at": 1384290834000,
+    "created_at": 1384290513000,
+    "user": {
+      "affiliation_requests": [],
+      "affiliations": [],
+      "created_at": 1383329187000,
+      "email": "bob@evertrue.com",
+      "id": 24,
+      "name": "bob",
+      "super_user": true,
+      "updated_at": 1383947337000
+    }
+  }
+]
+Keychain Read
+An application can only read keychain values that it wrote! All keys default to null.
+
+Accept: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <app token>
+Application-Key: <app key>
+GET /auth/users/{user_id}/keychain
+Note: Must provide app token authorization headers!
+
+Example Request
+Accept: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <app token>
+Application-Key: <app key>
+GET /auth/users/24/keychain
+Example Response
+{
+    "linkedin_access_token": null,
+    "linkedin_id": "YP8FrFWYXy"
+}
+Keychain Update
+An application can only update keys configured in the identity schema for itself! One or more keys can be updated with a single request by doing a PUT request with the request body bing a JSON object representing the desired keychain key-value pairs.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <app token>
+Application-Key: <app key>
+PUT /auth/users/{user_id}/keychain
+Note: Must provide app token authorization headers!
+
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <app token>
+Application-Key: <app key>
+PUT /auth/users/24/keychain
+{
+    "linkedin_access_token": "AQXMOTf0eqLBnAn5Wr_6Euv1ehl1dKK..."
+}
+Example Response
+{
+    "linkedin_access_token": "AQXMOTf0eqLBnAn5Wr_6Euv1ehl1dKK…",
+    "linkedin_id": "YP8FrFWYXy"
+}
+Shared Identities
+Identities can be shared by multiple user accounts. This means that attempting to authenticate with an identity-backed Auth Strategy - like LinkedinAccessToken or KeychainAccessToken - can resolve to multiple user accounts, forcing Auth to make a best guess at which account the user wishes to use for the session. Clients using these auth strategies should implement the User Picker Flow to avoid relying on Auth to pick a winner.
+
+Updates to Shared Identities
+When more than one user shares an identity, updates to those identities are linked. This ensures that credentials stay up to date for each user involved in the shared identity. Keep in mind that a user keychain is a set of identities that identify a user. That means if a change happens to any of that keychain's identities, the entire keychain needs to be applied to any other user keychain that shares an identity. The only exception is when a keychain value is being set to null. This is to allow disassociations to happen, in the case where the user accounts sharing the identities are not meant to, and the user is trying to resolve duplicate accounts.
+
+Example
+SODAS Identity	User A	User B
+linkedin_id	X	X
+linkedin_access_token	L	L
+In this example, the same LinkedIn identities are shared between User A and User B. This effectively links their keychains. Now let's say User B comes along and activates a new LinkedIn access token with SODAS. The SODAS service will write the new LinkedIn identities to the user's keychain:
+
+SODAS Identity	User A	User B
+linkedin_id	X	X
+linkedin_access_token	L :(	L M
+Now User B's LinkedIn access token credential is out of sync with User A's. If Auth took no further action, User A might be unable to use SODAS features, because it has an out of date keychain for LinkedIn. In this specific case, the L access token would no longer work (this is a LinkedIn limitation), because the same LinkedIn user already generated a new access token, and they can only have one valid access token for the application (EverTrue) at a time. Since that is obviously a poor user experience, Auth will automatically update User A's SODAS keychain to match User B's.
+
+On the other hand, if User B made a disassociation request to SODAS instead, and SODAS updated the keychain to null values, Auth would not respect the "linked" keychains because the user is effectively saying "This is not the LinkedIn identity I want to use for this User account". The user could then authenticate with a different LI account and still be free of the shared keychain.
+
+SODAS Identity	User A	User B
+linkedin_id	X	NULL
+linkedin_access_token	L	NULL
+User Registration
+All registration requests may specify an optional invite_token (from the user clicking an invite email link). See Affiliation Invitations for details.
+
+Sign up for an EverTrue account (global user account)
+This creates a global EverTrue user account with the given email address and password as login credentials. Specifying the optional invite_token will result in a new or existing user account with an affiliation and roles for the organization specified in the invitation. Optionally specify the Device-ID header to request a Prime Token (in addition to the Session) be included in the response.
+
+Accept: application/json
+Content-Type: application/json
+Device-ID: cd92cf46f74b2a4015608348ed7c1c811b092babe2d6210a8085bd3a1edd7203
+POST /auth/registrations
+{
+    "user": {
+        "email": "andrew+230@evertrue.com",
+        "name": "Andrew",
+        "password": "test",
+        "invite_token": "MTp5dGtVZndZb3BFclF5REVkaWZmVQ=="
+    }
+}
+Note: This is a non-authenticated request! Do not send cookies or authentication params/headers (the application key is still required)
+
+Note: A confirmation email is sent to the email address. The user must click the link in the confirmation email before they can use their account for anything other than account management (unconfirmed users can not request affiliations, etc). See User Confirmation
+
+Example Response:
+A Registration Object consists of a User object and a Session object. After registering, the client should use the returned session token, along with the "EvertrueAuthToken" auth provider to make subsequent API calls.
+
+{
+    "user": {
+        "id": 41,
+        "name": "Andrew Hammond",
+        "email": "andrew+1@evertrue.com",
+        "super_user": false,
+        "created_at": 1384874601000,
+        "updated_at": 1384874603000,
+        "affiliations": [],
+        "affiliation_requests": []
+    },
+    "session": {
+        "expire_at": 1384878203000,
+        "prime_token": "Mjg0MDp3c214cnlrbjFFbkJRc3JRWFJuWA==",
+        "token": "MjQ6enE4cmE4NTl0enNHUkpzZXB0eDk=",
+        "created_at": 1384874603000,
+        "updated_at": 1384874603000
+    }
+}
+Registrations and Prime Tokens
+Simply pass the Device-ID header along with the registration request and the session object returned will include a prime_token for future session generation... no need to store the user's password or LI token! See Generating a Session and Prime Token for more details.
+
+Registration Proxy
+When an application is registering a user and not actually displaying a form to the user to enter their own information, this registration proxy endpoint should be used. A real use case can be observed in the SODAS service, which provides a "Register with LinkedIn" feature. Upon authorizing a LinkedIn account, SODAS pulls necessary registration data in from LinkedIn and uses that to expedite the registration process.
+
+Note: This endpoint must be authenticated with an App Token. The service can send identities (via the keychain property) in the same request payload, although it is optional.
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <SODAS App Token>
+POST /auth/registrations/proxy
+{
+    "user": {
+        "email": "andrew@evertrue.com",
+        "keychain": {
+            "linkedin_access_token": "AQXMOTf0eqLBnAn5Wr_6Euv1ehl1dKK...",
+            "linkedin_id": "YP8FrFWYXy"
+        },
+        "name": "Andrew Hammond"
+    }
+}
+Note: A confirmation email is NOT sent to the email address, they will be considered confirmed when registered through the registration proxy. This is because it is assumed the service calling the proxy has already verified the user's identity, possibly with an external service (i.e. LinkedIn confirms their users' email addresses)
+
+Code	Status	Purpose
+201	Created	Account has been created. User object will be in the response body.
+401	Unauthorized	Invalid app token or app key provided.
+409	Conflict	Identity keys not recognized for this service. Identity schema is likely not configured.
+422	Unprocessable Entity	Invalid registration params provided (name, email, or keychain values). See errors in the response body for more details on what was invalid.
+Example Response:
+Returns a Registration object with no session.
+
+{
+    "user": {
+        "id": 42,
+        "name": "Andrew LinkedIn Hammond",
+        "email": "andrew+linkedin@evertrue.com",
+        "super_user": false,
+        "created_at": 1384874601000,
+        "updated_at": 1384874603000,
+        "affiliations": [],
+        "affiliation_requests": []
+    }
+    "session": null
+}
+Registration Proxy with Invite Token
+Note: This endpoint must be authenticated with an App Token. The service can send identities (via the keychain property) in the same request payload, although it is optional.
+
+Proxy Registrations via EverTrue services like SODAS can be implemented in a way that supports the Affiliation Invitation Flow by simply passing some additional fields along to the Auth proxy registration endpoint.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAppToken
+Authorization: <SODAS App Token>
+POST /auth/registrations/proxy
+{
+    "user": {
+        "email": "andrew@evertrue.com",
+        "keychain": {
+            "linkedin_access_token": "AQXMOTf0eqLBnAn5Wr_6Euv1ehl1dKK...",
+            "linkedin_id": "YP8FrFWYXy"
+        },
+        "name": "Andrew Hammond",
+        "invite_token": "MTp5dGtVZndZb3BFclF5REVkaWZmVQ=="
+        "include_session": true,
+        "proxy_app_key": "815e8d01be8f78a41d1c71eb652b8be124b89058b74d284c6bb752a034dbb301",
+        "proxy_useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        "proxy_remote_ip": "127.0.0.1",
+        "device_id": "6c273f6a3b158cdbc353991aa30132f9e467282519fcaf4f958bc9e829e60480"
+    }
+}
+The service should retrieve these values from the applicable headers and forward them in the request body JSON object. The service should not infer these values or generate them on its own, they must come from the client on behalf of the end user. The device_id property should be pulled from the Device-ID header only if it is present. The include_session property should be forwarded from a similar parameter or header that the service documents for clients to specify if a session (and prime token, if device ID is present) should be returned from the registration request.
+
+The response, if successful, should be returned to the client as-is. The response will contain a session property if include_session was set to true, and it will include a prime_token property if device_id was present.
+
+Identity Providers
+Superusers can perform CRUD operations on Identity Providers for any organization by using these endpoints. Each of these requests will issue a request to Amazon Cognito to modify the external identity provider, as well as save the entry to the Auth database.
+
+Errors can occur either in the Auth API or on Cognito. Expected client errors from Auth are documented below, while errors from AWS are passed through to the client with the appropriate response code and message. Example error responses can be found on their respective reference docs on AWS.
+
+Create an Identity Provider
+AWS Reference Documentation: http://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_CreateIdentityProvider.html
+
+Example Request:
+Accept: application/json
+Content-Type: application/json
+POST /auth/identity_providers?oid=1
+{
+    "identity_provider": {
+        "name": "identity-provider-test",
+        "primary_domain_suffix": "example.com",
+        "federation_xml_url":"http://idp.ssocircle.com/"
+    }
+}
+Successful response is status 201 Created
+
+List Identity Providers
+This request takes in an optional oid parameter. If oid is not provided, this will return all Identity Providers across all organizations. If it is provided, it will filter results for that organization only.
+
+This API request has no AWS Reference Documentation, as it simply reads from the database.
+
+Example Requests:
+Without oid provided. Assuming you have 5 identity providers for 5 different organizations, this will return them all:
+
+Accept: application/json
+Content-Type: application/json
+GET /auth/identity_providers
+With oid provided. This will only return identity providers for oid=1:
+
+Accept: application/json
+Content-Type: application/json
+GET /auth/identity_providers?oid=1
+Response: Array of Identity Provider Objects
+
+Show Identity Provider
+This request takes in an optional oid parameter. If oid is not provided, this will return the Identity Provider corresponding to the oid across all orgs. If it is provided, it find the Identity Provider that belongs to the provided org with the given ID. If none is found in either scenario, a 404 is returned.
+
+This API request has no AWS Reference Documentation, as it simply reads from the database.
+
+Example Requests:
+Without oid provided. This will return the Identity Provider with the given ID, or a 404 if not found.
+
+Accept: application/json
+Content-Type: application/json
+GET /auth/identity_providers/4
+With oid provided. This will return the Identity Provider with the given ID only if it belongs to oid=1, or a 404 if not found.
+
+Accept: application/json
+Content-Type: application/json
+GET /auth/identity_providers/4?oid=1
+Response: A single Identity Provider Object
+
+Update Identity Provider
+AWS Reference Documentation: http://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_UpdateIdentityProvider.html
+
+AWS Cognito Identity Providers cannot be renamed, so see the PUT request below for a complete list of attributes that can updated. If you need to rename an Identity Provider, you'll have to delete and re-create it.
+
+Example Requests:
+Update an identity provider with a PUT request:
+
+Accept: application/json
+Content-Type: application/json
+PUT /auth/identity_providers/4?oid=1
+{
+    "identity_provider": {
+        "primary_domain_suffix": "example.com",
+        "federation_xml_url":"http://idp.ssocircle.com/"
+    }
+}
+Update an identity provider with a PATCH request:
+
+Accept: application/json
+Content-Type: application/json
+PATCH /auth/identity_providers/4?oid=1
+{
+    "identity_provider": {
+        "primary_domain_suffix": "example.com",
+        "federation_xml_url":"http://idp.ssocircle.com/"
+    }
+}
+Response: A single Identity Provider Object
+
+Delete Identity Provider
+AWS Reference Documentation: http://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_DeleteIdentityProvider.html
+
+Example Requests:
+Accept: application/json
+Content-Type: application/json
+DELETE /auth/identity_providers/4
+Response: A single Identity Provider Object
+
+Search Identity Provider's Organization by Email
+Searching for an Organization by Email requires going through the Identity Provider, since we don't want to leak individual user data. This will return a list of organizations corresponding to the provider email address domain. To make this search request, use the following sample requests.
+
+Example Requests:
+Search for an organization by email address through identity provider with a GET request:
+
+Accept: application/json
+Content-Type: application/json
+GET /auth/identity_providers/search?email=test@example.com
+[
+    {
+        "id":127,
+        "name":"Example Org",
+        "slug":"example",
+        "sso_method":"saml"
+    }
+]
+Response: A list of Organization Objects
+
+User Password Reset
+See also: Web based User Password Reset
+
+Request Password Reset Instructions (forgot password)
+If a user has forgotten their password, they can request reset instructions to be sent to them via email. The password reset email provides a unique link that identifies the user and leads them to a web form that allows them to choose a new password.
+
+Example Request:
+Note: This is a non-authenticated request
+
+Accept: application/json
+Content-Type: application/json
+POST /auth/registrations/password
+{
+    "user": {
+        "email": "andrew+5@evertrue.com"
+    }
+}
+Successful response is status 201 Created
+
+Password Reset
+Supporting clients can allow users to choose their new passwords once they have received a password reset token from the "Request Password Reset Instructions" step. Currently, the password reset email contains a link with the token on it. In the future, reset requests could result in emails customized to the specific application that the request is coming from. For example, requests coming from Console's "Forgot my password" form would result in reset emails with links back to a Console "Choose my new password" page (which would be non-authenticated, but receive the password reset token).
+
+Example Request:
+Note: This is a non-authenticated request
+
+Accept: application/json
+Content-Type: application/json
+PUT /auth/registrations/password
+{
+    "user": {
+        "password": "test",
+        "reset_password_token": "1twxLzsHdw33mjCyDRrT"
+    }
+}
+Successful response is status 204 No Content
+
+Password Policy
+In order to support org-specific password policies when resetting a user's password, we have an endpoint that gets the restriction data for a given user after passing in their initial login token. The GET request here is used by the FE to populate the fields a user would need to know about when setting their password. Since a user can belong to multiple orgs, each with potentially their own policy, we return the most restrictive of all these fields so that any attempts made don't fail for unexpected reasons.
+
+GET Password Policy
+Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /users/password/policy?oid=<oid>
+Response
+{
+    "email": "some.guy@evertrue.com",
+    "display_text": "Password must contain a minimum of 8 characters.",
+    "password_policy":
+    {
+        "min_length": 8,
+        "max_length": 128
+    }
+}
+User Account Update
+These endpoints can be used by a logged in user to update their account information.
+
+Change Email Address, Name, and/or Password
+NOTE: Authentication is required to make changes to the user account.
+
+Accept: application/json
+Content-Type: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/registrations
+{
+    "name": "Andrew New User Name",
+    "email": "andrew+newemail5@evertrue.com",
+    "password": "my new password"
+}
+Changing the email address will result in a confirmation email to be sent to the new email address. The email address on the account will not be updated until the confirmation link is clicked by the user. Until the new address is confirmed, it will be returned on the user object as unconfirmed_email. Clients should check this value and remind users the change is pending and may expire.
+
+User Confirmation
+New user accounts must be confirmed before their auth tokens will work for requests to other EverTrue APIs. Clients should prevent users from attempting to access other APIs (such as Contact lookups) by checking the confirmed_at field on the logged-in user's User Object. When confirmed_at is nil, calls to authenticated endpoints in the EverTrue platform will fail. Only account-level endpoints (in Auth) will function without being confirmed. Affiliation requests, etc, will not work until the user has confirmed their email address.
+
+Request Confirmation Instructions
+If a user has not received their confirmation email or the confirmation link has expired, it is possible to request a new confirmation email to be sent. This action can also be completed through a web form by directing the user to https://accounts.evertrue.com/forgot_password in a browser.
+
+Example Request:
+Note: This is a non-authenticated request
+
+Accept: application/json
+Content-Type: application/json
+POST /auth/registrations/confirmation
+{
+    "user": {
+        "email": "andrew@evertrue.com"
+    }
+}
+Successful response is status 204 No Content
+
+Submit confirmation token (verify ownership of email address)
+Once the confirmation token has been obtained (from the email mentioned in the above step) the client can submit it to complete the confirmation to verify with Auth that the user owns the email address provided. This is a simple GET request. Client should be able to handle errors which can occur if the token has expired or is no longer valid.
+
+Example Request:
+Note: This is a non-authenticated request
+
+Accept: application/json
+GET /auth/registrations/confirmation?confirmation_token={confirmation_token}
+Response: User Object
+
+Restriction Endpoint
+Get all the restrictions for affiliated org
+Retrieve a list of all the restrictions for a given organization
+
+Example Request:
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/restrictions?oid={oid}
+Response:
+
+[
+  {
+    "id": 1,
+    "organization_id": 354,
+    "application_id": 6,
+    "type": "SsoRestriction",
+    "identity_provider_id": 10,
+    "created_at": 1551204389000,
+    "updated_at": 1551313633000
+  },
+  {
+    "id": 5,
+    "organization_id": 354,
+    "application_id": 6,
+    "type": "SsoRestriction",
+    "identity_provider_id": 9,
+    "created_at": 1551387381000,
+    "updated_at": 1551387381000
+  }
+]
+Get restriction for an organization by restriction id
+Retrieve the restrictions for a given organization
+
+Example Request:
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+GET /auth/restrictions/{id}?oid={oid}
+Response:
+
+{
+  "id": 1,
+  "organization_id": 354,
+  "application_id": 6,
+  "type": "SsoRestriction",
+  "identity_provider_id": 10,
+  "created_at": 1551204389000,
+  "updated_at": 1551313633000
+}
+Create restriction for an organization
+This request accepts restriction type and identity provider id. For SSO, restriction type is: "SsoRestriction"
+
+Example Request:
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+POST /auth/restrictions?oid={oid}
+{
+  "restriction": {
+    "type": "SsoRestriction",
+    "identity_provider_id": 9
+  }
+}
+Response:
+
+{
+  "id": 1,
+  "organization_id": 354,
+  "application_id": 6,
+  "type": "SsoRestriction",
+  "identity_provider_id": 10,
+  "created_at": 1551204389000,
+  "updated_at": 1551313633000
+}
+Update restriction for an organization
+This request will only update restriction if it exists, otherwise throws an error For SSO, restriction type is: "SsoRestriction"
+
+Example Request:
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+PUT /auth/restrictions/{id}?oid={oid}
+{
+  "restriction": {
+    "type": "SsoRestriction",
+    "identity_provider_id": 12
+  }
+}
+Response:
+
+{
+  "id": 1,
+  "organization_id": 354,
+  "application_id": 6,
+  "type": "SsoRestriction",
+  "identity_provider_id": 12,
+  "created_at": 1551204389000,
+  "updated_at": 1551313633000
+}
+Delete restriction by id
+Deleting restriction can only be performed by super users
+
+Example Request:
+
+Accept: application/json
+Authorization-Provider: EvertrueAuthToken
+Authorization: <auth token>
+Application-Key: <app key>
+DELETE /auth/restrictions/{id}?oid={oid}
+Response: 204 No Content
+
+Integrations
+TODO: have someone on black team who worked on this fill this section out
+
+GET Integration Settings
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /integrations/settings
+Example Response
+GET Integrations
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /integrations
+Example Response
+GET Integration by ID
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+GET /integration/:id
+Example Response
+POST Integration
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+POST /integrations
+Example Response
+PUT/PATCH Integration
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+PUT/PATCH /integrations/:id
+Example Response
+Delete Integration
+Example Request
+Accept: application/json
+Content-Type: application/json
+Authorization: <auth_token>
+Authorization-Provider: EvertrueAuthToken
+Application-Key: <app_key>
+DELETE /integrations/:id
+Example Response
+Example Objects
+Session Object
+{
+    "application": {
+        "created_at": 1382469081000,
+        "id": 2,
+        "name": "contacts_api",
+        "updated_at": 1382470616000
+    },
+    "created_at": 1382641501000,
+    "expire_at": 1382645101000,
+    "token": "NjpaTmZHQ296ZldzdHBLRlZ1YlJGWg==",
+    "updated_at": 1382641501000,
+    "user": {
+        "affiliation_requests": [],
+        "affiliations": [],
+        "confirmed_at": 1382542331000,
+        "created_at": 1382542311000,
+        "email": "andrew+1@evertrue.com",
+        "id": 23,
+        "name": "Andrew Hammond",
+        "super_user": false,
+        "updated_at": 1382641500000
+    }
+}
+Session Object with Prime Token
+{
+    "application": {
+        "created_at": 1382469081000,
+        "id": 2,
+        "name": "contacts_api",
+        "updated_at": 1382470616000
+    },
+    "created_at": 1382641501000,
+    "expire_at": 1382645101000,
+    "token": "NjpaTmZHQ296ZldzdHBLRlZ1YlJGWg==",
+    "prime_token": "MzplcHJIYjRkeHFWcExYM3Zlel9wVg==",
+    "updated_at": 1382641501000,
+    "user": {
+        "affiliation_requests": [],
+        "affiliations": [],
+        "confirmed_at": 1382542331000,
+        "created_at": 1382542311000,
+        "email": "andrew+1@evertrue.com",
+        "id": 23,
+        "name": "Andrew Hammond",
+        "super_user": false,
+        "updated_at": 1382641500000
+    }
+}
+User Object
+{
+  "affiliation_requests": [
+    {
+      "created_at": 1381501036000,
+      "id": 3,
+      "organization": {
+        "created_at": 1381176179000,
+        "id": 2,
+        "slug": "gtdemo",
+        "updated_at": 1381176179000
+      },
+      "status": "PENDING",
+      "updated_at": 1381501036000
+    }
+  ],
+  "affiliations": [
+    {
+      "affiliation_roles": [
+        {
+          "created_at": 1376927838000,
+          "creator_user_id": null,
+          "id": 1,
+          "role": {
+            "can_see_private_data": true,
+            "created_at": 1376927738000,
+            "default": false,
+            "id": 1,
+            "name": "Admin",
+            "organization_id": 1,
+            "updated_at": 1376927738000
+          },
+          "updated_at": 1376927838000
+        },
+        {
+          "created_at": 1376927838000,
+          "creator_user_id": null,
+          "id": 2,
+          "role": {
+            "can_see_private_data": false,
+            "created_at": 1376928575000,
+            "default": true,
+            "id": 2,
+            "name": "User",
+            "organization_id": 1,
+            "updated_at": 1376928575000
+          },
+          "updated_at": 1376927838000
+        }
+      ],
+      "created_at": 1376928420000,
+      "id": 1,
+      "organization": {
+        "created_at": 1376927738000,
+        "id": 1,
+        "slug": "evertrue",
+        "updated_at": 1376927738000
+      },
+      "updated_at": 1376928420000
+    },
+    {
+      "affiliation_roles": [
+        {
+          "created_at": 1376927838000,
+          "creator_user_id": null,
+          "id": 3,
+          "role": {
+            "can_see_private_data": false,
+            "created_at": 1376929051000,
+            "default": false,
+            "id": 4,
+            "name": "User",
+            "organization_id": 2,
+            "updated_at": 1376929051000
+          },
+          "updated_at": 1376927838000
+        }
+      ],
+      "created_at": 1376929052000,
+      "id": 2,
+      "organization": {
+        "created_at": 1376929051000,
+        "id": 2,
+        "slug": "gtdemo",
+        "updated_at": 1376929051000
+      },
+      "updated_at": 1376929052000
+    },
+    {
+      "affiliation_roles": [
+        {
+          "created_at": 0,
+          "creator_user_id": null,
+          "id": 9,
+          "role": {
+            "can_see_private_data": true,
+            "created_at": 1376952584000,
+            "default": false,
+            "id": 6,
+            "name": "MB Admin",
+            "organization_id": 3,
+            "updated_at": 1376952584000
+          },
+          "updated_at": 0
+        }
+      ],
+      "created_at": 1377083156000,
+      "id": 20,
+      "organization": {
+        "created_at": 1377008508000,
+        "id": 3,
+        "slug": "mosesbrown",
+        "updated_at": 1377008508000
+      },
+      "updated_at": 1377083156000
+    }
+  ],
+  "authentication_token": "MTQ6OGdFeE5IS2JUN3hNYWpuaGszcng=",
+  "confirmed_at": 1376927846000,
+  "confirmation_sent_at": 1376927847000,
+  "created_at": 1376927836000,
+  "email": "admin@evertrue.com",
+  "id": 1,
+  "name": "Andrew Hammond",
+  "super_user": false,
+  "unconfirmed_email": "andrew@evertrue.com",
+  "updated_at": 1376927846000
+}
+Organization Object
+{
+    "created_at": 1377008508000,
+    "id": 3,
+    "roles": [
+        {
+            "can_see_private_data": true,
+            "created_at": 1376952584000,
+            "default": false,
+            "id": 6,
+            "name": "MB Admin",
+            "organization_id": 3,
+            "updated_at": 1376952584000
+        },
+        {
+            "can_see_private_data": false,
+            "created_at": 1377100351000,
+            "default": true,
+            "id": 7,
+            "name": "MB User",
+            "organization_id": 3,
+            "updated_at": 1377100351000
+        },
+        {
+            "can_see_private_data": false,
+            "created_at": 1377115252000,
+            "default": true,
+            "id": 10,
+            "name": "MB Alum",
+            "organization_id": 3,
+            "updated_at": 1377115252000
+        }
+    ],
+    "name": "Moses Brown",
+    "slug": "mosesbrown",
+    "updated_at": 1377008508000
+}
+Organization Collection
+[
+    {
+        "id": 1,
+        "name": "EverTrue Academy",
+        "slug": "evertrue",
+        "created_at": 1383056217000,
+        "updated_at": 1383056217000
+    },
+    {
+        "id": 2,
+        "name": "GivingTree Demo",
+        "slug": "gtdemo",
+        "created_at": 1383056217000,
+        "updated_at": 1383056217000
+    }
+]
+Role Object
+{
+    "can_see_private_data": false,
+    "created_at": 1376952584000,
+    "default": false,
+    "id": 6,
+    "name": "Faculty",
+    "organization_id": 3,
+    "remote_id", "FAC",
+    "updated_at": 1376952584000
+}
+Affiliation Object
+{
+    "affiliation_roles": [
+        {
+            "created_at": 0,
+            "creator_user_id": null,
+            "id": 10,
+            "role": {
+                "can_see_private_data": false,
+                "created_at": 1376928575000,
+                "default": true,
+                "id": 2,
+                "name": "User",
+                "organization_id": 1,
+                "updated_at": 1376928575000
+            },
+            "updated_at": 0
+        }
+    ],
+    "created_at": 1377116108000,
+    "id": 21,
+    "contact_id": 234,
+    "organization": {
+        "created_at": 1376927738000,
+        "id": 1,
+        "slug": "evertrue",
+        "updated_at": 1376927738000
+    },
+    "updated_at": 1377116108000
+}
+Affiliation Role Object
+{
+    "created_at": 1377203078000,
+    "creator_user_id": 1,
+    "id": 25,
+    "role": {
+        "can_see_private_data": true,
+        "created_at": 1376929051000,
+        "default": false,
+        "id": 3,
+        "name": "Admin",
+        "organization_id": 2,
+        "updated_at": 1376929051000
+    },
+    "updated_at": 1377203078000
+}
+Affiliation Request Object
+Moderation Pending Example Response:
+When no match is found, the status will be PENDING. This means that an email has been issued to the organization's moderators. User will receive an email confirming that his/her request is pending moderation. The moderation email contains the requesting user's name and email address as well as a link to Console*.
+
+{
+    "created_at": 1381427817000,
+    "id": 1,
+    "committed": true,
+    "data": {
+        "class_year": 2010,
+        "previous_last_name": "O'Hoolihan",
+        "other_custom_key": "value"
+    },
+    "organization": {
+        "created_at": 1381176179000,
+        "id": 1,
+        "slug": "evertrue",
+        "updated_at": 1381176179000
+    },
+    "status": "PENDING",
+    "updated_at": 1381427817000
+}
+When the request is a dry run, and no auto-match was found, no emails are sent and the response shows a null id value and committed is false.
+
+{
+    "created_at": 0,
+    "id": null,
+    "committed": false,
+    "organization": {
+        "created_at": 1381176179000,
+        "id": 1,
+        "slug": "evertrue",
+        "updated_at": 1381176179000
+    },
+    "status": "PENDING",
+    "updated_at": 0
+}
+Auto-matched (Approved) Example Response:
+When a match is found, the status will be APPROVED. No emails are sent in this case.
+
+{
+    "affiliation": {
+        "affiliation_roles": [
+            {
+                "created_at": 1381433047000,
+                "creator_user_id": null,
+                "id": 6,
+                "role": {
+                    "can_see_private_data": false,
+                    "created_at": 1381176180000,
+                    "default": false,
+                    "id": 2,
+                    "name": "User",
+                    "organization_id": 1,
+                    "updated_at": 1381176180000
+                },
+                "updated_at": 1381433047000
+            }
+        ],
+        "contact_id": 1,
+        "created_at": 1381433047000,
+        "id": 4,
+        "organization": {
+            "created_at": 1381176179000,
+            "id": 1,
+            "slug": "evertrue",
+            "updated_at": 1381176179000
+        },
+        "updated_at": 1381433047000
+    },
+    "committed": true,
+    "created_at": 1381433047000,
+    "id": 1,
+    "organization": {
+        "created_at": 1381176179000,
+        "id": 1,
+        "slug": "evertrue",
+        "updated_at": 1381176179000
+    },
+    "status": "APPROVED",
+    "updated_at": 1381433047000
+}
+Affiliation Invitation Object
+Immediately after creation:
+
+{
+    "created_at": 1381427817000,
+    "id": 1,
+    "role_ids": [3, 4],
+    "contact_id": 2345,
+    "organization": {
+        "created_at": 1381176179000,
+        "id": 2,
+        "slug": "evertrue",
+        "updated_at": 1381176179000
+    },
+    "status": "PENDING",
+    "affiliation": null,
+    "updated_at": 1381427817000
+}
+After completed
+
+{
+    "affiliation": {
+        "affiliation_roles": [
+            {
+                "created_at": 1381433047000,
+                "creator_user_id": null,
+                "id": 6,
+                "role": {
+                    "can_see_private_data": false,
+                    "created_at": 1381176180000,
+                    "default": false,
+                    "id": 3,
+                    "name": "User",
+                    "organization_id": 1,
+                    "updated_at": 1381176180000
+                },
+                "updated_at": 1381433047000
+            }
+        ],
+        "contact_id": 2345,
+        "created_at": 1381433047000,
+        "id": 4,
+        "organization": {
+            "created_at": 1381176179000,
+            "id": 2,
+            "slug": "evertrue",
+            "updated_at": 1381176179000
+        },
+        "updated_at": 1381433047000
+    },
+    "contact_id": 2345,
+    "created_at": 1381427817000,
+    "id": 1,
+    "organization": {
+        "created_at": 1381176179000,
+        "id": 2,
+        "slug": "evertrue",
+        "updated_at": 1381176179000
+    },
+    "role_ids": [
+        3
+    ],
+    "status": "PENDING",
+    "updated_at": 1381427817000
+}
+Application Object
+{
+  "id": 1,
+  "name": "auth_api",
+  "key": "388e0c953a1f80539b9468f90cf09b386b0d560f539865b8488a0a1f40373402",
+  "admin_only": false,
+  "created_at": 1383056214000,
+  "updated_at": 1383056214000
+}
+Login Objects
+A Prime Token login object:
+
+{
+  "key": "b7285418445bdc185f213ce3ce3fa171",
+  "type": "prime_token",
+  "super_user_data": {
+    "id": 1,
+    "sessions": [
+      {
+        "key": "05211c32dbf4f85abfe04ede9beaa3b8",
+        "type": "session",
+        "super_user_data": {
+          "id": 373235,
+          "prime_token_id": 1
+        },
+        "data": {
+          "application_id": 6,
+          "application_name": "givingtree"
+        },
+        "last_activity_at": 1443624980000,
+        "last_activity_at_relative": "less than a minute",
+        "expire_at": 1443628580000,
+        "expire_at_relative": "about 1 hour",
+        "created_at": 1443624977000,
+        "created_at_relative": "less than a minute",
+        "updated_at": 1443624980000
+      }
+    ]
+  },
+  "data": {
+    "useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+    "original_ip": "127.0.0.1",
+    "original_ip_location": null,
+    "last_ip": "127.0.0.1",
+    "last_ip_location": null
+  },
+  "last_activity_at": 1443624977000,
+  "last_activity_at_relative": "less than a minute",
+  "expire_at": null,
+  "expire_at_relative": "never",
+  "created_at": 1420587428000,
+  "created_at_relative": "9 months",
+  "updated_at": 1443624977000
+}
+A Session login object:
+
+{
+  "key": "05211c32dbf4f85abfe04ede9beaa3b8",
+  "type": "session",
+  "super_user_data": {
+    "id": 373235,
+    "prime_token_id": 1
+  },
+  "data": {
+    "application_id": 6,
+    "application_name": "givingtree"
+  },
+  "last_activity_at": 1443625795000,
+  "last_activity_at_relative": "less than a minute",
+  "expire_at": 1443629395000,
+  "expire_at_relative": "about 1 hour",
+  "created_at": 1443624977000,
+  "created_at_relative": "14 minutes",
+  "updated_at": 1443625795000
+}
+Identity Provider Object
+{
+    "id": 1,
+    "organization_id": 1,
+    "external_id": "12345",
+    "name": "example-identity-provider",
+    "primary_domain_suffix": "evertrue.com",
+    "federation_xml": null,
+    "federation_xml_url": "http://idp.ssocircle.com/",
+    "created_at":"2017-11-05T21:18:18.000Z",
+    "updated_at":"2017-11-06T15:53:32.000Z"
+}
+ Add a custom footer
+Pages 22
+Find a page…
+Home
+DRAFT: Cohort Spec
+Draft: List Contact Access, Auth Permissions
+DRAFT: Platform Roles Spec
+Endpoint Documentation
+Contents
+Introduction
+Entity Relationship Diagram
+Postman Org
+Making Requests
+Application Keys
+HTTP Header Example
+HTTP Query String Parameter Example
+Existing Applications (STAGING AND PRODUCTION)
+Application Tokens
+Existing Applications (STAGING ONLY)
+Authorization
+EvertrueAuthToken (user session tokens)
+Auth
+Provider
+EvertrueAppToken (godmode tokens for backend services)
+EvertrueBasicAuth (Email & Password)
+Encoding credentials:
+EvertruePrimeToken (long-lived user session tokens)
+EvertrueLinkToken (one-off user credentials managed by backend services)
+LinkedinAccessToken (LI OAuth 2 Token)
+SsoAccessToken (Amazon Cognito OAuth 2 Tokens)
+EvertrueTemporaryToken (short-lived user session tokens)
+Providing OID Context
+API Status
+Health check for load balancers
+Health check alias for browsers
+Sessions
+Create a session (login)
+Example Request:
+Generating a Session and Prime Token
+TL;DR
+Example Request:
+Get the current session
+Destroy a session (log out)
+Link Tokens
+Create a Link Token (application endpoint)
+Exchange an expired Link Token
+Login Management
+List all active logins for the current user
+Example Request:
+Get a single login by key
+Example Request:
+Terminate a login
+Example Request:
+Users
+Get logged in user
+Get user by ID
+Get user by ID (super-user version)
+Get user by email (super-user endpoint)
+Get user by contact ID
+List users by role
+Bulk fetch users by IDs, roles, contact IDs, names, or emails
+Create a user (super-admin endpoint)
+Update a user (super-admin endpoint)
+Delete a user (super-admin endpoint)
+Users Search
+Basic Users Search
+Cross-org Email Users Search
+Sorted Users Search
+Role Filtered Users Search
+Organizations
+Get all organizations
+Get an organization by its slug
+Get an organization by ID
+Create a new organization (super admin endpoint)
+Update an existing organization (super admin endpoint)
+Organization Purge
+Step 1) Request an organization purge
+Step 2) Confirm the purge
+Roles
+Get all roles for the organization
+Get a single role by ID
+Create a new role for the organization
+Update a role
+Delete a single role
+Affiliations
+Get a user's affiliation(s)
+Create a new affiliation (admin endpoint)
+Example Request:
+Overwrite all of a user's affiliation roles (admin endpoint)
+Example Request:
+Update a user's contact ID or other affiliation properties (admin endpoint)
+Example Request:
+Add a role to a user's affiliation (admin endpoint)
+Example Request:
+Remove a user from an organization / revoke affiliation (admin endpoint)
+Affiliation Roles
+Get all roles a user has for an affiliation
+Get a specific affiliation role
+Remove a role from a user's affiliation (admin endpoint)
+Affiliation Requests
+Get moderation requests (for admins)
+Example Request:
+Request access to an organization (for users)
+Example Request:
+"Dry Run"
+Example Request:
+Example Response:
+Moderate an affiliation request
+Example Request (Approval):
+Example Request (Denial):
+Affiliation Invitations
+Retrieve an existing invitation (admin endpoint)
+List invitations for organization (admin endpoint)
+Send an invitation (admin endpoint)
+Sending a single invitation for an SSO-enabled organization
+Sending a bulk invitation for an SSO-enabled organization
+Cancel an invitation (admin endpoint)
+Accept an Invitation (user endpoint)
+CSV Invites
+GET csv_invites
+Example Request
+Example Response
+GET csv_invite by ID
+Example Request
+Example Response
+POST csv_invite
+Example Request
+Example Response
+DELETE csv_invite
+Example Request
+Example Response
+Affiliation Attributes
+GET Affiliation Attributes for User
+Example Request
+Example Response
+GET Affiliation Attributes by ID
+Example Request
+Example Response
+POST Affiliation Attributes
+Example Request
+Example Response
+PUT/PATCH Affiliation Attributes by ID
+Example Request
+Example Response
+DELETE Affiliation Attributes
+Example Request
+Example Response
+GET Personas
+Example Request
+Example Response
+GET Seniorities
+Example Request
+Example Response
+School Division Departments
+GET School Division Departments
+Example Request
+Example Response
+GET School Division Department By ID
+Example Request
+Example Response
+POST School Division Department
+Example Request
+Example Response
+PUT/PATCH School Division Departments
+Example Request
+Example Response
+DELETE School Division Department
+Example Request
+Example Response
+Applications
+Get list of all Auth applications (super-admin only)
+Get application by ID or key (super-admin only)
+User Identities
+Identity Lookup
+Example Request
+Example Response
+Keychain Read
+Example Request
+Example Response
+Keychain Update
+Example Request
+Example Response
+Shared Identities
+Updates to Shared Identities
+Example
+User Registration
+Sign up for an EverTrue account (global user account)
+Example Response:
+Registrations and Prime Tokens
+Registration Proxy
+Example Request:
+Example Response:
+Registration Proxy with Invite Token
+Identity Providers
+Create an Identity Provider
+Example Request:
+List Identity Providers
+Example Requests:
+Show Identity Provider
+Example Requests:
+Update Identity Provider
+Example Requests:
+Delete Identity Provider
+Example Requests:
+Search Identity Provider's Organization by Email
+Example Requests:
+User Password Reset
+Request Password Reset Instructions (forgot password)
+Example Request:
+Password Reset
+Example Request:
+Password Policy
+GET Password Policy
+Request
+Response
+User Account Update
+Change Email Address, Name, and/or Password
+User Confirmation
+Request Confirmation Instructions
+Example Request:
+Submit confirmation token (verify ownership of email address)
+Example Request:
+Restriction Endpoint
+Get all the restrictions for affiliated org
+Get restriction for an organization by restriction id
+Create restriction for an organization
+Update restriction for an organization
+Delete restriction by id
+Integrations
+GET Integration Settings
+Example Request
+Example Response
+GET Integrations
+Example Request
+Example Response
+GET Integration by ID
+Example Request
+Example Response
+POST Integration
+Example Request
+Example Response
+PUT/PATCH Integration
+Example Request
+Example Response
+Delete Integration
+Example Request
+Example Response
+Example Objects
+Session Object
+Session Object with Prime Token
+User Object
+Organization Object
+Organization Collection
+Role Object
+Affiliation Object
+Affiliation Role Object
+Affiliation Request Object
+Moderation Pending Example Response:
+Auto-matched (Approved) Example Response:
+Affiliation Invitation Object
+Application Object
+Login Objects
+Identity Provider Object
+Future Projects
+KeychainAccessToken Auth Strategy
+LinkedIn Login Flows (with pictures!)
+Multifactor Authentication
+Organization Purge Spec
+Provisioning New Apps (Keys & Tokens)
+Re invite and Reconnect Deleted Auth User
+SAML Documentation
+Scoped Sessions
+User Change Message Queue
+ Add a custom sidebar
+Clone this wiki locally
+https://github.com/evertrue/auth.wiki.git
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+Scoped Sessions · evertrue/auth Wiki

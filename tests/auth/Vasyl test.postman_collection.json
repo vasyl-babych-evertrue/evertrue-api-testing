@@ -1,0 +1,332 @@
+{
+	"info": {
+		"_postman_id": "f5c4aa55-b274-455c-8f52-6c60a3aee17c",
+		"name": "Vasyl test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42494781",
+		"_collection_link": "https://evertrue-team.postman.co/workspace/Evertrue-Workspace~ff84f156-4fa0-40eb-b4fc-9b698b170dcf/collection/42494781-f5c4aa55-b274-455c-8f52-6c60a3aee17c?action=share&source=collection_link&creator=42494781"
+	},
+	"item": [
+		{
+			"name": "OAuth",
+			"item": [
+				{
+					"name": "API Status Copy",
+					"item": [
+						{
+							"name": "Auth Prime Token auth_api YK",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let jsonData = pm.response.json();\r",
+											"pm.environment.set(\"session_prime_token\", jsonData.prime_token);\r",
+											"pm.environment.set(\"auth_token\", jsonData.token);\r",
+											"\r",
+											"pm.test(\"Status code is 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "p0o9P)O(p0o9P)O(",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "vasyl.babych@evertrue.com",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Application-Key",
+										"value": "{{auth_api}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization-Provider",
+										"value": "EvertrueBasicAuth",
+										"type": "text"
+									},
+									{
+										"key": "host",
+										"value": "stage-api.evertrue.com",
+										"type": "text"
+									},
+									{
+										"key": "Device-ID",
+										"value": "a4ffbd49f46914ab81c1b8262c8a246ce6c303870752493c439f715a0a20c4a1",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://stage-api.evertrue.com/auth/session",
+									"protocol": "https",
+									"host": [
+										"stage-api",
+										"evertrue",
+										"com"
+									],
+									"path": [
+										"auth",
+										"session"
+									],
+									"query": [
+										{
+											"key": null,
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get the current session",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let schema = JSON.parse(pm.variables.get(\"currentSessionSchema\"))\r",
+											"        \r",
+											"        pm.response.to.have.jsonSchema(schema);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Application-Key",
+										"value": "{{auth_api}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization-Provider",
+										"value": "EvertrueAuthToken",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "{{auth_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://stage-api.evertrue.com/auth/session",
+									"protocol": "https",
+									"host": [
+										"stage-api",
+										"evertrue",
+										"com"
+									],
+									"path": [
+										"auth",
+										"session"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Status Ok\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.status).to.eql(\"ok\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.evertrue.com/auth/status",
+									"protocol": "https",
+									"host": [
+										"api",
+										"evertrue",
+										"com"
+									],
+									"path": [
+										"auth",
+										"status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Options",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "p0o9P)O(p0o9P)O(",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "vasyl.babych@evertrue.com",
+											"type": "string"
+										}
+									]
+								},
+								"method": "OPTIONS",
+								"header": [],
+								"url": {
+									"raw": "https://stage-api.evertrue.com/auth/",
+									"protocol": "https",
+									"host": [
+										"stage-api",
+										"evertrue",
+										"com"
+									],
+									"path": [
+										"auth",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Destroy a session (log out)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{auth_token}}",
+										"type": "text"
+									},
+									{
+										"key": "Authorization-Provider",
+										"value": "EvertrueAuthToken",
+										"type": "text"
+									},
+									{
+										"key": "Application-Key",
+										"value": "{{auth_api}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://stage-api.evertrue.com/auth/session",
+									"protocol": "https",
+									"host": [
+										"stage-api",
+										"evertrue",
+										"com"
+									],
+									"path": [
+										"auth",
+										"session"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
