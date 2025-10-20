@@ -1,0 +1,26 @@
+{
+  "name": "evertrue-api-testing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:auth": "playwright test tests/auth",
+    "report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.44.1",
+    "@types/joi": "^17.2.2",
+    "@types/node": "^24.7.2"
+  },
+  "dependencies": {
+    "joi": "^18.0.1"
+  }
+}
