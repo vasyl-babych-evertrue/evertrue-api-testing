@@ -1,0 +1,1984 @@
+{
+	"info": {
+		"_postman_id": "8479f834-13f7-4f3f-ba26-5ed6bcf9f994",
+		"name": "export files",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42399266",
+		"_collection_link": "https://evertrue-team.postman.co/workspace/Evertrue-Workspace~ff84f156-4fa0-40eb-b4fc-9b698b170dcf/collection/42399266-8479f834-13f7-4f3f-ba26-5ed6bcf9f994?action=share&source=collection_link&creator=42399266"
+	},
+	"item": [
+		{
+			"name": "Search V1 V2 Apis Copy",
+			"item": [
+				{
+					"name": "Auth Token YK Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.environment.set(\"auth_token\", jsonData.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "yaroslav.kondria@evertrue.com",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "YAROSLAV20!yaroslav",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Application-Key",
+								"value": "{{app_key_givingtree}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization-Provider",
+								"value": "EvertrueBasicAuth",
+								"type": "text"
+							},
+							{
+								"key": "host",
+								"value": "stage-api.evertrue.com",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://stage-api.evertrue.com/skiff",
+							"protocol": "https",
+							"host": [
+								"stage-api",
+								"evertrue",
+								"com"
+							],
+							"path": [
+								"skiff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Field Query",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSingleField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"name_last\": {\r\n        \"match\": \"Davis\"\r\n      }\r\n    }\r\n  ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multiple Single Field Queries (AND)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getMultipleQueries = JSON.parse(pm.variables.get(\"getMultipleQueriesSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getMultipleQueries);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"name_last\": {\r\n        \"match\": \"Morris\"\r\n      }\r\n    },\r\n    {\r\n      \"name_first\": {\r\n        \"match\": \"Kerry\"\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?must[]=name_first,name_nick:in:Kerry,Morris&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "name_first,name_nick:in:Kerry,Morris"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multifield 'OR' query with arbitrary terms matching",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getORQuery = JSON.parse(pm.variables.get(\"getORQuerySchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getORQuery);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"name_first\": {\r\n        \"in\": [\r\n          \"Amanda\",\r\n          \"Harrison\"\r\n        ]\r\n      },\r\n      \"name_nick\": {\r\n        \"in\": [\r\n          \"Amanda\",\r\n          \"Harrison\"\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?must[]=name_first,name_nick:in:Amanda,Harrison&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "name_first,name_nick:in:Amanda,Harrison"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single field with 'OR'",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSingFieldOR = JSON.parse(pm.variables.get(\"getSingFieldORSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSingFieldOR);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"addresses.city\": {\r\n        \"in\": [\r\n          \"Lopezstad\"\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?must[]=addresses.city:in:Lopezstad&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "addresses.city:in:Lopezstad"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single field with comparators",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSingFieldOR = JSON.parse(pm.variables.get(\"getSingFieldORSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSingFieldOR);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"educations.year\": {\r\n        \"gte\": 2005,\r\n        \"lte\": 2010\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?must[]=educations.year:gte:2005:lte:2010&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "educations.year:gte:2005:lte:2010"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Relative Date Range Queries",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getRelativeDateRange = JSON.parse(pm.variables.get(\"getRelativeDateRangeSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getRelativeDateRange);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"giving.largest_gift_date\": {\r\n        \"gte\": \"now-15y\"\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid=158&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "158"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Range Comparators with coerce value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getRangeComporators = JSON.parse(pm.variables.get(\"getRangeComporatorsSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getRangeComporators);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"educations.year\": {\r\n        \"lte\": 2010,\r\n        \"coerce\": 0\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v2/search?must[]=educations.year:lte:2010:coerce&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "educations.year:lte:2010:coerce"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Geo Box",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getGeoBox = JSON.parse(pm.variables.get(\"getGeoBoxSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getGeoBox);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"must\": [\r\n        {\r\n            \"addresses\": {\r\n                \"instance\": {\r\n                    \"type\": {\r\n                        \"in\": [\r\n                            \"Home\",\r\n                            \"Other\"\r\n                        ]\r\n                    },\r\n                    \"location\": {\r\n                        \"north\": \"38.85891\",\r\n                        \"south\": \"35.13109\",\r\n                        \"east\": \"-91.37793\",\r\n                        \"west\": \"-95.48132\"\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    ],\r\n    \"sort\": []\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v2/search?&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": null
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Geo Distance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getGeoDistance = JSON.parse(pm.variables.get(\"getGeoDistanceSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getGeoDistance);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"must\": [\r\n        {\r\n            \"year\": {\r\n                \"gte\": \"1950\",\r\n                \"lte\": \"2025\"\r\n            }\r\n        },\r\n        {\r\n            \"addresses\": {\r\n                \"instance\": {\r\n                    \"location\": {\r\n                        \"north\": \"43.95421\",\r\n                        \"south\": \"29.02848\",\r\n                        \"east\": \"-76.36652\",\r\n                        \"west\": \"-92.78010\"\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    ],\r\n    \"geo_cluster\": [\r\n        {\r\n            \"field\": \"addresses.location\",\r\n            \"precision\": 3\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "https://stage-api.evertrue.com/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"protocol": "https",
+							"host": [
+								"stage-api",
+								"evertrue",
+								"com"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Geo Box Clustering for maps",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getGeoDistanceCluster = JSON.parse(pm.variables.get(\"getGeoDistanceClusterSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getGeoDistanceCluster);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"must\": [\r\n        {\r\n            \"year\": {\r\n                \"gte\": \"1950\",\r\n                \"lte\": \"2025\"\r\n            }\r\n        },\r\n        {\r\n            \"addresses.location\": {\r\n                \"east\": -72.12475430220366,\r\n                \"west\": -89.99000005424023,\r\n                \"north\": 44.064245419576764,\r\n                \"south\": 29.849999947473407\r\n            }\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "https://stage-api.evertrue.com/contacts/v2/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"protocol": "https",
+							"host": [
+								"stage-api",
+								"evertrue",
+								"com"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GeoCode and Bounding Box for LI locations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getGeoDistanceBox = JSON.parse(pm.variables.get(\"getGeoDistanceBoxSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getGeoDistanceBox);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"linkedin_location_names\": [\r\n    \"Greater Boston Area\",\r\n    \"Washington D.C. Metro Area\"\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Testing for field existence",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getFieldExistance = JSON.parse(pm.variables.get(\"getFieldExistanceSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getFieldExistance);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"deceased\": {\r\n        \"exists\": true\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Testing for non-existence field",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getGeoDistanceBox = JSON.parse(pm.variables.get(\"getGeoDistanceBoxSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getGeoDistanceBox);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"giving.assignee\": {\r\n        \"exists\": false\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multifield with multiple optionalities",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getMultifieldSearch = JSON.parse(pm.variables.get(\"getMultifieldSearchSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getMultifieldSearch);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"addresses.location\": {\r\n        \"lat\": 64.33732499999999,\r\n        \"lon\": -149.198445,\r\n        \"radius\": \"50mi\"\r\n      }\r\n    },\r\n    {\r\n      \"name_prefix\": {\r\n        \"match\": \"Ms.\"\r\n      }\r\n    },\r\n    {\r\n      \"name_first\": {\r\n        \"match\": \"Amanda\"\r\n      }\r\n    }\r\n  ],\r\n  \"sort\": [],\r\n  \"should\": [],\r\n  \"must_not\": [\r\n    {\r\n      \"year\": {\r\n        \"gt\": 1959\r\n      }\r\n    }\r\n  ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sorting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getGeoDistanceBox = JSON.parse(pm.variables.get(\"getGeoDistanceBoxSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getGeoDistanceBox);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [],\r\n  \"sort\": [\r\n    {\r\n      \"giving_annual_donations.amount\": {\r\n        \"operation\": \"avg\",\r\n        \"order\": \"desc\"\r\n      }\r\n    },\r\n    {\r\n      \"facebook.like_count\": {\r\n        \"order\": \"asc\",\r\n        \"missing\": \"_first\"\r\n      }\r\n    },\r\n    {\r\n      \"addresses.location\": {\r\n        \"lat\": 12.34,\r\n        \"lon\": 56.78,\r\n        \"operation\": \"min\",\r\n        \"order\": \"desc\"\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?sort[]=giving_annual_donations.amount:avg:asc&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "sort[]",
+									"value": "giving_annual_donations.amount:avg:asc"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								},
+								{
+									"key": "must[]",
+									"value": "…",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sorting Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSortingCopy = JSON.parse(pm.variables.get(\"getSortingCopySchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSortingCopy);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": {\r\n    \"has_child\": {\r\n      \"type\": \"social\",\r\n      \"score_mode\": \"max\",\r\n      \"query\": {\r\n        \"range\": {\r\n          \"engagement.created_at\": {\r\n            \"gte\": \"now-4M\"\r\n          }\r\n        }\r\n      }\r\n    }\r\n  },\r\n  \"sort\": [\r\n    { \"_score\": { \"order\": \"desc\" } }\r\n  ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?must[]=…&sort[]=giving_annual_donations.amount:avg:asc&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "…"
+								},
+								{
+									"key": "sort[]",
+									"value": "giving_annual_donations.amount:avg:asc"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find documents similar to other(s)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"like\": [\r\n    321,\r\n    456\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search/search?like[]=123&like[]=456&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search",
+								"search"
+							],
+							"query": [
+								{
+									"key": "like[]",
+									"value": "123"
+								},
+								{
+									"key": "like[]",
+									"value": "456"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Nested field, matching against a single instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getNestedField = JSON.parse(pm.variables.get(\"getNestedFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getNestedField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"giving_annual_donations\": {\r\n        \"instance\": {\r\n          \"fiscal_year\": {\r\n            \"match\": 2017\r\n          },\r\n          \"amount\": {\r\n            \"gt\": 0\r\n          }\r\n        }\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?must[]=giving_annual_donations.(fiscal_year:2014;amount:gt:0)&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "must[]",
+									"value": "giving_annual_donations.(fiscal_year:2014;amount:gt:0)"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stats & Bucketing",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getStatsBuckets = JSON.parse(pm.variables.get(\"getStatsBucketsSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getStatsBuckets);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"stats\": [\r\n    {\r\n      \"giving.lifetime_amount\": {\r\n        \"bucket_by\": \"linkedin_positions.company_name.untouched\",\r\n        \"include_percentiles\": true,\r\n        \"shardSize\": 1000,\r\n        \"size\": 100\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?stats[]=giving.lifetime_amount:group_by:linkedin_positions.company_name.untouched&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "stats[]",
+									"value": "giving.lifetime_amount:group_by:linkedin_positions.company_name.untouched"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Querying Child Documents",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getNestedField = JSON.parse(pm.variables.get(\"getNestedFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getNestedField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"giving.lifetime_amount\": {\r\n        \"gte\": 0,\r\n        \"lte\": 30000\r\n      }\r\n    }\r\n  ],\r\n  \"has_child\": [\r\n    {\r\n      \"type\": \"social\",\r\n      \"query\": {\r\n        \"must\": [\r\n          {\r\n            \"engagement.compound_id\": {\r\n              \"match\": \"facebook-693111801_like_8497127539_421309307539\"\r\n            }\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n\r\n\r\n// {\r\n//   \"has_child\": [\r\n//     {\r\n//       \"type\": \"contact_note\",\r\n//       \"query\": {\r\n//         \"must\": [\r\n//           {\r\n//             \"target_id\": {\r\n//               \"match\": 232389\r\n//             }\r\n//           }\r\n//         ]\r\n//       }\r\n//     },\r\n//     {\r\n//       \"type\": \"assignment\",\r\n//       \"query\": {\r\n//         \"must\": [\r\n//           {\r\n//             \"solicitor_contact_id\": {\r\n//               \"exists\": true\r\n//             }\r\n//           }\r\n//         ]\r\n//       }\r\n//     }\r\n//   ]\r\n// }\r\n"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Querying Parent Documents",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getQueryParentDocuments = JSON.parse(pm.variables.get(\"getQueryParentDocumentsSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getQueryParentDocuments);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": {\r\n    \"bool\": {\r\n      \"must\": [\r\n        {\r\n          \"range\": {\r\n            \"engagement.created_at\": {\r\n              \"gte\": \"now-4M\"\r\n            }\r\n          }\r\n        },\r\n        {\r\n          \"has_parent\": {\r\n            \"parent_type\": \"contact\",\r\n            \"query\": {\r\n              \"bool\": {\r\n                \"must\": [\r\n                  {\r\n                    \"range\": {\r\n                      \"giving.lifetime_amount\": {\r\n                        \"gte\": 10,\r\n                        \"lte\": 50\r\n                      }\r\n                    }\r\n                  }\r\n                ]\r\n              }\r\n            }\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Wildcard Search",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getWildcardSearch = JSON.parse(pm.variables.get(\"getWildcardSearchSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getWildcardSearch);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"name_last\": {\r\n        \"wildcard\": \"Blai*\"\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v2/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Facets with Regex(Use Java Regex API)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getFacetsRegex = JSON.parse(pm.variables.get(\"getFacetsRegexSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getFacetsRegex);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"facet\": [\r\n    {\r\n      \"field\": \"linkedin_positions.company_name\",\r\n      \"regexField\": \"linkedin_positions.company_name\",\r\n      \"regex\": \"fo.*\",\r\n      \"shardSize\": 10000,\r\n      \"size\": 100\r\n    },\r\n    {\r\n      \"field\": \"phones.type\",\r\n      \"regex\": \"ho.*\"\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "https://stage-api.evertrue.com/contacts/v2/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"protocol": "https",
+							"host": [
+								"stage-api",
+								"evertrue",
+								"com"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Multi Match",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getFacetsRegex = JSON.parse(pm.variables.get(\"getFacetsRegexSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getFacetsRegex);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"name_first\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_last\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_middle\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_nick\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_maiden\": {\r\n        \"multi_match\": \"eric los\"\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v2/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scrolling",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getNestedField = JSON.parse(pm.variables.get(\"getNestedFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getNestedField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"name_first\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_last\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_middle\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_nick\": {\r\n        \"multi_match\": \"eric los\"\r\n      },\r\n      \"name_maiden\": {\r\n        \"multi_match\": \"eric los\"\r\n      }\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?scroll=true&limit=5&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "scroll",
+									"value": "true"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scrolling by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getScrollingId = JSON.parse(pm.variables.get(\"getScrollingIdSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getScrollingId);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"scroll_id\": \"5:cXVlcnlBbmRGZXRjaDsxOzEwMzk0MDQ3MTc6VnFjTmx2QlRRN09tZVVhTFpJbnJDQTswOw==\"\r\n}\r\n\r\n// Note: scroll in the response is set to false if it's a last page."
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contacts/search?scroll=true&limit=5&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contacts",
+								"search"
+							],
+							"query": [
+								{
+									"key": "scroll",
+									"value": "true"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Highlighting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getHighlighting = JSON.parse(pm.variables.get(\"getHighlightingSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getHighlighting);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"must\": [\r\n    {\r\n      \"text\": {\r\n        \"match\": \"test\"\r\n      }\r\n    }\r\n  ],\r\n  \"highlight\": {\r\n    \"fields\": {\r\n      \"text\": {\r\n        \"pre_tags\": [\r\n          \"<i>\"\r\n        ],\r\n        \"post_tags\": [\r\n          \"</i>\"\r\n        ]\r\n      }\r\n    }\r\n  }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{et_host}}/search/v2/contact_note/search?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"search",
+								"v2",
+								"contact_note",
+								"search"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
