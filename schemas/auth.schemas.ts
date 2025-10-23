@@ -755,6 +755,26 @@ export const affiliationInvitationsArraySchema = Joi.array()
   .min(0);
 
 /**
+ * Schema for School Division Department Object
+ * Used by affiliation attributes to group users into departments
+ * Note: GET list doesn't include created_at/updated_at, but GET by ID and POST/PATCH/PUT do
+ */
+export const schoolDivisionDepartmentSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  value: Joi.string().required(),
+  created_at: Joi.number().integer().positive().optional(), // Only in GET by ID, POST, PATCH, PUT
+  updated_at: Joi.number().integer().positive().optional(), // Only in GET by ID, POST, PATCH, PUT
+  organization: Joi.object().unknown(true).required()
+});
+
+/**
+ * Schema for GET /school_division_departments - List departments
+ */
+export const schoolDivisionDepartmentsListSchema = Joi.array()
+  .items(schoolDivisionDepartmentSchema)
+  .min(0);
+
+/**
  * Schema for CSV Invite Object
  */
 export const csvInviteSchema = Joi.object({
@@ -869,4 +889,3 @@ export const senioritySchema = Joi.object({
  * Schema for GET /auth/seniorities - List seniorities
  */
 export const senioritiesListSchema = Joi.array().items(senioritySchema).min(0);
-
