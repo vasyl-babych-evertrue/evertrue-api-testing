@@ -1,0 +1,763 @@
+
+Skip to content
+Navigation Menu
+evertrue
+importer
+
+Type / to search
+Code
+Issues
+Pull requests
+13
+Actions
+Projects
+Wiki
+Security
+11
+Insights
+Settings
+Endpoint Doc
+ 
+Amy Lashley edited this page on Jan 28, 2019 · 123 revisions
+Contents
+Jobs
+Get Job by Id
+Get S3 URL
+List Jobs by Oid
+Create a Job
+Queue Job for Import
+Queue a GivingRollupJob
+Cancel a Posted Job before it is Queued
+Pruning
+Get count of records staged for pruning
+Get count of records staged for pruning, based on type
+Summarize pruning job counts
+Queue Job for Pruning
+Complete a Pruning Pending Job
+Queue a Pruning/Presence ID Export Job
+Maps
+Get Map by Id
+Get Map Template by Name
+Update Mapping by Id
+Check if Mapping exists for S3 file
+Stats
+Get processing Stats by Job Id
+Get records to be pruned from a Contact Job
+Get records to be pruned from a Gift Job
+Get summary of records to be pruned for a Job
+Events
+Get Summary of Events of a Job
+Get Distinct Events of a Job
+Get List of Events for a Job
+Get Distinct Events of a Job for a Single Operation
+Get List of Events for a Job for a Single Operation
+Queue an Event Export Job
+Objects
+Job Object
+Paginated Job List Object
+Map Object
+Partial Map Object
+Map Wrapper Object
+Stat Object
+Event Summary List
+Paginated Event List Object
+Query params required for all endpoints
+Param	Note
+oid	organization id in auth
+auth	auth token
+auth_provider	auth token provider
+app_key	application key
+Jobs
+Get Job by id
+GET /importer/v1/jobs/{job_id}
+
+Response: Job Object
+
+Get S3 URL
+Gets a S3 pre-signed url of the file associated with the job
+
+Note: all files are only available for 90 days as the data retention period, and the pre-signed url has an expiration period of 1 hour
+
+GET /importer/v1/jobs/{job_id}/download
+
+Response:
+
+{
+  "s3_url": "https://s3.amazonaws.com/mybucket/myorg/data/my_file.csv?AWSAccessKeyId=AKIAJDXMX5F3BAIMETLQ&Expires=1417719880&Signature=ufeZdHrJM8IRY7c4Nu18dg2ghjQ%3D"
+}
+List Jobs by OID
+Gets a list of jobs by oid. Supports the following filters:
+
+Param	Note
+type[]	filetype of the import (CSV, TRANSACTIONAL_CSV, ASSIGNMENT_CSV, ASSIGNMENT_TEAM_CSV, JSON, NOTES_CSV, PROPOSAL_CSV)
+filename	fuzzy match on filename
+status[]	returns jobs with current status matching given value (NEW, FORKED, QUEUED, RUNNING, OK, WARN, FAILED, CANCELLED, PRUNING, PRUNING_FORKED, PRUNING_PENDING, PRUNING_QUEUED, PRUNING_RECONCILE_PENDING, RECONCILE_PENDING, FILECHECK_FORKED, FILECHECK_QUEUED, FILECHECK_RUNNING)
+prune	set to 1 or true to only receive full imports
+from	use millisecond timestamp to filter out jobs that occurred before this value
+to	use millisecond timestamp to filter out jobs that occurred after this value
+sort_column	which column to sort results by - can be created_at or status_updated_at. If not provided defaults to id
+sort_order	asc or desc to determine sort order of results
+limit	how many records to return per page
+offset	determines the starting point for paging results
+GET /importer/v1/jobs?offset={offset}&limit={limit}
+
+Response: Paginated Job List Object
+
+Create a new Job
+Creates a new job
+
+POST /importer/v1/jobs
+
+Request:
+
+{
+  "s3_filename": "test_1382388534.csv",
+  "type": "CSV",
+  "source": "CSV",
+  "compression": "NONE",
+  "prune": 1,
+  "notify": 0
+}
+Importer follows the following preset convention when deriving the path of a file:
+
+{org_slug}/data/{s3_filename}
+
+where org_slug will be derived from oid in the query params.
+
+type is an optional field to hint what type a job belongs to, and defaults to CSV if absent.
+type values
+CSV
+TRANSACTIONAL_CSV
+NOTES_CSV
+JSON
+compression is an optional field to hint what format the file is compressed in and defaults to NONE if absent.
+compression values
+NONE
+ZIP
+GZIP
+source is only required when type is JSON, and will always be overridden as CSV when type is CSV.
+source values for type CSV	source values for type JSON
+CSV	RAISERSEDGE
+prune is an optional field to hint if the job should be run with all records not present in the file deleted, and defaults to 0 if absent.
+notify is an optional field to hint if a notification email should be sent upon failure or completion, and defaults to 0 if absent. The recipients of the email are defined in legacy DNA ET.Email.Import.Recipients.
+Response: Job Object
+
+Queue Job for import
+Queues a job for import. For a job to be successfully queued, the id field needs to be present in the Map Object.
+
+POST /importer/v1/jobs/queue/{job_id}
+
+Response: Job Object
+
+Queue a GivingRollupJob
+Queues a GivingRollupJob to be processed by Spark. Requires an oid scope/query parameter.
+
+POST /importer/v1/jobs/giving_rollup_job
+
+Response: 200 OK
+
+Cancel a posted Job before it is queued
+Cancels a posted job before it is queued
+
+POST /importer/v1/jobs/cancelled/{job_id}
+
+Response: Job Object
+
+Pruning
+Get count of records staged for pruning
+Returns an object that includes a limit, offset, total, and array of items. The items contain the remote id of each record set to be pruned.
+
+GET /importer/v1/pruning/jobs/{job_id}
+
+Response: Paginated Pruning List Object
+
+Get count of records staged for pruning, based on type
+Returns an object that includes a limit, offset, total, and array of items. The items contain the remote id of each record set to be pruned.
+
+GET /importer/v1/pruning/jobs/{job_id}/gifts GET /importer/v1/pruning/jobs /{job_id}/interactions GET /importer/v1/pruning/jobs/{job_id}/proposals GET /importer/v1/pruning/jobs/{job_id}/assignments
+
+Response: Paginated Pruning List Object
+
+Summarize pruning job counts
+Returns a list of counts for records to prune. GET /jobs/{job_id}/summary
+
+Response: Pruning Summary Object
+
+Queue Job for pruning
+Queues a job for pruning. This will delete all records previously imported but not present in the job with the job_id. This will require the job was created with prune set.
+
+POST /importer/v1/jobs/queue/prune/{job_id}
+
+Response: Job Object
+
+Complete a Pruning Pending Job
+Changes status for a job that is currently PRUNING_PENDING to be either OK or WARN based on the presence of Events for that job. This will skip deletion of any records during the pruning phase. This will require the job was created with prune set and currently has a status of PRUNING_PENDING.
+
+POST /importer/v1/jobs/complete/prune/{job_id}
+
+Response: Job Object
+
+Queue a Pruning/Presence ID Export Job
+Queues a PresenceCsvExportJob to be processed by Spark. Requires an oid scope/query parameter.
+
+POST /importer/v1/pruning/export/job/{job_id}
+
+Response: 200 OK
+
+Maps
+Get Map by id
+Gets a map by id
+
+GET /importer/v1/maps/{map_id}
+
+Response: Map Wrapper Object
+
+Get Map template by name
+Gets a map template by name
+
+GET /importer/v1/maps/template?name={name}
+
+name values
+person
+address
+edu
+email
+phone
+work
+custom
+gt
+Response: Map Object if name equals person, or Partial Map Object otherwise
+
+Update Mapping by Id
+Updates the mapping of a map by id
+
+PUT /importer/v1/maps/{map_id}/map
+
+Request: Map Object
+
+Response: Map Wrapper Object
+
+Check if Mapping exists for S3 file
+Checks for any Mappings the Importer currently has for the given S3 file's set of headers. The request body only accepts the s3_filename, type, and compression job attributes.
+
+Request: Job Object
+
+POST /importer/v1/jobs/mapping_check
+
+Response:
+
+{
+  "mapping_exists": true
+}
+Stats
+Get processing stats of a job
+Gets the processing stats of a job. Will return stats with a type matching the type of object processed by the associated job. If job in question is a REDS import, will show stats for both Contacts and Gifts.
+
+GET /importer/v1/stats/job/{job_id}
+
+Response: Stat Object
+
+Get records to be pruned from a Contact Job
+Gets the records to be pruned from the job with the job_id
+
+GET /importer/v1/pruning/jobs/{job_id}
+
+Response:
+
+{
+  "limit": 10,
+  "offset": 0,
+  "total": 2,
+  "items": [
+    "remote-id-1",
+    "remote-id-2"
+  ]
+}
+Get records to be pruned from a Gift Job
+Gets the records to be pruned from the job with the job_id
+
+GET /importer/v1/pruning/jobs/{job_id}/gifts
+
+Response:
+
+{
+  "limit": 10,
+  "offset": 0,
+  "total": 2,
+  "items": [
+    "remote-id-1",
+    "remote-id-2"
+  ]
+}
+Get Summary Records to be pruned from a Job
+Gets a rollup of records to be pruned from the job with the job_id. The response will only give you items for the job type. So a CSV job will only have "CONTACTS", but a "JSON" job will have "CONTACTS", "GIFTS", "NOTES", etc.
+
+GET /importer/v1/pruning/jobs/{job_id}/summary
+
+Response:
+
+{
+  "CONTACTS": 10,
+  "GIFTS": 2,
+  "TOTAL": 12
+}
+Events
+Get Event Summary of a Job
+Gets a rollup of event counts broken down by CREATE/UPDATE/DELETE/ERROR
+
+GET /importer/v1/events/job/{job_id}/summary
+
+Response Event Summary
+
+Get distinct events of a Job
+Gets distinct events of a job
+
+GET /importer/v1/events/job/{job_id}/distinct
+
+Response: Event Summary List
+
+Get list of events for a Job
+Gets a paginated list of events of a job. For each event code, a maximum of 100 events will be kept for one job.
+
+GET /importer/v1/events/job/{job_id}/event/{event_code}?offset={offset}&limit={limit}
+
+Response: Paginated Event List Object
+
+Get distinct events of a Job for a single Operation
+Gets the distinct events of a job for a given operation (CREATE/UPDATE/DELETE/FATAL)
+
+Get /importer/v1/events/job/{job_id}/operation/{operation}/distinct
+
+Response: Event Summary List
+
+Get list of events for a Job for a single Operation
+Gets a paginated list of events of a job for a specific operation (CREATE/UPDATE/DELETE/FATAL)
+
+Get /importer/v1/events/job/{job_id}/operation/{operation}/event/{event_code}?offset={offset}&limit={limit}
+
+Response: Paginated Event List Object
+
+Queue an Event Export Job
+Queues an ImporterEventCsvExportJob to be processed by Spark. Requires an oid scope/query parameter.
+
+POST /importer/v1/events/export/job/{job_id}
+
+Response: 200 OK
+
+Objects
+Job Object
+{
+  "id": 1,
+  "oid": 1,
+  "s3_filename": "test_1382388534.csv",
+  "type": "CSV",
+  "source": "CSV",
+  "compression": "NONE",
+  "map_id": 1,
+  "mapping_hash_id": 134,
+  "prune": true,
+  "notify": true,
+  "status": "NEW",
+  "created_at": 1382388596000,
+  "updated_at": 1382466943000,
+  "status_started_at": 1542225432959,
+  "current_status_id": 692981
+}
+Paginated Job List Object
+{
+  "limit": 10,
+  "offset": 0,
+  "total": 2,
+  "items": [
+    {
+      "id": 1,
+      "oid": 1,
+      "s3_filename": "test_1382388534.csv",
+      "type": "CSV",
+      "compression": "NONE",
+      "map_id": 1,
+      "status": "OK",
+      "created_at": 1382388596000,
+      "updated_at": 1382466943000
+    },
+    {
+      "id": 2,
+      "oid": 1,
+      "s3_filename": "test_1387364732.csv",
+      "type": "CSV",
+      "compression": "NONE",
+      "map_id": 1,
+      "status": "NEW",
+      "created_at": 1387361823000,
+      "updated_at": 1387361823000
+    }
+  ]
+}
+Paginated Pruning List Object
+{
+  "limit": 10,
+  "offset": 0,
+  "total": 2,
+  "items": [
+    "remoteId1",
+    "remoteId2"
+  ]
+}
+Pruning Summary Object
+{
+  "TOTAL": 1,
+  "PROPOSAL": 1
+}
+Map Object
+The number in each value field represents the header index in the src field of a Map Wrapper Object.
+
+{
+  "id": 0,
+  "roles": 1,
+  "prefix": null,
+  "first_name": 2,
+  "nick_name": null,
+  "middle_name": null,
+  "last_name": 3,
+  "prev_last_name": null,
+  "suffix": null,
+  "year": null,
+  "is_deceased": null,
+  "date_deceased": null,
+  "addresses": [],
+  "educations": [],
+  "emails": [
+    {
+      "id": null,
+      "email": 4,
+      "type": null,
+      "is_primary": null,
+      "is_shared": null
+    }
+  ],
+  "phones": [],
+  "works": [],
+  "customs": {
+    "sports": {
+      "list_contacts_property_id": 95,
+      "object_contacts_property_id": 96,
+      "value_contacts_property_id": 97,
+      "values": [
+        5,
+        6
+      ],
+      "is_shared": 7
+    }
+  },
+  "giving": {
+    "assignee": null,
+    "donor_score": 11,
+    "capacity_score": 12,
+    "engagement_score": 13,
+    "lifetime_amount": 14,
+    "largest_gift_amount": 15,
+    "largest_gift_date": 16,
+    "largest_gift_label": 17,
+    "last_gift_amount": 18,
+    "last_gift_date": 19,
+    "last_gift_label": 20,
+    "gift_totals": {
+      2013: 21,
+      2014: 22
+    }
+  }
+}
+Partial Map Object
+{
+  "id": null,
+  "email": 3,
+  "type": null,
+  "is_primary": null,
+  "is_shared": null
+}
+Map Wrapper Object
+{
+  "id": 1,
+  "oid": 1,
+  "hash": "ab4ceb2ebf7908da58e7595484e77cde",
+  "src": [
+    "PersonID",
+    "PersonFirstName",
+    "PersonLastName",
+    "PersonAvailableInCommunity",
+    "Email1Email",
+    "Email2Email",
+    "Email2IsShared",
+    "Email3Email",
+    "CustomSports",
+    "CustomSports",
+    "CustomSportsIsShared",
+    "CustomDorm1",
+    "CustomDorm2"
+  ],
+  "map": {
+    "id": 0,
+    "roles": null,
+    "prefix": null,
+    "first_name": 1,
+    "nick_name": null,
+    "middle_name": null,
+    "last_name": 2,
+    "prev_last_name": null,
+    "suffix": null,
+    "year": null,
+    "is_deceased": null,
+    "date_deceased": null,
+    "addresses": [],
+    "educations": [],
+    "emails": [
+      {
+        "id": null,
+        "email": 4,
+        "type": null,
+        "is_primary": null,
+        "is_shared": null
+      },
+      {
+        "id": null,
+        "email": 5,
+        "type": null,
+        "is_primary": null,
+        "is_shared": 6
+      },
+      {
+        "id": null,
+        "email": 7,
+        "type": null,
+        "is_primary": null,
+        "is_shared": null
+      }
+    ],
+    "phones": [],
+    "works": [],
+    "customs": {
+      "sports": {
+        "list_contacts_property_id": 95,
+        "object_contacts_property_id": 96,
+        "value_contacts_property_id": 97,
+        "values": [
+          8,
+          9
+        ],
+        "is_shared": 10
+      },
+      "assasinname": {
+        "list_contacts_property_id": 98,
+        "object_contacts_property_id": 99,
+        "value_contacts_property_id": 100,
+        "values": [
+          11
+        ],
+        "is_shared": null
+      }
+    },
+    "giving": {
+      "assignee": null,
+      "donor_score": null,
+      "capacity_score": null,
+      "engagement_score": null,
+      "lifetime_amount": null,
+      "largest_gift_amount": null,
+      "largest_gift_date": null,
+      "largest_gift_label": null,
+      "last_gift_amount": null,
+      "last_gift_date": null,
+      "last_gift_label": null,
+      "gift_totals": {}
+    }
+  },
+  "created_at": 1382388596000,
+  "updated_at": 1382388596000
+}
+Stat Object
+{
+  "id": 40376,
+  "oid": 457,
+  "job_id": 37716,
+  "created_at": 1463426828743,
+  "updated_at": 1463427683869,
+  "import_progress": 99,
+  "pruning_progress": 0,
+  "stat": [
+    {
+      "import_progress": 99,
+      "type": "CONTACT",
+      "pruning_progress": 0,
+      "succeeded": {
+        "inspected": 140734,
+        "created": 0,
+        "updated": 9833,
+        "roles_updated": 0,
+        "console_privacy_updated": null,
+        "deleted": 0
+      },
+      "failed": {
+        "inspected": 1,
+        "created": 0,
+        "updated": 0,
+        "roles_updated": 0,
+        "console_privacy_updated": null,
+        "deleted": 0
+      }
+    },
+    {
+      "import_progress": 99,
+      "type": "GIFT",
+      "pruning_progress": null,
+      "succeeded": {
+        "inspected": 260629,
+        "created": 260626,
+        "updated": 260626,
+        "deleted": 0
+      },
+      "failed": {
+        "inspected": 0,
+        "created": 3,
+        "updated": 3,
+        "deleted": 0
+      },
+      "top_level_gifts": {
+        "inspected": 260629,
+        "created": 260626,
+        "updated": 260626,
+        "deleted": 0
+      },
+      "second_level_gifts": null,
+      "third_level_gifts": null,
+      "soft_credits_on_pledges": null,
+      "soft_credits_on_same_contact_as_related_gift": null,
+      "pruned_gifts": 118417
+    }
+  ]
+}
+Event Summary
+{
+  "CREATE": 1,
+  "UPDATE": 3,
+  "DELETE": 2,
+  "ERROR": 1
+}
+Event Summary List
+[
+  {
+    "event_code": 0,
+    "message": "Your data monster may have found a bug in our system. Please contact genius@evertrue.com for assistance.",
+    "count": 3
+  },
+  {
+    "event_code": 5,
+    "message": "We did not recognize some of the Roles in your import. Ask your EverTrue admin to add them.",
+    "count": 2
+  }
+]
+Paginated Event List Object
+{
+  "limit": 10,
+  "offset": 0,
+  "total": 3,
+  "items": [
+    {
+      "id": 1,
+      "oid": 3,
+      "job_id": 4,
+      "event_code": 9,
+      "remote_id": "003E000000BAlDaIAL",
+      "message": "last_gift_date has incorrect format: 12",
+      "created_at": 1387229457000
+    },
+    {
+      "id": 2,
+      "oid": 3,
+      "job_id": 4,
+      "event_code": 6,
+      "remote_id": "003E000000BB8cVIAT",
+      "message": "Identity already exists: sandy@example.org",
+      "created_at": 1387229458000
+    }
+  ]
+}
+ Add a custom footer
+Pages 18
+Find a page…
+Home
+Caching
+Converter Class Hierarchy
+CRM Mode Expansion
+Customer Facing Field Documentation
+Deploy Docs
+Endpoint Doc
+Contents
+Query params required for all endpoints
+Jobs
+Get Job by id
+Get S3 URL
+List Jobs by OID
+Create a new Job
+Queue Job for import
+Queue a GivingRollupJob
+Cancel a posted Job before it is queued
+Pruning
+Get count of records staged for pruning
+Get count of records staged for pruning, based on type
+Summarize pruning job counts
+Queue Job for pruning
+Complete a Pruning Pending Job
+Queue a Pruning/Presence ID Export Job
+Maps
+Get Map by id
+Get Map template by name
+Update Mapping by Id
+Check if Mapping exists for S3 file
+Stats
+Get processing stats of a job
+Get records to be pruned from a Contact Job
+Get records to be pruned from a Gift Job
+Get Summary Records to be pruned from a Job
+Events
+Get Event Summary of a Job
+Get distinct events of a Job
+Get list of events for a Job
+Get distinct events of a Job for a single Operation
+Get list of events for a Job for a single Operation
+Queue an Event Export Job
+Objects
+Job Object
+Paginated Job List Object
+Paginated Pruning List Object
+Pruning Summary Object
+Map Object
+Partial Map Object
+Map Wrapper Object
+Stat Object
+Event Summary
+Event Summary List
+Paginated Event List Object
+Example REDS Payload
+How to add fields to the Importer
+Importer Adventurer's Club
+Importer Email Notifications
+Lifecycle of a Job
+Mapping Class Hierarchy
+Monitoring
+Object Deletions
+ Add a custom sidebar
+Clone this wiki locally
+https://github.com/evertrue/importer.wiki.git
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+Endpoint Doc · evertrue/importer Wiki

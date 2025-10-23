@@ -3,7 +3,7 @@
  * Provides authenticated request context with tokens
  */
 
-import { test as base, APIRequestContext } from '@playwright/test';
+import { test as base, APIRequestContext, request as playwrightRequest } from '@playwright/test';
 import { config } from '../config/env.config';
 
 type AuthFixtures = {
@@ -49,9 +49,12 @@ export const test = base.extend<AuthFixtures>({
   },
 
   // Authenticated request context with token
-  authenticatedRequest: async ({ request, authToken }, use) => {
-    const context = await request.newContext({
+  authenticatedRequest: async ({ authToken }, use) => {
+    const context = await playwrightRequest.newContext({
+      baseURL: process.env.API_BASE_URL || 'https://stage-api.evertrue.com',
       extraHTTPHeaders: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': 'EvertrueAuthToken',
         'Authorization': authToken,

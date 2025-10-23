@@ -1,12 +1,18 @@
 import { test, expect } from '@playwright/test';
-import { config, getAppKey, getAppToken } from '../../config/env.config';
+import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
-import { userSchema, userByIdSchema, userByContactIdSchema, userSearchSchema, bulkFetchUsersSchema } from '../../schemas/auth.schemas';
+import {
+  userSchema,
+  userByIdSchema,
+  userByContactIdSchema,
+  userSearchSchema,
+  bulkFetchUsersSchema,
+} from '../../schemas/auth.schemas';
 
 /**
  * Auth API Tests - Users Management (Positive Tests)
  * Based on documentation: Users endpoints
- * 
+ *
  * Test Users:
  * - Super Admin: vasyl.babych@evertrue.com (for admin endpoints)
  * - Regular User: vasyl.babych+3@swanteams.com (for regular user tests)
@@ -14,7 +20,6 @@ import { userSchema, userByIdSchema, userByContactIdSchema, userSearchSchema, bu
  */
 test.describe('Auth API - Users Management (Positive Tests)', () => {
   let authToken: string;
-  let regularUserToken: string;
 
   test.beforeAll(async ({ request }) => {
     // Create session with working credentials (Super Admin)
@@ -22,7 +27,7 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.basicToken}`,
+        Authorization: `Basic ${config.auth.basicToken}`,
       },
     });
 
@@ -34,7 +39,7 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.regularUserToken}`,
+        Authorization: `Basic ${config.auth.regularUserToken}`,
       },
     });
 
@@ -48,13 +53,12 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
-      })
+          auth: authToken,
+        },
+      });
 
       const responseBody = await response.json();
       console.log('All roles:', JSON.stringify(responseBody, null, 2));
-
 
       // Verify status code is 200
       expect(response.status()).toBe(200);
@@ -76,13 +80,13 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
   test.describe('GET /auth/users/{id} - Get user by ID', () => {
     test('should get user by ID with valid token and return 200', async ({ request }) => {
       const userId = 2308; // Known user ID from the environment
-      
+
       const response = await request.get(`/auth/users/${userId}`, {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -102,13 +106,13 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
   test.describe('GET /auth/users/email/{email} - Get user by email', () => {
     test('should get user by email with valid token and return 200', async ({ request }) => {
       const userEmail = 'vasyl.babych@evertrue.com'; // Known email from environment
-      
+
       const response = await request.get(`/auth/users/email/${encodeURIComponent(userEmail)}`, {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -130,11 +134,11 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
       const response = await request.post('/auth/users/search', {
         params: {
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         data: {
-          q: 'vasyl'
-        }
+          q: 'vasyl',
+        },
       });
 
       // Verify status code is 200
@@ -154,15 +158,15 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
 
     test('should search users with email query and return 200', async ({ request }) => {
       const searchEmail = 'platform+auth_api@evertrue.com'; // Use an email we know exists
-      
+
       const response = await request.post('/auth/users/search', {
         params: {
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         data: {
-          email: searchEmail
-        }
+          email: searchEmail,
+        },
       });
 
       // Verify status code is 200
@@ -178,7 +182,7 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
       expect(responseBody.total).toBeGreaterThan(0);
       if (responseBody.users.length > 0) {
         // Verify that the search actually worked by checking if any user has the searched email
-        const foundUser = responseBody.users.find(user => user.email === searchEmail);
+        const foundUser = responseBody.users.find((user: any) => user.email === searchEmail);
         expect(foundUser).toBeDefined();
         expect(foundUser.email).toBe(searchEmail);
       }
@@ -188,19 +192,19 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
   test.describe('GET /auth/users/id/{user_id} - Get user by ID (super-user version)', () => {
     test('should get full user by ID with super-user token', async ({ request }) => {
       const userId = 2308; // Known user ID
-      
+
       const response = await request.get(`/auth/users/id/${userId}`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
-        }
+        },
       });
 
       // Should return 200 with super-admin privileges
       expect(response.status()).toBe(200);
-      
+
       const responseBody = await response.json();
 
       expectSchema(responseBody, userSchema);
@@ -212,21 +216,21 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
     test('should get user by contact ID with oid filter', async ({ request }) => {
       const contactId = 14623853; // Use existing contact ID that should return 200
       const oid = 463;
-      
+
       const response = await request.get(`/auth/users/contact_id/${contactId}`, {
         params: {
-          oid: oid
+          oid: oid,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
-        }
+        },
       });
 
       expect(response.status()).toBe(200);
-      
+
       const responseBody = await response.json();
 
       expectSchema(responseBody, userByContactIdSchema);
@@ -237,22 +241,22 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
     test('should get users by role with organization context', async ({ request }) => {
       const roleId = 1619; // Use existing role ID that should return 200
       const oid = 463;
-      
+
       const response = await request.get('/auth/users', {
         params: {
           role: roleId,
-          oid: oid
+          oid: oid,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
-        }
+        },
       });
 
       expect(response.status()).toBe(200);
-      
+
       const responseBody = await response.json();
 
       expect(Array.isArray(responseBody)).toBe(true);
@@ -262,26 +266,26 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
   test.describe('POST /auth/users/bulk_fetch - Bulk fetch users', () => {
     test('should bulk fetch users by IDs with oid', async ({ request }) => {
       const oid = 463;
-      
+
       const response = await request.post('/auth/users/bulk_fetch', {
         params: {
-          oid: oid
+          oid: oid,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
         },
         data: {
           id: [2308],
-          name_or_email: 'vasyl'
-        }
+          name_or_email: 'vasyl',
+        },
       });
 
       expect(response.status()).toBe(200);
-      
+
       const responseBody = await response.json();
 
       expectSchema(responseBody, bulkFetchUsersSchema);
@@ -299,13 +303,13 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
     test('should create user with super-admin privileges (CREATE)', async ({ request }) => {
       // Using super-admin credentials to create a test user
       createdUserEmail = `test.user.${Date.now()}@evertrue.com`;
-      
+
       const response = await request.post('/auth/users', {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
         },
         data: {
@@ -317,18 +321,18 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
             {
               organization_id: 463,
               contact_id: null,
-              role_ids: [1619]
-            }
-          ]
-        }
+              role_ids: [1619],
+            },
+          ],
+        },
       });
 
       expect(response.status()).toBe(201);
-      
+
       const responseBody = await response.json();
       // Store created user ID for subsequent tests
       createdUserId = responseBody.id;
-      
+
       expectSchema(responseBody, userSchema);
       expect(responseBody.email).toBe(createdUserEmail);
       expect(responseBody.name).toBe('Test User CRUD');
@@ -339,19 +343,19 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
       // Using super-admin credentials to update the created user
       const response = await request.put(`/auth/users/${createdUserId}`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
         },
         data: {
-          name: 'Updated Test User CRUD'
-        }
+          name: 'Updated Test User CRUD',
+        },
       });
 
       expect(response.status()).toBe(202);
-      
+
       const responseBody = await response.json();
 
       expectSchema(responseBody, userSchema);
@@ -365,9 +369,9 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
       const response = await request.delete(`/auth/users/${createdUserId}`, {
         headers: {
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
-        }
+        },
       });
 
       expect(response.status()).toBe(204);
