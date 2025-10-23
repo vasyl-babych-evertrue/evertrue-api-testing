@@ -4,7 +4,6 @@
  */
 
 import { test as base, expect, APIRequestContext } from '@playwright/test';
-import Joi from 'joi';
 import { expectSchema } from '../../helpers/schema-validator';
 import { eventSchema, createEventFullResponseSchema } from '../../schemas/events.schemas';
 import { config } from '../../config/env.config';
