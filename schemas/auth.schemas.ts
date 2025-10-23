@@ -774,3 +774,118 @@ export const schoolDivisionDepartmentsListSchema = Joi.array()
   .items(schoolDivisionDepartmentSchema)
   .min(0);
 
+/**
+ * Schema for CSV Invite Object
+ */
+export const csvInviteSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  organization_id: Joi.number().integer().positive().required(),
+  csv_file_name: Joi.string().required(),
+  csv_content_type: Joi.string().required(),
+  csv_file_size: Joi.number().integer().min(0).required(),
+  created_at: Joi.string().isoDate().required(),
+  updated_at: Joi.string().isoDate().required(),
+  url: Joi.string().uri().required()
+});
+
+/**
+ * Schema for GET /csv_invites - List all CSV invites
+ */
+export const csvInvitesListSchema = Joi.object({
+  csv_invites: Joi.array().items(csvInviteSchema).min(0).required()
+});
+
+/**
+ * Schema for GET /csv_invite/:id - Get single CSV invite
+ */
+export const csvInviteSingleSchema = Joi.object({
+  csv_invite: csvInviteSchema.required()
+});
+
+/**
+ * Schema for POST /csv_invite - Create CSV invite
+ */
+export const csvInviteCreateSchema = Joi.object({
+  csv_invite: csvInviteSchema.required()
+});
+
+/**
+ * Schema for Affiliation Attribute Object (Base)
+ * Used for POST/PATCH responses - without nested affiliation object
+ */
+export const affiliationAttributeBaseSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  affiliation_id: Joi.number().integer().positive().required(),
+  school_division_department_id: Joi.number().integer().positive().allow(null).required(),
+  title: Joi.string().allow(null).required(),
+  persona: Joi.string().allow(null).required(),
+  seniority: Joi.string().allow(null).required(),
+  user_profile_picture_url: Joi.string().uri().allow(null).required(),
+  user_profile_picture_source: Joi.string().allow(null).required(),
+  user_profile_picture_last_updated: Joi.string().isoDate().allow(null).required(),
+  nps_score: Joi.number().integer().min(0).max(10).allow(null).required(),
+  nps_score_date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).allow(null).required(), // Format: YYYY-MM-DD
+  created_at: Joi.string().isoDate().required(), // ISO date string for POST/PATCH
+  updated_at: Joi.string().isoDate().required()  // ISO date string for POST/PATCH
+});
+
+/**
+ * Schema for Affiliation Attribute Object (Full)
+ * Used for GET by ID and List - includes nested affiliation and timestamps as numbers
+ * Note: affiliation_id and school_division_department_id are NOT in the response
+ */
+export const affiliationAttributeSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  title: Joi.string().allow(null).required(),
+  persona: Joi.string().allow(null).required(),
+  seniority: Joi.string().allow(null).required(),
+  user_profile_picture_url: Joi.string().uri().allow(null).required(),
+  user_profile_picture_source: Joi.string().allow(null).required(),
+  user_profile_picture_last_updated: Joi.string().isoDate().allow(null).required(),
+  nps_score: Joi.number().integer().min(0).max(10).allow(null).required(),
+  nps_score_date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).allow(null).required(), // Format: YYYY-MM-DD
+  created_at: Joi.number().integer().positive().required(), // Unix timestamp in milliseconds
+  updated_at: Joi.number().integer().positive().required(), // Unix timestamp in milliseconds
+  affiliation: Joi.object().unknown(true).required(),
+  school_division_department: Joi.object().unknown(true).allow(null).required()
+});
+
+/**
+ * Schema for GET /auth/affiliation_attributes - List affiliation attributes
+ */
+export const affiliationAttributesListSchema = Joi.object({
+  affiliation_attributes: Joi.array().items(affiliationAttributeSchema).min(0).required()
+});
+
+/**
+ * Schema for GET /auth/affiliation_attributes/:id - Get single affiliation attribute
+ */
+export const affiliationAttributeSingleSchema = Joi.object({
+  affiliation_attribute: affiliationAttributeSchema.required()
+});
+
+/**
+ * Schema for Persona Object
+ */
+export const personaSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  value: Joi.string().required()
+});
+
+/**
+ * Schema for GET /auth/personas - List personas
+ */
+export const personasListSchema = Joi.array().items(personaSchema).min(0);
+
+/**
+ * Schema for Seniority Object
+ */
+export const senioritySchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  value: Joi.string().required()
+});
+
+/**
+ * Schema for GET /auth/seniorities - List seniorities
+ */
+export const senioritiesListSchema = Joi.array().items(senioritySchema).min(0);
