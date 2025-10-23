@@ -1,0 +1,626 @@
+{
+	"info": {
+		"_postman_id": "8479f834-13f7-4f3f-ba26-5ed6bcf9f994",
+		"name": "export files",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42399266",
+		"_collection_link": "https://evertrue-team.postman.co/workspace/Evertrue-Workspace~ff84f156-4fa0-40eb-b4fc-9b698b170dcf/collection/42399266-8479f834-13f7-4f3f-ba26-5ed6bcf9f994?action=share&source=collection_link&creator=42399266"
+	},
+	"item": [
+		{
+			"name": "Properties Copy",
+			"item": [
+				{
+					"name": "Create a new Contact property",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let createAProperty = JSON.parse(pm.variables.get(\"createAPropertySchema\"))\r",
+									"        \r",
+									"    pm.response.to.have.jsonSchema(createAProperty);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"let propertyData = pm.response.json();\r",
+									"pm.environment.set(\"p_id\", propertyData.id);\r",
+									"\r",
+									"let updatedPropertyData = pm.response.json();\r",
+									"pm.environment.set(\"p_updated_at\", updatedPropertyData.updated_at);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"data_type\": \"object\",\r\n\t\"name\": \"123{{$randomWord}}\",\r\n\t\"default\": false,\r\n\t\"properties\": [\r\n\t\t{\r\n\t\t\t\"name\": \"name1_{{$randomWord}}\",\r\n\t\t\t\"description\": \"{{$randomWord}}\",\r\n\t\t\t\"data_type\": \"number\",\r\n\t\t\t\"default\": true,\r\n\t\t\t\"permissions\": [],\r\n\t\t\t\"app_keys\": [\r\n\t\t\t\t\"84731a780476587920ee41a93feba4b0b69f66f444fc1c2ff7111eafdf7cb946\",\r\n\t\t\t\t\"89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f\"\r\n\t\t\t]\r\n\t\t}\r\n\t]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/properties?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"properties"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a new Contact custom field property with object and list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let createAPropertyExt = JSON.parse(pm.variables.get(\"createAPropertyExtSchema\"))\r",
+									"        \r",
+									"    pm.response.to.have.jsonSchema(createAPropertyExt);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"let propertyData = pm.response.json();\r",
+									"pm.environment.set(\"pEx_id\", propertyData.id);\r",
+									"\r",
+									"let updatedPropertyData = pm.response.json();\r",
+									"pm.environment.set(\"pEx_updated_at\", updatedPropertyData.updated_at);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"phone\",\r\n\t\"description\": \"swan_{{$randomWord}}\",\r\n\t\"data_type\": \"number\",\r\n\t\"default\": false,\r\n\t\"permissions\": [\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 1,\r\n\t\t\t\"actor_role_id\": 1\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 2,\r\n\t\t\t\"actor_role_id\": 1\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 3,\r\n\t\t\t\"actor_role_id\": 1\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 4,\r\n\t\t\t\"actor_role_id\": 1\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 3,\r\n\t\t\t\"actor_role_id\": 2\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 4,\r\n\t\t\t\"actor_role_id\": 2\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": false,\r\n\t\t\t\"subject_role_id\": 3,\r\n\t\t\t\"actor_role_id\": 3\r\n\t\t}\r\n\t],\r\n\t \"app_keys\": [\r\n\t\t\"89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f\",\r\n\t\t\"590b6855ec417400015682e454c6acec8f371adf861b830b031fa9ad3ac84c90\",                                      \"815e8d01be8f78a41d1c71eb652b8be124b89058b74d284c6bb752a034dbb301\"\r\n   ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/properties/nested?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"properties",
+								"nested"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a Contact property",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let updateAProperty = JSON.parse(pm.variables.get(\"updateAPropertySchema\"))\r",
+									"        \r",
+									"    pm.response.to.have.jsonSchema(updateAProperty);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"let propertyData = pm.response.json();\r",
+									"pm.environment.set(\"pEx_id\", propertyData.id);\r",
+									"\r",
+									"let updatedPropertyData = pm.response.json();\r",
+									"pm.environment.set(\"pEx_updated_at\", updatedPropertyData.updated_at);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": {{pEx_id}},\r\n    \"updated_at\": {{pEx_updated_at}},\r\n\t\"name\": \"phone\",\r\n\t\"description\": \"swan_{{$randomWord}}\",\r\n\t\"data_type\": \"number\",\r\n\t\"default\": true,\r\n\t\"permissions\": [\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 1,\r\n\t\t\t\"actor_role_id\": 1\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"writable\": true,\r\n\t\t\t\"subject_role_id\": 2,\r\n\t\t\t\"actor_role_id\": 1\r\n\t\t}\r\n\t],\r\n\t \"app_keys\": [\r\n\t\t\"89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f\",\r\n\t\t\"590b6855ec417400015682e454c6acec8f371adf861b830b031fa9ad3ac84c90\",\r\n\t\t\"815e8d01be8f78a41d1c71eb652b8be124b89058b74d284c6bb752a034dbb301\"\r\n   ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/properties/{{pEx_id}}?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"properties",
+								"{{pEx_id}}"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get properties",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getProperties1 = JSON.parse(pm.variables.get(\"getProperties1Schema\"))\r",
+									"        \r",
+									"    pm.response.to.have.jsonSchema(getProperties1);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/properties?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"properties"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "v2 / Search for contacts based on any property",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"must\": [\r\n        {\r\n            \"addresses.house_value_median\": {\r\n                \"gte\": 1000000,\r\n                \"coerce\": 0\r\n            }\r\n        }\r\n    ],\r\n    \"sort\": [\r\n        {\r\n            \"score.score\": {\r\n                \"order\": \"desc\"\r\n            }\r\n        },\r\n        {\r\n            \"score.score\": {\r\n                \"order\": \"desc\"\r\n            }\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v2/search?auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}&auth={{auth_token}}&must[]=name:name_first",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v2",
+								"search"
+							],
+							"query": [
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "must[]",
+									"value": "name:name_first"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a dynamic list for a property",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let dynLforProperty = JSON.parse(pm.variables.get(\"dynLforPropertySchema\"))\r",
+									"        \r",
+									"    pm.response.to.have.jsonSchema(dynLforProperty);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"West Region Contacts\",\r\n  \"type\": \"dynamic\",\r\n  \"criteria\": {\r\n    \"must\": [\r\n      {\r\n        \"property_84496\": {\r\n          \"eq\": \"West\"\r\n        }\r\n      }\r\n    ]\r\n  },\r\n  \"alias\": {\r\n    \"property_84496\": \"West\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/lists?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a non-default Contact property",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"updated_at\": 1747744759640\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/properties/84581?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"properties",
+								"84581"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a Contact custom field property with object and list",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"updated_at\": 1747744759640\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/properties/nested/84581?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"properties",
+								"nested",
+								"84581"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an object's property values",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "ET-Update-Source",
+								"value": "linkedin",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"updated_at\": 1747745008403\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{et_host}}/contacts/v1/contacts/14624106/object/84495?auth={{auth_token}}&auth_provider=evertrueauthtoken&oid={{et_oid}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"contacts",
+								"v1",
+								"contacts",
+								"14624106",
+								"object",
+								"84495"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "auth_provider",
+									"value": "evertrueauthtoken"
+								},
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								},
+								{
+									"key": "grouped",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
