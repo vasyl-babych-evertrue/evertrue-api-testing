@@ -22,7 +22,9 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
-    ['list']
+    ['list'],
+    ['junit', { outputFile: 'playwright-report/junit-results.xml' }],
+    ['json', { outputFile: 'playwright-report/report.json' }],
   ],
   
   /* Timeout for each test */

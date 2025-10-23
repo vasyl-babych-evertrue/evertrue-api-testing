@@ -1,0 +1,2750 @@
+{
+	"info": {
+		"_postman_id": "8479f834-13f7-4f3f-ba26-5ed6bcf9f994",
+		"name": "export files",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42399266",
+		"_collection_link": "https://evertrue-team.postman.co/workspace/Evertrue-Workspace~ff84f156-4fa0-40eb-b4fc-9b698b170dcf/collection/42399266-8479f834-13f7-4f3f-ba26-5ed6bcf9f994?action=share&source=collection_link&creator=42399266"
+	},
+	"item": [
+		{
+			"name": "Events Copy",
+			"item": [
+				{
+					"name": "Events",
+					"item": [
+						{
+							"name": "Create an Event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let createEvent = JSON.parse(pm.variables.get(\"POSTEventSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(createEvent);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": 15, //remote_id\r\n  \"oid\": 463,\r\n  \"name\": \"Best Party Evarr\",\r\n  \"description\": \"best times ever for realz\",\r\n  \"locationId\": 30,\r\n  \"locationName\": null,\r\n  \"startTime\": 1478822400000,\r\n  \"endTime\": 1478833200000,\r\n  \"source\": \"FACEBOOK\",\r\n  \"remoteId\": \"123\",\r\n  \"payload\": {\r\n    \"id\": 441,\r\n    \"oid\": 0,\r\n    \"name\": \"Best Party Evarr\",\r\n    \"description\": \"best times ever for realz\",\r\n    \"locationId\": null,\r\n    \"locationName\": null,\r\n    \"startTime\": 1478822400000,\r\n    \"endTime\": 1478833200000,\r\n    \"createdAt\": 0,\r\n    \"updatedAt\": 0,\r\n    \"place\": {\r\n      \"name\": \"Liberty Hotel Boston\",\r\n      \"location\": {\r\n        \"id\": 0,\r\n        \"remoteId\": null,\r\n        \"source\": null,\r\n        \"name\": null,\r\n        \"city\": \"Boston\",\r\n        \"country\": \"United States\",\r\n        \"state\": \"MA\",\r\n        \"street\": \"215 Charles St\",\r\n        \"zip\": \"02114\",\r\n        \"createdAt\": 0,\r\n        \"updatedAt\": 0,\r\n        \"latitude\": 42.36192,\r\n        \"longitude\": -71.06995\r\n      }\r\n    }\r\n  },\r\n  \"createdAt\": 1497470797000,\r\n  \"updatedAt\": 1497470797000,\r\n  \"location\": {\r\n    \"id\": 30,\r\n    \"remote_id\": null,\r\n    \"source\": \"FACEBOOK\",\r\n    \"name\": null,\r\n    \"city\": \"Boston\",\r\n    \"country\": \"United States\",\r\n    \"state\": \"MA\",\r\n    \"street\": \"215 Charles St\",\r\n    \"zip\": \"02114\",\r\n    \"created_at\": 2017,\r\n    \"updated_at\": 2017,\r\n    \"latitude\": 42.36192,\r\n    \"longitude\": -71.06995\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/create/event?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"create",
+										"event"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create a facebook event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let createFacebookEvent = JSON.parse(pm.variables.get(\"POSTFacebookEventSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(createFacebookEvent);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"55614\", //remote_id\r\n  \"start_time\": \"2016-11-10T19:00:00-0500\",\r\n  \"end_time\": \"2016-11-10T22:00:00-0500\",\r\n  \"name\": \"WWE Superslam\",\r\n  \"description\": \"John Cena in a no holds barred triple double match - ladders! chainsaws! explosions! fireballs! popcorn!\",\r\n\t\"place\": {\r\n\t\t\"name\": \"WWE Superslam arena\",\r\n\t\t\"location\": {\r\n\t\t\t\"city\": \"Boston\",\r\n\t\t\t\"country\": \"United States\",\r\n\t\t\t\"latitude\": 42.36192,\r\n\t\t\t\"longitude\": -71.06995,\r\n\t\t\t\"state\": \"MA\",\r\n\t\t\t\"street\": \"215 Charles St\",\r\n\t\t\t\"zip\": \"02114\"\r\n\t\t},\r\n\t\t\"id\": \"1583031808522344\"\r\n\t}\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/facebook?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"facebook"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create an Eventbrite event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let createEventbriteEvent = JSON.parse(pm.variables.get(\"POSTEventbriteEventSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(createEventbriteEvent);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"5515\",\r\n  \"name\": {\r\n        \"text\": \"Huge beach party!!\"\r\n  },\r\n  \"description\": {\r\n        \"text\": \"There will be free food and dogs!\"\r\n  },\r\n  \"start\": {\r\n        \"timezone\": \"America/New_York\",\r\n        \"utc\": \"2017-08-23T15:00:00Z\"\r\n  },\r\n  \"end\": {\r\n        \"timezone\": \"America/New_York\",\r\n        \"utc\": \"2017-08-23T16:00:00Z\"\r\n  },\r\n  \"venue_id\": \"SKDJGH23425\",\r\n  \"logo\": {\r\n  \t\"id\": \"34536715\",\r\n        \"url\": \"https://img.com/\"\r\n  },\r\n  \"status\": \"live\"\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/eventbrite?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"eventbrite"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create an Eventbrite Venue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let createEventbriteVenue = JSON.parse(pm.variables.get(\"POSTEventbriteVenueSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(createEventbriteVenue);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": \"20605116\",\r\n  \"name\": \"The Beach\",\r\n  \"address\": {\r\n    \"address_1\": \"15 Ocean St\",\r\n    \"city\": \"Hyannis\",\r\n    \"region\": \"MA\",\r\n    \"postal_code\": \"02601\",\r\n    \"country\": \"US\",\r\n    \"latitude\": \"41.6530114\",\r\n    \"longitude\": \"-70.28205049999997\"\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/eventbrite/venue?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"eventbrite",
+										"venue"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getEvent = JSON.parse(pm.variables.get(\"GETEventSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getEvent);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": 199912,\r\n  \"oid\": 463,\r\n  \"name\": \"Best Party Evarr\",\r\n  \"description\": \"best times ever for realz\",\r\n  \"locationId\": 30,\r\n  \"locationName\": null,\r\n  \"startTime\": 1478822400000,\r\n  \"endTime\": 1478833200000,\r\n  \"source\": \"FACEBOOK\",\r\n  \"remoteId\": \"123\",\r\n  \"payload\": {\r\n    \"id\": 123,\r\n    \"oid\": 0,\r\n    \"name\": \"Best Party Evarr\",\r\n    \"description\": \"best times ever for realz\",\r\n    \"locationId\": null,\r\n    \"locationName\": null,\r\n    \"startTime\": 1478822400000,\r\n    \"endTime\": 1478833200000,\r\n    \"createdAt\": 0,\r\n    \"updatedAt\": 0,\r\n    \"place\": {\r\n      \"name\": \"Liberty Hotel Boston\",\r\n      \"location\": {\r\n        \"id\": 0,\r\n        \"remoteId\": null,\r\n        \"source\": null,\r\n        \"name\": null,\r\n        \"city\": \"Boston\",\r\n        \"country\": \"United States\",\r\n        \"state\": \"MA\",\r\n        \"street\": \"215 Charles St\",\r\n        \"zip\": \"02114\",\r\n        \"createdAt\": 0,\r\n        \"updatedAt\": 0,\r\n        \"latitude\": 42.36192,\r\n        \"longitude\": -71.06995\r\n      }\r\n    }\r\n  },\r\n  \"createdAt\": 1497470797000,\r\n  \"updatedAt\": 1497470797000,\r\n  \"location\": {\r\n    \"id\": 30,\r\n    \"remote_id\": null,\r\n    \"source\": \"FACEBOOK\",\r\n    \"name\": null,\r\n    \"city\": \"Boston\",\r\n    \"country\": \"United States\",\r\n    \"state\": \"MA\",\r\n    \"street\": \"215 Charles St\",\r\n    \"zip\": \"02114\",\r\n    \"created_at\": 2017,\r\n    \"updated_at\": 2017,\r\n    \"latitude\": 42.36192,\r\n    \"longitude\": -71.06995\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/543?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"543"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event by Remote ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getEventbyRemoteId = JSON.parse(pm.variables.get(\"getEventbyRemoteIdSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getEventbyRemoteId);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": 199912,\r\n  \"oid\": 463,\r\n  \"name\": \"Best Party Evarr\",\r\n  \"description\": \"best times ever for realz\",\r\n  \"locationId\": 30,\r\n  \"locationName\": null,\r\n  \"startTime\": 1478822400000,\r\n  \"endTime\": 1478833200000,\r\n  \"source\": \"FACEBOOK\",\r\n  \"remoteId\": \"123\",\r\n  \"payload\": {\r\n    \"id\": 123,\r\n    \"oid\": 0,\r\n    \"name\": \"Best Party Evarr\",\r\n    \"description\": \"best times ever for realz\",\r\n    \"locationId\": null,\r\n    \"locationName\": null,\r\n    \"startTime\": 1478822400000,\r\n    \"endTime\": 1478833200000,\r\n    \"createdAt\": 0,\r\n    \"updatedAt\": 0,\r\n    \"place\": {\r\n      \"name\": \"Liberty Hotel Boston\",\r\n      \"location\": {\r\n        \"id\": 0,\r\n        \"remoteId\": null,\r\n        \"source\": null,\r\n        \"name\": null,\r\n        \"city\": \"Boston\",\r\n        \"country\": \"United States\",\r\n        \"state\": \"MA\",\r\n        \"street\": \"215 Charles St\",\r\n        \"zip\": \"02114\",\r\n        \"createdAt\": 0,\r\n        \"updatedAt\": 0,\r\n        \"latitude\": 42.36192,\r\n        \"longitude\": -71.06995\r\n      }\r\n    }\r\n  },\r\n  \"createdAt\": 1497470797000,\r\n  \"updatedAt\": 1497470797000,\r\n  \"location\": {\r\n    \"id\": 30,\r\n    \"remote_id\": null,\r\n    \"source\": \"FACEBOOK\",\r\n    \"name\": null,\r\n    \"city\": \"Boston\",\r\n    \"country\": \"United States\",\r\n    \"state\": \"MA\",\r\n    \"street\": \"215 Charles St\",\r\n    \"zip\": \"02114\",\r\n    \"created_at\": 2017,\r\n    \"updated_at\": 2017,\r\n    \"latitude\": 42.36192,\r\n    \"longitude\": -71.06995\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/remote_id/321?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"remote_id",
+										"321"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Load Events From User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/eventbrite/user/event/:token_id?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"eventbrite",
+										"user",
+										"event",
+										":token_id"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									],
+									"variable": [
+										{
+											"key": "token_id",
+											"value": "78"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/539/delete?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"539",
+										"delete"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Event Engagement",
+					"item": [
+						{
+							"name": "Create an Engagement",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let postEngagement = JSON.parse(pm.variables.get(\"postEngagementSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(postEngagement);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": 4281,\r\n    \"oid\": 463,\r\n    \"profileRemoteId\": \"1245\",\r\n    \"name\": \"Champ\",\r\n    \"contactId\": 999,\r\n    \"eventId\": 11,\r\n    \"engagementAction\": \"interested\",\r\n    \"engagedAt\": 1497471265000,\r\n    \"createdAt\": 1497471265000,\r\n    \"updatedAt\": 1497540937000\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/create/543/engagement?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"create",
+										"543",
+										"engagement"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new Facebook Event Engagements",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let postEngagementFacebook = JSON.parse(pm.variables.get(\"postEngagementFacebookSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(postEngagementFacebook);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n    \t\"name\": \"Finn the Human\",\r\n    \t\"id\": \"1245\",\r\n    \t\"rsvp_status\": \"attending\"\r\n    },\r\n    {\r\n    \t\"name\": \"Jake the Dog\",\r\n    \t\"id\": \"1245\",\r\n    \t\"rsvp_status\": \"unsure\"\r\n    }\r\n]"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/facebook/541/engagements?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"facebook",
+										"541",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new Eventbrite Event Engagements by Event Remote ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let postEventEngagementRemoteId = JSON.parse(pm.variables.get(\"postEngagementRemoteIdSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(postEventEngagementRemoteId);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n\t\"id\": \"SGHE14\",\r\n\t\"profile\": {\r\n\t    \"name\": \"Orlando Bloom\",\r\n\t    \"email\": \"orlando.bloom@aim.com\"\r\n\t},\r\n\t\"status\": \"Attending\"\r\n    },\r\n    {\r\n\t\"id\": \"WOVJS234\",\r\n\t\"profile\": {\r\n\t    \"name\": \"Luna the Dog\",\r\n            \"email\": \"luna@yahoo.net\"\r\n\t},\r\n\t\"status\": \"Not attending\"\r\n    }\r\n]"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/eventbrite/remote_id/5513/engagements?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"eventbrite",
+										"remote_id",
+										"5513",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new Eventbrite Event Engagements",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let createEventbriteEngagement = JSON.parse(pm.variables.get(\"postEventbriteEngagementSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(createEventbriteEngagement);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n\t\"id\": \"SGHE14\",\r\n\t\"profile\": {\r\n\t    \"name\": \"Orlando Bloom\",\r\n            \"email\": \"orlando.bloom@aim.com\"\r\n\t},\r\n\t\"status\": \"Attending\"\r\n    },\r\n    {\r\n\t\"id\": \"WOVJS234\",\r\n\t\"profile\": {\r\n\t     \"name\": \"Luna the Dog\",\r\n\t     \"email\": \"luna@yahoo.net\"\r\n\t\t},\r\n\t\"status\": \"Not attending\"\r\n    }\r\n]"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/eventbrite/543/engagements?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"eventbrite",
+										"543",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event Engagements",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getEventEngagement = JSON.parse(pm.variables.get(\"getEventEngagementSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getEventEngagement);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/engagements?source=eventbrite&response_type[]=attending&response_type[]=unsure&event_id[]=12345&event_id[]=45678&eventbrite_profile_id[]=42&eventbrite_profile_id[]=422&limit=50&offset=25&start_date=2017-01-01&end_date=2017-12-31?&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "source",
+											"value": "eventbrite"
+										},
+										{
+											"key": "response_type[]",
+											"value": "attending"
+										},
+										{
+											"key": "response_type[]",
+											"value": "unsure"
+										},
+										{
+											"key": "event_id[]",
+											"value": "12345"
+										},
+										{
+											"key": "event_id[]",
+											"value": "45678"
+										},
+										{
+											"key": "eventbrite_profile_id[]",
+											"value": "42"
+										},
+										{
+											"key": "eventbrite_profile_id[]",
+											"value": "422"
+										},
+										{
+											"key": "limit",
+											"value": "50"
+										},
+										{
+											"key": "offset",
+											"value": "25"
+										},
+										{
+											"key": "start_date",
+											"value": "2017-01-01"
+										},
+										{
+											"key": "end_date",
+											"value": "2017-12-31?"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event Engagements For Event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/541/engagements?response_type[]=attending&response_type[]=unsure?&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"541",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "response_type[]",
+											"value": "attending"
+										},
+										{
+											"key": "response_type[]",
+											"value": "unsure?"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event Engagements by Event Remote ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/remote_id/5513/engagements?response_type[]=attending&response_type[]=unsure?&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"remote_id",
+										"5513",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "response_type[]",
+											"value": "attending"
+										},
+										{
+											"key": "response_type[]",
+											"value": "unsure?"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Engagement",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/engagement/541/delete?&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"engagement",
+										"541",
+										"delete"
+									],
+									"query": [
+										{
+											"key": null,
+											"value": null
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Engagements For Event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/541/engagement/delete?&oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"541",
+										"engagement",
+										"delete"
+									],
+									"query": [
+										{
+											"key": null,
+											"value": null
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Eventbrite Profiles",
+					"item": [
+						{
+							"name": "Create an Eventbrite profile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"yaroslavkondria@gmail.com\"\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										""
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Eventbrite Profiles",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"yaroslavkondria@gmail.com\"\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile?name[]=yaroslavkondria@gmail.com&email[]=yaroslavkondria@gmail.com&match_status[]=unmatched&match_status[]=match_queued&event_id[]=123&event_id[]=456&response_type[]=attending&response_type[]=unsure&auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile"
+									],
+									"query": [
+										{
+											"key": "name[]",
+											"value": "yaroslavkondria@gmail.com"
+										},
+										{
+											"key": "email[]",
+											"value": "yaroslavkondria@gmail.com"
+										},
+										{
+											"key": "match_status[]",
+											"value": "unmatched"
+										},
+										{
+											"key": "match_status[]",
+											"value": "match_queued"
+										},
+										{
+											"key": "event_id[]",
+											"value": "123"
+										},
+										{
+											"key": "event_id[]",
+											"value": "456"
+										},
+										{
+											"key": "response_type[]",
+											"value": "attending"
+										},
+										{
+											"key": "response_type[]",
+											"value": "unsure"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Matched Contact IDs By OID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/matched_contact_ids?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										"matched_contact_ids"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Matched Status for a Contact ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/matched_contact_id/541?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										"matched_contact_id",
+										"541"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Eventbrite Profile By ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/875655?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										"875655"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Eventbrite Profile By Email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/email/yaroslavkondria@gmail.com?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										"email",
+										"yaroslavkondria@gmail.com"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event Engagements for Eventbrite Profile By ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/875655/engagements?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										"875655",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Event Engagements for Eventbrite Profile By Email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/eventbrite_profile/email/yaroslavkondria@gmail.com/engagements?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"eventbrite_profile",
+										"email",
+										"yaroslavkondria@gmail.com",
+										"engagements"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Manual Matching",
+					"item": [
+						{
+							"name": "Match endpoint",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/match/eventbrite?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}&contact_id=14608836&email=yaroslavkondria@gmail.com&op=match",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"match",
+										"eventbrite"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "contact_id",
+											"value": "14608836"
+										},
+										{
+											"key": "email",
+											"value": "yaroslavkondria@gmail.com"
+										},
+										{
+											"key": "op",
+											"value": "match"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unmatch endoint",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"id\": 199912,\r\n  \"oid\": 463,\r\n  \"name\": \"Best Party Evarr\",\r\n  \"description\": \"best times ever for realz\",\r\n  \"locationId\": 30,\r\n  \"locationName\": null,\r\n  \"startTime\": 1478822400000,\r\n  \"endTime\": 1478833200000,\r\n  \"source\": \"FACEBOOK\",\r\n  \"remoteId\": \"123\",\r\n  \"payload\": {\r\n    \"id\": 123,\r\n    \"oid\": 0,\r\n    \"name\": \"Best Party Evarr\",\r\n    \"description\": \"best times ever for realz\",\r\n    \"locationId\": null,\r\n    \"locationName\": null,\r\n    \"startTime\": 1478822400000,\r\n    \"endTime\": 1478833200000,\r\n    \"createdAt\": 0,\r\n    \"updatedAt\": 0,\r\n    \"place\": {\r\n      \"name\": \"Liberty Hotel Boston\",\r\n      \"location\": {\r\n        \"id\": 0,\r\n        \"remoteId\": null,\r\n        \"source\": null,\r\n        \"name\": null,\r\n        \"city\": \"Boston\",\r\n        \"country\": \"United States\",\r\n        \"state\": \"MA\",\r\n        \"street\": \"215 Charles St\",\r\n        \"zip\": \"02114\",\r\n        \"createdAt\": 0,\r\n        \"updatedAt\": 0,\r\n        \"latitude\": 42.36192,\r\n        \"longitude\": -71.06995\r\n      }\r\n    }\r\n  },\r\n  \"createdAt\": 1497470797000,\r\n  \"updatedAt\": 1497470797000,\r\n  \"location\": {\r\n    \"id\": 30,\r\n    \"remote_id\": null,\r\n    \"source\": \"FACEBOOK\",\r\n    \"name\": null,\r\n    \"city\": \"Boston\",\r\n    \"country\": \"United States\",\r\n    \"state\": \"MA\",\r\n    \"street\": \"215 Charles St\",\r\n    \"zip\": \"02114\",\r\n    \"created_at\": 2017,\r\n    \"updated_at\": 2017,\r\n    \"latitude\": 42.36192,\r\n    \"longitude\": -71.06995\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/event/facebook?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}&contact_id=14608836&email=yaroslavkondria@gmail.com&op=unmatch",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"event",
+										"facebook"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "contact_id",
+											"value": "14608836"
+										},
+										{
+											"key": "email",
+											"value": "yaroslavkondria@gmail.com"
+										},
+										{
+											"key": "op",
+											"value": "unmatch"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Eventbrite OAuth",
+					"item": [
+						{
+							"name": "Create User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"userId\": 56\r\n}"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/user?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"user"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/user/90?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"user",
+										"90"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Users",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/user?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"user"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set User Full Collection Completed",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/user/completed/:token_id/true?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"user",
+										"completed",
+										":token_id",
+										"true"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										}
+									],
+									"variable": [
+										{
+											"key": "token_id",
+											"value": "93"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User Eventbrite Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/oauth2?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}&state=LcZCDI3qdxGTsEmLW6xtRPa9TL9wqaRwuJyEXW52wKjYTMpBWfTFxCP1T4yawMve",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"oauth2"
+									],
+									"query": [
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "state",
+											"value": "LcZCDI3qdxGTsEmLW6xtRPa9TL9wqaRwuJyEXW52wKjYTMpBWfTFxCP1T4yawMve"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Eventbrite Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Response matches the expected schema\", function () {\r",
+											"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+											"    pm.response.to.have.jsonSchema(getSingleField);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "/*\r\nresponse\r\n[\r\n  {\r\n    \"oid\": 2,\r\n    \"email\": \"product@evertrue.com\",\r\n    \"event_count\": 0,\r\n    \"eng_count\": 0,\r\n    \"matched_count\": 0\r\n  },\r\n  {\r\n    \"oid\": 24,\r\n    \"email\": \"alumni@headroyce.org\",\r\n    \"event_count\": 5,\r\n    \"eng_count\": 351,\r\n    \"matched_count\": 344\r\n  }\r\n]\r\n*/"
+								},
+								"url": {
+									"raw": "{{et_host}}/events/v1/report?auth={{auth_token}}&app_key={{app_key_givingtree}}&oid={{et_oid}}&start_date=2022-07-12 15:27:12&end_date=2022-10-12 15:27:12",
+									"host": [
+										"{{et_host}}"
+									],
+									"path": [
+										"events",
+										"v1",
+										"report"
+									],
+									"query": [
+										{
+											"key": "auth",
+											"value": "{{auth_token}}"
+										},
+										{
+											"key": "app_key",
+											"value": "{{app_key_givingtree}}"
+										},
+										{
+											"key": "oid",
+											"value": "{{et_oid}}"
+										},
+										{
+											"key": "start_date",
+											"value": "2022-07-12 15:27:12"
+										},
+										{
+											"key": "end_date",
+											"value": "2022-10-12 15:27:12"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get matched contact IDs by oid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSingleField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{et_host}}/events/v1/eventbrite_profile/matched_contact_ids?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"events",
+								"v1",
+								"eventbrite_profile",
+								"matched_contact_ids"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get events for user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSingleField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{et_host}}/events/v1/user?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"events",
+								"v1",
+								"user"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get events for user Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response matches the expected schema\", function () {\r",
+									"    let getSingleField = JSON.parse(pm.variables.get(\"getSingleFieldSchema\"));\r",
+									"    pm.response.to.have.jsonSchema(getSingleField);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{et_host}}/events/v1/user?oid={{et_oid}}&auth={{auth_token}}&app_key={{app_key_givingtree}}",
+							"host": [
+								"{{et_host}}"
+							],
+							"path": [
+								"events",
+								"v1",
+								"user"
+							],
+							"query": [
+								{
+									"key": "oid",
+									"value": "{{et_oid}}"
+								},
+								{
+									"key": "auth",
+									"value": "{{auth_token}}"
+								},
+								{
+									"key": "app_key",
+									"value": "{{app_key_givingtree}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
