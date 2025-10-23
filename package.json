@@ -9,7 +9,11 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:auth": "playwright test tests/auth",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "report:open": "playwright show-report --port=9330",
+    "test:list": "playwright test --reporter=list",
+    "report:events": "set PLAYWRIGHT_HTML_REPORT=reports\\events&& playwright test tests/events --reporter=html&& playwright show-report reports\\events --port=57771",
+    "report:search": "set PLAYWRIGHT_HTML_REPORT=reports\\search&& playwright test tests/searchAPI --reporter=html&& playwright show-report reports\\search --port=57772"
   },
   "keywords": [],
   "author": "",
