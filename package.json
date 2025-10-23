@@ -14,12 +14,9 @@
     "report:search": "set PLAYWRIGHT_HTML_REPORT=reports\\search&& playwright test tests/searchAPI --reporter=html&& playwright show-report reports\\search --port=57772",
     "report:hub": "set PLAYWRIGHT_HTML_REPORT=reports\\hub&& playwright test tests/hub --reporter=html&& playwright show-report reports\\hub --port=57773",
     "report:emma": "set PLAYWRIGHT_HTML_REPORT=reports\\emma&& playwright test tests/emma --reporter=html&& playwright show-report reports\\emma --port=57775",
-    "report:properties": "set PLAYWRIGHT_HTML_REPORT=reports\\properties&& playwright test tests/properties --reporter=html&& playwright show-report reports\\properties --port=57774"
-    "report": "playwright show-report",
+    "report:properties": "set PLAYWRIGHT_HTML_REPORT=reports\\properties&& playwright test tests/properties --reporter=html&& playwright show-report reports\\properties --port=57774",
     "report:open": "playwright show-report --port=9330",
     "test:list": "playwright test --reporter=list",
-    "report:events": "set PLAYWRIGHT_HTML_REPORT=reports\\events&& playwright test tests/events --reporter=html&& playwright show-report reports\\events --port=57771",
-    "report:search": "set PLAYWRIGHT_HTML_REPORT=reports\\search&& playwright test tests/searchAPI --reporter=html&& playwright show-report reports\\search --port=57772",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
