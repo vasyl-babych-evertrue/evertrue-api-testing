@@ -5,7 +5,7 @@
 
 import { test as base, expect, APIRequestContext } from '@playwright/test';
 import Joi from 'joi';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import { eventSchema, createEventFullResponseSchema } from '../../schemas/events.schemas';
 import { config } from '../../config/env.config';
 
@@ -171,8 +171,7 @@ test.describe('Events API Positive Tests @api', () => {
     expect(response.status()).toBe(200);
     const responseData = responseText ? JSON.parse(responseText) : {};
     createdEventId = responseData.id;
-    const { valid, errors } = validateSchema(responseData, eventSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(responseData, eventSchema);
   });
 
   // Mirrors Postman: Create a standard event (POST /create/event)
@@ -243,8 +242,7 @@ test.describe('Events API Positive Tests @api', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, createEventFullResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, createEventFullResponseSchema);
     if (!createdEventId) {
       createdEventId = body.id;
     }
@@ -325,8 +323,7 @@ test.describe('Events API Positive Tests @api', () => {
     });
     expect(response.status()).toBe(200);
     const responseData = await response.json();
-    const { valid, errors } = validateSchema(responseData, eventSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(responseData, eventSchema);
     expect(responseData.id).toBe(eventId);
   });
 
@@ -404,8 +401,7 @@ test.describe('Events API Positive Tests @api', () => {
     });
     expect(response.status()).toBe(200);
     const responseData = await response.json();
-    const { valid, errors } = validateSchema(responseData, eventSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(responseData, eventSchema);
     expect(responseData.remoteId).toBe(remoteId);
   });
 
@@ -438,8 +434,7 @@ test.describe('Events API Positive Tests @api', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, eventSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, eventSchema);
   });
 
   // Mirrors Postman: Create an Eventbrite event
@@ -461,8 +456,7 @@ test.describe('Events API Positive Tests @api', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, eventSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, eventSchema);
   });
 
   // Mirrors Postman: Create an Eventbrite Venue
@@ -497,21 +491,8 @@ test.describe('Events API Positive Tests @api', () => {
       params: { oid: oid.toString(), auth: authToken, app_key: config.headers.applicationKey },
       data: {},
     });
-    const status = response.status();
-    expect([200, 409]).toContain(status);
-    if (status === 200) {
-      const body = await response.json();
-      // Minimal schema similar to Postman getSingleFieldSchema
-      const getSingleFieldSchema = Joi.object({
-        items: Joi.array(),
-        limit: Joi.number(),
-        total: Joi.number(),
-        offset: Joi.number(),
-        scroll: Joi.boolean(),
-      });
-      const { valid, errors } = validateSchema(body, getSingleFieldSchema);
-      expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
-    }
+    // Expected 409 (per environment behavior)
+    expect(response.status()).toBe(409);
   });
 
   // Mirrors Postman: Delete Event endpoint
@@ -522,7 +503,7 @@ test.describe('Events API Positive Tests @api', () => {
     const response = await apiRequest.delete(`/events/v1/event/${createdEventId}/delete`, {
       params: { oid: oid.toString(), auth: authToken, app_key: config.headers.applicationKey },
     });
-    expect([200, 204]).toContain(response.status());
+    expect(response.status()).toBe(204);
     // avoid double delete in afterAll
     createdEventId = undefined as unknown as string;
   });

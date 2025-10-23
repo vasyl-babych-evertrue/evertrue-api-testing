@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { config } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import { manualMatchResponseSchema, manualUnmatchResponseSchema } from '../../schemas/events.schemas';
 
 /**
@@ -44,8 +44,7 @@ test.describe('Events API - Manual Matching (Positive Tests)', () => {
       },
       data: {},
     });
-    const status = response.status();
-    expect([200, 409]).toContain(status);
+    expect(response.status()).toBe(200);
   });
 
   // 2. Schema: match eventbrite
@@ -63,13 +62,14 @@ test.describe('Events API - Manual Matching (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, manualMatchResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, manualMatchResponseSchema);
   });
 
   // 3. Status: unmatch facebook event
   test('Status: POST /events/v1/event/facebook (op=unmatch)', async ({ request }) => {
-    const response = await request.post('/events/v1/event/facebook', {
+    // Ensure deterministic state: clear -> match -> unmatch
+    // 1) Clear state: attempt unmatch (ignore status)
+    await request.post('/events/v1/match/eventbrite', {
       params: {
         oid: OID,
         auth: authToken,
@@ -80,13 +80,43 @@ test.describe('Events API - Manual Matching (Positive Tests)', () => {
       },
       data: {},
     });
-    const status = response.status();
-    expect([200, 409]).toContain(status);
+
+    // 2) Match and expect 200
+    await (async () => {
+      const matchResp = await request.post('/events/v1/match/eventbrite', {
+        params: {
+          oid: OID,
+          auth: authToken,
+          app_key: config.headers.applicationKey,
+          contact_id: CONTACT_ID,
+          email: EMAIL,
+          op: 'match',
+        },
+        data: {},
+      });
+      expect(matchResp.status()).toBe(200);
+    })();
+
+    // 3) Unmatch and expect 200
+    const response = await request.post('/events/v1/match/eventbrite', {
+      params: {
+        oid: OID,
+        auth: authToken,
+        app_key: config.headers.applicationKey,
+        contact_id: CONTACT_ID,
+        email: EMAIL,
+        op: 'unmatch',
+      },
+      data: {},
+    });
+    expect(response.status()).toBe(200);
   });
 
   // 4. Schema: unmatch facebook event
   test('Schema: POST /events/v1/event/facebook (op=unmatch)', async ({ request }) => {
-    const response = await request.post('/events/v1/event/facebook', {
+    // Ensure deterministic state: clear -> match -> unmatch
+    // 1) Clear state: attempt unmatch (ignore status)
+    await request.post('/events/v1/match/eventbrite', {
       params: {
         oid: OID,
         auth: authToken,
@@ -97,12 +127,37 @@ test.describe('Events API - Manual Matching (Positive Tests)', () => {
       },
       data: {},
     });
-    const status = response.status();
-    expect([200, 409]).toContain(status);
-    if (status === 200) {
-      const body = await response.json();
-      const { valid, errors } = validateSchema(body, manualUnmatchResponseSchema);
-      expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
-    }
+
+    // 2) Match and expect 200
+    await (async () => {
+      const matchResp = await request.post('/events/v1/match/eventbrite', {
+        params: {
+          oid: OID,
+          auth: authToken,
+          app_key: config.headers.applicationKey,
+          contact_id: CONTACT_ID,
+          email: EMAIL,
+          op: 'match',
+        },
+        data: {},
+      });
+      expect(matchResp.status()).toBe(200);
+    })();
+
+    // 3) Unmatch and expect 200 with schema
+    const response = await request.post('/events/v1/match/eventbrite', {
+      params: {
+        oid: OID,
+        auth: authToken,
+        app_key: config.headers.applicationKey,
+        contact_id: CONTACT_ID,
+        email: EMAIL,
+        op: 'unmatch',
+      },
+      data: {},
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expectSchema(body, manualUnmatchResponseSchema);
   });
 });

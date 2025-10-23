@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { config } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import {
   singleEngagementResponseSchema,
   postFacebookEngagementsResponseSchema,
@@ -17,9 +17,11 @@ import {
 
 const OID = '463';
 
+let createdEngagementId: number;
+
 test.describe('Events API - Engagements (Positive Flow)', () => {
   let authToken: string;
-
+  
   test.beforeAll(async ({ request }) => {
     const response = await request.post('/auth/session', {
       headers: {
@@ -56,8 +58,9 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
 
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, singleEngagementResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, singleEngagementResponseSchema);
+    // capture created engagement id for deletion tests
+    createdEngagementId = (body as any).id ?? (body as any).engagement?.id ?? 4281;
   });
 
   test('Create new Facebook Event Engagements (event ID 541)', async ({ request }) => {
@@ -75,8 +78,7 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
 
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, postFacebookEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, postFacebookEngagementsResponseSchema);
   });
 
   test('Create new Eventbrite Event Engagements by Event Remote ID (5513)', async ({ request }) => {
@@ -94,8 +96,7 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
 
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, postEventbriteEngagementsByRemoteIdResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, postEventbriteEngagementsByRemoteIdResponseSchema);
   });
 
   test('Create new Eventbrite Event Engagements (event ID 543)', async ({ request }) => {
@@ -113,8 +114,7 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
 
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, postEventbriteEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, postEventbriteEngagementsResponseSchema);
   });
 
   test('Get Event Engagements (paginate)', async ({ request }) => {
@@ -129,26 +129,38 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
     // Postman expects 200
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventEngagementsResponseSchema);
   });
 
   // Delete Engagement (single) - /events/v1/event/engagement/541/delete
   test('Delete Engagement (single)', async ({ request }) => {
-    const response = await request.delete('/events/v1/event/engagement/541/delete', {
+    // Ensure we have a valid engagement id: query engagements and pick a matching/first id
+    const listResp = await request.get('/events/v1/event/engagements', {
       params: {
         oid: OID,
         auth: authToken,
         app_key: config.headers.applicationKey,
       },
     });
-    const status = response.status();
-    expect([200, 409]).toContain(status);
-    if (status === 200) {
-      const body = await response.json();
-      const { valid, errors } = validateSchema(body, deleteEngagementResponseSchema);
-      expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
-    }
+    expect(listResp.status()).toBe(200);
+    const listBody = await listResp.json();
+    // Try to find by previously created id, else take first available
+    const items = (listBody as any).items || listBody;
+    const found = Array.isArray(items)
+      ? items.find((it: any) => it?.id === createdEngagementId) || items[0]
+      : undefined;
+    const idToDelete = found?.id ?? createdEngagementId;
+
+    const response = await request.delete(`/events/v1/event/engagement/${idToDelete}/delete`, {
+      params: {
+        oid: OID,
+        auth: authToken,
+        app_key: config.headers.applicationKey,
+      },
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expectSchema(body, deleteEngagementResponseSchema);
   });
 
   // Delete Engagements For Event - /events/v1/event/541/engagement/delete
@@ -160,13 +172,7 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
         app_key: config.headers.applicationKey,
       },
     });
-    const status = response.status();
-    expect([200, 204]).toContain(status);
-    if (status === 200) {
-      const body = await response.json();
-      const { valid, errors } = validateSchema(body, deleteEngagementResponseSchema);
-      expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
-    }
+    expect(response.status()).toBe(204);
   });
 
   // Get Eventbrite Profile Engagements by ID
@@ -181,8 +187,7 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
     // Postman expects 200
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfileEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfileEngagementsResponseSchema);
   });
 
   // Get Eventbrite Profile Engagements by email
@@ -197,7 +202,6 @@ test.describe('Events API - Engagements (Positive Flow)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfileEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfileEngagementsResponseSchema);
   });
 });

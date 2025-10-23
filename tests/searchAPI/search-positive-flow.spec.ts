@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { config } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import { contactsSearchResponseSchema, contactNoteSearchResponseSchema } from '../../schemas/search.schemas';
 
 // Search API - Positive Flow (mirrors Postman collection requests)
@@ -31,8 +31,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 2. Multiple Single Field Queries (AND)
@@ -44,8 +43,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 3. Multifield OR query
@@ -57,8 +55,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 4. Single field with OR
@@ -70,8 +67,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 5. Single field with comparators
@@ -83,8 +79,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 6. Relative Date Range Queries
@@ -96,8 +91,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 7. Range Comparators with coerce value
@@ -109,8 +103,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 8. Geo Box
@@ -134,8 +127,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 9. Geo Distance
@@ -153,8 +145,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 10. Geo Box Clustering for maps
@@ -171,8 +162,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 11. GeoCode and Bounding Box for LI locations
@@ -184,8 +174,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 12. Testing for field existence
@@ -197,8 +186,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 13. Testing for non-existence field
@@ -210,8 +198,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 14. Multifield with multiple optionalities
@@ -232,8 +219,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 15. Sorting
@@ -252,8 +238,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 16. Sorting Copy (score sort)
@@ -274,8 +259,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 17. Find documents similar to other(s)
@@ -285,13 +269,9 @@ test.describe('Search API - Positive Flow', () => {
       params: { oid: OID, auth: authToken, app_key: config.headers.applicationKey, 'like[]': ['123', '456'] as any },
       data: payload,
     });
-    const status = response.status();
-    expect([200, 404]).toContain(status);
-    if (status === 200) {
-      const data = await response.json();
-      const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
-    }
+    expect(response.status()).toBe(200);
+    const data = await response.json();
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 18. Nested field, matching against a single instance
@@ -303,8 +283,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 19. Stats & Bucketing
@@ -316,8 +295,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 20. Querying Child Documents
@@ -332,8 +310,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 21. Querying Parent Documents
@@ -354,8 +331,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 22. Wildcard Search
@@ -367,8 +343,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 23. Scrolling
@@ -390,8 +365,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 24. Scrolling by ID
@@ -403,8 +377,7 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactsSearchResponseSchema);
   });
 
   // 25. Highlighting (contact notes)
@@ -419,7 +392,6 @@ test.describe('Search API - Positive Flow', () => {
     });
     expect(response.status()).toBe(200);
     const data = await response.json();
-    const { valid, errors } = validateSchema(data, contactNoteSearchResponseSchema);
-    expect(valid, errors.join(', ')).toBe(true);
+    expectSchema(data, contactNoteSearchResponseSchema);
   });
 });

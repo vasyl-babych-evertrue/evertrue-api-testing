@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { config } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import {
   createEventbriteProfileResponseSchema,
   getEventbriteProfilesResponseSchema,
@@ -44,8 +44,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, createEventbriteProfileResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, createEventbriteProfileResponseSchema);
   });
 
   // 2. Get Eventbrite Profiles (with filters)
@@ -67,8 +66,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfilesResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfilesResponseSchema);
   });
 
   // 3. Get Matched Contact IDs
@@ -78,8 +76,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, eventbriteMatchedContactIdsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, eventbriteMatchedContactIdsResponseSchema);
   });
 
   // 4. Get Matched Contact ID by Event ID (541)
@@ -89,8 +86,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, eventbriteMatchedContactIdByEventResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, eventbriteMatchedContactIdByEventResponseSchema);
   });
 
   // 5. Get Eventbrite Profile by ID
@@ -100,8 +96,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfileResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfileResponseSchema);
   });
 
   // 6. Get Eventbrite Profile by Email
@@ -111,8 +106,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfileByEmailResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfileByEmailResponseSchema);
   });
 
   // 7. Get Eventbrite Profile Engagements by ID
@@ -122,8 +116,7 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfileEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfileEngagementsResponseSchema);
   });
 
   // 8. Get Eventbrite Profile Engagements by Email
@@ -133,7 +126,6 @@ test.describe('Events API - Eventbrite Profiles (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getEventbriteProfileEngagementsResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getEventbriteProfileEngagementsResponseSchema);
   });
 });

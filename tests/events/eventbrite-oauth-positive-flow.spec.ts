@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { config } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import {
   oauth2TokenResponseSchema,
   getUsersResponseSchema,
@@ -64,8 +64,7 @@ test.describe('Events API - Eventbrite OAuth (Positive Tests)', () => {
     const contentType = response.headers()['content-type'] || '';
     if (contentType.includes('application/json')) {
       const body = await response.json();
-      const { valid, errors } = validateSchema(body, oauth2TokenResponseSchema);
-      expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+      expectSchema(body, oauth2TokenResponseSchema);
     } else {
       // Some environments return an HTML redirect/landing page for oauth2
       const text = await response.text();
@@ -96,8 +95,7 @@ test.describe('Events API - Eventbrite OAuth (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, getUsersResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, getUsersResponseSchema);
   });
 
   // 3. GET /events/v1/report (status + schema)
@@ -126,7 +124,6 @@ test.describe('Events API - Eventbrite OAuth (Positive Tests)', () => {
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
-    const { valid, errors } = validateSchema(body, eventbriteReportResponseSchema);
-    expect(valid, `Schema validation failed: ${errors.join(', ')}`).toBe(true);
+    expectSchema(body, eventbriteReportResponseSchema);
   });
 });
