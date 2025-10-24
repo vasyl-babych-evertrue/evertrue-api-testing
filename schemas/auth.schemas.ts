@@ -62,8 +62,8 @@ export const createSessionSchema = Joi.object({
   user: Joi.object({
     id: Joi.number().required(),
     email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).optional(),
-    last_name: Joi.string().allow(null).optional()
+    first_name: Joi.string().allow(null).required(),
+    last_name: Joi.string().allow(null).required()
   }).required()
 });
 
@@ -78,8 +78,8 @@ export const createSessionWithDeviceSchema = Joi.object({
   user: Joi.object({
     id: Joi.number().required(),
     email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).optional(),
-    last_name: Joi.string().allow(null).optional()
+    first_name: Joi.string().allow(null).required(),
+    last_name: Joi.string().allow(null).required()
   }).required()
 });
 
@@ -95,8 +95,8 @@ export const createScopedSessionSchema = Joi.object({
   user: Joi.object({
     id: Joi.number().required(),
     email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).optional(),
-    last_name: Joi.string().allow(null).optional()
+    first_name: Joi.string().allow(null).required(),
+    last_name: Joi.string().allow(null).required()
   }).required()
 });
 
@@ -110,8 +110,8 @@ export const createSessionFromPrimeTokenSchema = Joi.object({
   user: Joi.object({
     id: Joi.number().required(),
     email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).optional(),
-    last_name: Joi.string().allow(null).optional()
+    first_name: Joi.string().allow(null).required(),
+    last_name: Joi.string().allow(null).required()
   }).required()
 });
 
@@ -143,7 +143,8 @@ export const emptyResponseSchema = Joi.string().valid('').required();
 
 /**
  * Schema for User Search Response (POST /auth/users/search)
- * Note: Some users may not have all fields present
+ * Note: Some users may not have all fields (e.g., has_linkedin_identities, saml_user_id, last_sign_in_at)
+ * This is NOT a bug - different users have different data
  */
 export const userSearchSchema = Joi.object({
   total: Joi.number().required(),
@@ -151,30 +152,32 @@ export const userSearchSchema = Joi.object({
   offset: Joi.number().required(),
   users: Joi.array().items(
     Joi.object({
+      // Core fields - always present
       id: Joi.number().required(),
       name: Joi.string().required(),
       email: Joi.string().required(),
       super_user: Joi.boolean().required(),
-      has_linkedin_identities: Joi.boolean().optional(),
       changed_at: Joi.number().required(),
-      saml_user_id: Joi.string().allow(null).optional(),
-      last_sign_in_at: Joi.alternatives().try(
-        Joi.string().isoDate(),
-        Joi.string().allow(null)
-      ).optional(),
       created_at: Joi.number().required(),
       updated_at: Joi.number().required(),
       confirmed_at: Joi.alternatives().try(
         Joi.number(),
         Joi.string().allow(null)
       ).required(),
-      mfa_enabled_at: Joi.number().allow(null).optional(),
       affiliations: Joi.array().required(),
       affiliation_requests: Joi.array().required(),
       version_created_at: Joi.alternatives().try(
         Joi.number(),
         Joi.string()
-      ).required()
+      ).required(),
+      // Optional fields - may not be present for all users
+      has_linkedin_identities: Joi.boolean().optional(),
+      saml_user_id: Joi.string().allow(null).optional(),
+      last_sign_in_at: Joi.alternatives().try(
+        Joi.string().isoDate(),
+        Joi.string().allow(null)
+      ).optional(),
+      mfa_enabled_at: Joi.number().allow(null).optional()
     })
   ).required()
 });
@@ -582,6 +585,7 @@ export const lidsErrorSchema = Joi.object({
 
 /**
  * Schema for bulk fetch users response
+ * Note: unconfirmed_email may not be present for all users
  */
 export const bulkFetchUsersSchema = Joi.object({
   users: Joi.array().items(
@@ -597,7 +601,7 @@ export const bulkFetchUsersSchema = Joi.object({
       can_delete_orgs: Joi.boolean().required(),
       mfa_enabled_at: Joi.number().allow(null).required(),
       confirmed_at: Joi.number().allow(null).required(),
-      unconfirmed_email: Joi.string().allow(null).optional(),
+      unconfirmed_email: Joi.string().allow(null).optional(),  // May not be present
       confirmation_sent_at: Joi.number().allow(null).required(),
       changed_at: Joi.number().allow(null).required(),
       created_at: Joi.number().required(),
@@ -889,3 +893,126 @@ export const senioritySchema = Joi.object({
  * Schema for GET /auth/seniorities - List seniorities
  */
 export const senioritiesListSchema = Joi.array().items(senioritySchema).min(0);
+
+/**
+ * Schema for Application Object
+ */
+export const applicationSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  name: Joi.string().required(),
+  key: Joi.string().required(),
+  created_at: Joi.number().integer().positive().required(),
+  updated_at: Joi.number().integer().positive().required()
+});
+
+/**
+ * Schema for GET /auth/applications - List all applications (super-admin only)
+ */
+export const applicationsListSchema = Joi.array().items(applicationSchema).min(0);
+
+/**
+ * Schema for Identity Provider Object
+ */
+export const identityProviderSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  name: Joi.string().required(),
+  primary_domain_suffix: Joi.string().required(),
+  federation_xml_url: Joi.string().uri().allow(null).required(),
+  organization_id: Joi.number().integer().positive().required(),
+  created_at: Joi.alternatives().try(
+    Joi.number().integer().positive(),
+    Joi.string().isoDate(),
+    Joi.any().allow(null)
+  ).required(),
+  updated_at: Joi.alternatives().try(
+    Joi.number().integer().positive(),
+    Joi.string().isoDate(),
+    Joi.any().allow(null)
+  ).required()
+});
+
+/**
+ * Schema for GET /auth/identity_providers - List all identity providers
+ */
+export const identityProvidersListSchema = Joi.array().items(identityProviderSchema).min(0);
+
+/**
+ * Schema for POST /auth/identity_providers - Create identity provider
+ * Wrapped in identity_provider object
+ */
+export const identityProviderCreateSchema = Joi.object({
+  identity_provider: identityProviderSchema.required()
+});
+
+/**
+ * Schema for GET /auth/identity_providers/:id - Show single identity provider
+ */
+export const identityProviderSingleSchema = identityProviderSchema;
+
+/**
+ * Schema for Identity Provider Search Response
+ * Returns organization info that matches the email domain
+ * Can return either an array or an object with organizations array
+ */
+export const identityProviderSearchSchema = Joi.alternatives().try(
+  Joi.array().items(
+    Joi.object({
+      id: Joi.number().integer().positive().required(),
+      name: Joi.string().required(),
+      slug: Joi.string().required(),
+      sso_method: Joi.string().valid('disabled', 'saml', 'oauth').required()
+    })
+  ).min(0),
+  Joi.object({
+    organizations: Joi.array().items(
+      Joi.object({
+        id: Joi.number().integer().positive().required(),
+        name: Joi.string().required(),
+        slug: Joi.string().required(),
+        sso_method: Joi.string().valid('disabled', 'saml', 'oauth').required()
+      })
+    ).min(0).required()
+  })
+);
+
+/**
+ * Schema for User Identity Object
+ */
+export const userIdentitySchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  user_id: Joi.number().integer().positive().required(),
+  identity_provider_id: Joi.number().integer().positive().allow(null).required(),
+  key: Joi.string().required(),
+  created_at: Joi.alternatives().try(
+    Joi.number().integer().positive(),
+    Joi.string().isoDate()
+  ).required(),
+  updated_at: Joi.alternatives().try(
+    Joi.number().integer().positive(),
+    Joi.string().isoDate()
+  ).required()
+});
+
+/**
+ * Schema for GET /auth/identities/unmatched - List unmatched identities
+ * Returns array of identity objects
+ */
+export const unmatchedIdentitiesSchema = Joi.array().items(userIdentitySchema).min(0);
+
+/**
+ * Schema for GET /auth/identities/{key} - Identity lookup by key
+ * Returns array of complex objects with user and affiliation data
+ */
+export const identityLookupSchema = Joi.array().items(
+  Joi.object({
+    identity: Joi.object({
+      id: Joi.number().integer().positive().required(),
+      user_id: Joi.number().integer().positive().required(),
+      identity_provider_id: Joi.number().integer().positive().allow(null).required(),
+      key: Joi.string().required(),
+      created_at: Joi.number().integer().positive().required(),
+      updated_at: Joi.number().integer().positive().required()
+    }).required(),
+    user: Joi.object().unknown(true).required() // Complex nested structure
+  })
+).min(0);

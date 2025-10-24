@@ -31,6 +31,22 @@ export const config = {
     basicToken: process.env.BASIC_AUTH_TOKEN || 'dmFzeWwuYmFieWNoQGV2ZXJ0cnVlLmNvbTpwMG85UClPKHAwbzlQKU8o',
   },
   
+  // Raw credentials (for reference, not used directly in tests)
+  users: {
+    superAdmin: {
+      email: 'vasyl.babych@evertrue.com',
+      password: 'p0o9P)O(p0o9P)O(',
+    },
+    regularUser: {
+      email: 'vasyl.babych+3@swanteams.com',
+      password: 'p0o9P)O(',
+    },
+    testUser: {
+      email: '021e981a-b23a-41dc-99b6-c2bbb200d43b@mailslurp.xyz',
+      password: '12341234',
+    },
+  },
+  
   // Test configuration
   test: {
     timeout: 30000,

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
 import { affiliationRoleSchema } from '../../schemas/auth.schemas';
@@ -15,15 +15,13 @@ test.describe('Auth API - Affiliation Roles (Positive Tests)', () => {
 
   test.beforeAll(async ({ request }) => {
     // Create session with Super Admin user
-    const superAdminAuth = Buffer.from('vasyl.babych@evertrue.com:p0o9P)O(p0o9P)O(').toString('base64');
-    
     const response = await request.post('/auth/session', {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
         'Device-ID': config.headers.deviceId,
         'host': config.headers.host,
-        'Authorization': `Basic ${superAdminAuth}`,
+        'Authorization': `Basic ${config.auth.superAdminToken}`,
       },
     });
 
