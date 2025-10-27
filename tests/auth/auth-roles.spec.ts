@@ -9,7 +9,7 @@ import { rolesSchema, roleSchema } from '../../schemas/auth.schemas';
  */
 test.describe('Auth API - Roles Management', () => {
   let authToken: string;
-  let testRoleId: number;
+  let _testRoleId: number;
 
   test.beforeAll(async ({ request }) => {
     // Create session to get auth token
@@ -18,8 +18,8 @@ test.describe('Auth API - Roles Management', () => {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
         'Device-ID': config.headers.deviceId,
-        'host': config.headers.host,
-        'Authorization': `Basic ${config.auth.basicToken}`,
+        host: config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
@@ -33,8 +33,8 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -45,14 +45,14 @@ test.describe('Auth API - Roles Management', () => {
       console.log('All roles:', JSON.stringify(responseBody, null, 2));
 
       // Verify response schema
-      expectSchema(responseBody, rolesSchema)
+      expectSchema(responseBody, rolesSchema);
 
       // Verify roles array structure
       expect(Array.isArray(responseBody)).toBe(true);
       if (responseBody.length > 0) {
         // Store first role ID for later tests
-        testRoleId = responseBody[0].id;
-        
+        _testRoleId = responseBody[0].id;
+
         // Verify role has required fields
         expect(responseBody[0].id).toBeDefined();
         expect(responseBody[0].name).toBeDefined();
@@ -64,8 +64,8 @@ test.describe('Auth API - Roles Management', () => {
       const response = await request.get('/auth/roles', {
         params: {
           oid: '463',
-          app_key: '89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f'
-        }
+          app_key: '89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f',
+        },
       });
 
       // Verify status code is 401
@@ -77,12 +77,12 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '999', // Non-accessible organization
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
-      // Verify status code is 403 or 404
-      expect([403, 404]).toContain(response.status());
+      // Non-accessible organization returns 403
+      expect(response.status()).toBe(403);
     });
   });
 
@@ -93,13 +93,13 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       const roles = await rolesResponse.json();
       expect(roles.length).toBeGreaterThan(0);
-      
+
       const roleId = roles[0].id;
 
       // Now get specific role
@@ -107,8 +107,8 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -128,13 +128,13 @@ test.describe('Auth API - Roles Management', () => {
 
     test('should return 404 for non-existent role', async ({ request }) => {
       const nonExistentRoleId = 999999;
-      
+
       const response = await request.get(`/auth/roles/${nonExistentRoleId}`, {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 404
@@ -145,8 +145,8 @@ test.describe('Auth API - Roles Management', () => {
       const response = await request.get('/auth/roles/1615', {
         params: {
           oid: '463',
-          app_key: '89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f'
-        }
+          app_key: '89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f',
+        },
       });
 
       // Verify status code is 401
@@ -160,16 +160,16 @@ test.describe('Auth API - Roles Management', () => {
         name: `Test Role ${Date.now()}`,
         remote_id: `test_role_${Date.now()}`,
         can_see_private_data: false,
-        default: false
+        default: false,
       };
 
       const response = await request.post('/auth/roles', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
-        data: newRoleData
+        data: newRoleData,
       });
 
       // Verify status code is 201
@@ -190,48 +190,45 @@ test.describe('Auth API - Roles Management', () => {
       expect(responseBody.default).toBe(newRoleData.default);
 
       // Store created role ID for cleanup
-      testRoleId = responseBody.id;
+      _testRoleId = responseBody.id;
     });
 
-    test('should return 400 with invalid data', async ({ request }) => {
+    test('should return 201 with missing name field (API generates name)', async ({ request }) => {
       const invalidRoleData = {
         // Missing required name field
-        remote_id: 'invalid_role',
-        can_see_private_data: false
+        remote_id: `invalid_role_${Date.now()}`,
+        can_see_private_data: false,
       };
 
       const response = await request.post('/auth/roles', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
-        data: invalidRoleData
+        data: invalidRoleData,
       });
 
-      // Note: API might return 201, 400, or 422 depending on validation
-      expect([400, 201, 422]).toContain(response.status());
-      
-      if (response.status() === 201) {
-        // If it creates the role, verify it has a generated name
-        const responseBody = await response.json();
-        expect(responseBody.name).toBeDefined();
-      }
+      // API creates role with generated name
+      expect(response.status()).toBe(201);
+
+      const responseBody = await response.json();
+      expect(responseBody.name).toBeDefined();
     });
 
     test('should return 401 without auth token', async ({ request }) => {
       const newRoleData = {
         name: 'Test Role',
         remote_id: 'test_role',
-        can_see_private_data: false
+        can_see_private_data: false,
       };
 
       const response = await request.post('/auth/roles', {
         params: {
           oid: '463',
-          app_key: '89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f'
+          app_key: '89567e74bec3afafc5f46db72b1a9323f41858256e3bec5dc9e522a7b3f3518f',
         },
-        data: newRoleData
+        data: newRoleData,
       });
 
       // Verify status code is 401
@@ -246,14 +243,14 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         data: {
           name: `Role to Update ${Date.now()}`,
           remote_id: `update_role_${Date.now()}`,
           can_see_private_data: false,
-          default: false
-        }
+          default: false,
+        },
       });
 
       const createdRole = await createResponse.json();
@@ -264,16 +261,16 @@ test.describe('Auth API - Roles Management', () => {
         name: `Updated Role ${Date.now()}`,
         remote_id: createdRole.remote_id,
         can_see_private_data: true,
-        default: false
+        default: false,
       };
 
       const response = await request.put(`/auth/roles/${roleId}`, {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
-        data: updateData
+        data: updateData,
       });
 
       // API returns 204 No Content for updates
@@ -284,8 +281,8 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       expect(getResponse.status()).toBe(200);
@@ -308,14 +305,14 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         data: {
           name: `Role to Delete ${Date.now()}`,
           remote_id: `delete_role_${Date.now()}`,
           can_see_private_data: false,
-          default: false
-        }
+          default: false,
+        },
       });
 
       const createdRole = await createResponse.json();
@@ -326,8 +323,8 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 204
@@ -338,8 +335,8 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Should return 404 since role is deleted
@@ -353,8 +350,8 @@ test.describe('Auth API - Roles Management', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 404

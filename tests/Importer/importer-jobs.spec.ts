@@ -1,20 +1,16 @@
 import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
-import {
-  jobSchema,
-  paginatedJobListSchema,
-  s3UrlResponseSchema,
-} from '../../schemas/importer.schemas';
+import { jobSchema, paginatedJobListSchema, s3UrlSchema } from '../../schemas/importer.schemas';
 
 /**
  * Importer API Tests - Complete Test Suite
- * 
+ *
  * This file contains all Importer API tests organized in logical groups:
  * 1. Job Listing & Filtering - GET /importer/v3/jobs with various filters
  * 2. Job Details - GET /importer/v3/jobs/{id} and download URLs
  * 3. Job Creation & Polling - POST job and monitor FILE_CHECK status
- * 
+ *
  * Test User: Super Admin (vasyl.babych@evertrue.com)
  */
 
@@ -33,7 +29,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.superAdminToken}`,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
@@ -46,7 +42,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -54,12 +50,19 @@ test.describe('Importer API - Job Listing & Filtering', () => {
     expect(response.status()).toBe(200);
 
     const body = await response.json();
-    console.log('Jobs List Response (first 2 items):', JSON.stringify({
-      limit: body.limit,
-      offset: body.offset,
-      total: body.total,
-      items: body.items?.slice(0, 2)
-    }, null, 2));
+    console.log(
+      'Jobs List Response (first 2 items):',
+      JSON.stringify(
+        {
+          limit: body.limit,
+          offset: body.offset,
+          total: body.total,
+          items: body.items?.slice(0, 2),
+        },
+        null,
+        2
+      )
+    );
 
     // Validate response schema
     expectSchema(body, paginatedJobListSchema);
@@ -87,7 +90,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&limit=${limit}&offset=${offset}`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -110,7 +113,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&type[]=CSV`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -135,7 +138,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&status[]=OK`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -160,7 +163,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&sort_column=created_at&sort_order=desc&limit=10`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -185,7 +188,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&filename=contacts&limit=5`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -214,7 +217,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs/${existingJobId}?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -243,7 +246,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
       `/importer/v3/jobs/${existingJobId}/download?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -254,7 +257,7 @@ test.describe('Importer API - Job Listing & Filtering', () => {
     console.log('S3 URL Response:', JSON.stringify(body, null, 2));
 
     // Validate response schema
-    expectSchema(body, s3UrlResponseSchema);
+    expectSchema(body, s3UrlSchema);
 
     // Validate S3 URL structure
     expect(body).toHaveProperty('s3_url');
@@ -290,7 +293,7 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.superAdminToken}`,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
@@ -302,13 +305,13 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&status[]=FILECHECK_SUCCESS&limit=1`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
 
     const jobsBody = await jobsResponse.json();
-    
+
     if (jobsBody.items && jobsBody.items.length > 0) {
       successfulS3Filename = jobsBody.items[0].s3_filename;
       console.log(`✓ Found successful S3 file: ${successfulS3Filename}`);
@@ -325,17 +328,17 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
       source: 'CSV',
       compression: 'NONE',
       prune: 0,
-      notify: 1
+      notify: 1,
     };
 
     const response = await request.post(
       `/importer/v3/jobs?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        data: jobData
+        data: jobData,
       }
     );
 
@@ -343,13 +346,20 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
 
     const body = await response.json();
     createdJobId = body.id;
-    
-    console.log('✓ Job Created:', JSON.stringify({
-      id: body.id,
-      s3_filename: body.s3_filename,
-      type: body.type,
-      status: body.status
-    }, null, 2));
+
+    console.log(
+      '✓ Job Created:',
+      JSON.stringify(
+        {
+          id: body.id,
+          s3_filename: body.s3_filename,
+          type: body.type,
+          status: body.status,
+        },
+        null,
+        2
+      )
+    );
 
     // Validate response schema
     expectSchema(body, jobSchema);
@@ -359,7 +369,9 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
     expect(typeof body.id).toBe('number');
     expect(body.s3_filename).toBe(successfulS3Filename);
     expect(body).toHaveProperty('type'); // Type auto-detected by API
-    // Job is automatically queued for file check
+    // Job is automatically queued for file check - status can be NEW, FILECHECK_QUEUED, or FILECHECK_RUNNING
+    // We check that status field exists and is one of the valid initial statuses
+    expect(body).toHaveProperty('status');
     expect(['NEW', 'FILECHECK_QUEUED', 'FILECHECK_RUNNING']).toContain(body.status);
     expect(body.oid).toBe(testOrgId);
   });
@@ -383,7 +395,7 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
         `/importer/v3/jobs/${createdJobId}?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&worker_type=FILE_CHECK`,
         {
           headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
           },
         }
       );
@@ -401,7 +413,7 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
       // Track status changes
       if (currentStatus !== lastStatus) {
         statusHistory.push(currentStatus);
-        
+
         // Validate status progression
         if (lastStatus !== null) {
           const lastIndex = EXPECTED_ORDER.indexOf(lastStatus);
@@ -431,34 +443,34 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
         console.log(`   Status progression: ${statusHistory.join(' → ')}`);
         console.log(`   Total attempts: ${retries + 1}`);
         console.log(`   Total time: ~${((retries + 1) * interval) / 1000}s`);
-        
+
         // Validate final status
         expect(currentStatus).toBe(STATUS_SUCCESS);
         expect(body.id).toBe(createdJobId);
-        
+
         return; // Exit successfully
       } else if (currentStatus === STATUS_FAILED) {
         console.log(`\n⚠️  Job reached FILECHECK_FAILED!`);
         console.log(`   Status progression: ${statusHistory.join(' → ')}`);
         console.log(`   Total attempts: ${retries + 1}`);
         console.log(`   Total time: ~${((retries + 1) * interval) / 1000}s`);
-        
+
         // Log failure details if available
         if (body.error_message) {
           console.log(`   Error: ${body.error_message}`);
         }
-        
+
         // Validate final status
         expect(currentStatus).toBe(STATUS_FAILED);
         expect(body.id).toBe(createdJobId);
-        
+
         // Mark as expected failure (file may be missing from S3)
         console.log(`\n   Note: File validation failed - this is expected if S3 file is missing`);
         return;
       }
 
       retries++;
-      await new Promise(resolve => setTimeout(resolve, interval));
+      await new Promise((resolve) => setTimeout(resolve, interval));
     }
 
     // If we reach here, max retries exceeded
@@ -478,13 +490,13 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
       `/importer/v3/jobs/${createdJobId}?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
 
     const statusBody = await statusResponse.json();
-    
+
     if (statusBody.status === STATUS_FAILED) {
       console.log('\n⚠️  Skipping results test - job failed during FILE_CHECK');
       test.skip();
@@ -495,7 +507,7 @@ test.describe.serial('Importer API - Job Creation & FILE_CHECK Polling', () => {
       `/importer/v3/jobs/${createdJobId}/results?oid=${testOrgId}&auth=${authToken}&auth_provider=EvertrueAuthToken&app_key=${config.headers.applicationKey}&worker_type=FILE_CHECK`,
       {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );

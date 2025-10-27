@@ -1,27 +1,26 @@
 import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
-import { createSessionSchema, createTemporarySessionSchema } from '../../schemas/auth.schemas';
+import { createTemporarySessionSchema } from '../../schemas/auth.schemas';
 
 /**
  * Auth API Tests - Session Expiration and Timeout
  * Tests for session lifecycle, expiration, and temporary tokens
  */
 test.describe('Auth API - Session Expiration Tests', () => {
-
   test('should have expire_at field in session response', async ({ request }) => {
     const response = await request.post('/auth/session', {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
         'Device-ID': config.headers.deviceId,
-        'host': config.headers.host,
-        'Authorization': `Basic ${config.auth.basicToken}`,
+        host: config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
     const responseBody = await response.json();
-    
+
     // Verify expire_at is present and in the future
     expect(responseBody.expire_at).toBeTruthy();
     const expireAt = new Date(responseBody.expire_at);
@@ -36,8 +35,8 @@ test.describe('Auth API - Session Expiration Tests', () => {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
         'Device-ID': config.headers.deviceId,
-        'host': config.headers.host,
-        'Authorization': `Basic ${config.auth.basicToken}`,
+        host: config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
@@ -50,22 +49,21 @@ test.describe('Auth API - Session Expiration Tests', () => {
         'Application-Key': getAppKey('console'),
         'Authorization-Provider': 'EvertrueTemporaryTokenStrategy',
         'Content-Type': 'application/json',
-        'Authorization': baseToken,
+        Authorization: baseToken,
       },
       data: {
         type: 'SCOPED',
-        oid: 463
-      }
+        oid: 463,
+      },
     });
 
     const tempBody = await tempResponse.json();
-    
+
     // Verify short expiration (5 minutes default)
     const expireAt = new Date(tempBody.expire_at);
     const now = new Date();
-    const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
     const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
-    
+
     expect(expireAt.getTime()).toBeGreaterThan(now.getTime());
     expect(expireAt.getTime()).toBeLessThan(tenMinutesFromNow.getTime());
   });
@@ -77,7 +75,7 @@ test.describe('Auth API - Session Expiration Tests', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': 'EvertrueAuthToken',
-        'Authorization': 'expired_token_12345',
+        Authorization: 'expired_token_12345',
       },
     });
 
@@ -94,8 +92,8 @@ test.describe('Auth API - Session Expiration Tests', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -109,12 +107,12 @@ test.describe('Auth API - Session Expiration Tests', () => {
           'Application-Key': getAppKey('console'),
           'Authorization-Provider': 'EvertrueTemporaryTokenStrategy',
           'Content-Type': 'application/json',
-          'Authorization': baseToken,
+          Authorization: baseToken,
         },
         data: {
           type: 'SCOPED',
-          oid: 463
-        }
+          oid: 463,
+        },
       });
 
       // Verify status code is 201
@@ -136,7 +134,7 @@ test.describe('Auth API - Session Expiration Tests', () => {
       const expireAt = new Date(responseBody.expire_at);
       const now = new Date();
       const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
-      
+
       expect(expireAt.getTime()).toBeGreaterThan(now.getTime());
       expect(expireAt.getTime()).toBeLessThanOrEqual(fiveMinutesFromNow.getTime());
     });
@@ -147,12 +145,12 @@ test.describe('Auth API - Session Expiration Tests', () => {
           'Application-Key': getAppKey('console'),
           'Authorization-Provider': 'EvertrueTemporaryTokenStrategy',
           'Content-Type': 'application/json',
-          'Authorization': 'invalid_base_token',
+          Authorization: 'invalid_base_token',
         },
         data: {
           type: 'SCOPED',
-          oid: 463
-        }
+          oid: 463,
+        },
       });
 
       expect(response.status()).toBe(401);

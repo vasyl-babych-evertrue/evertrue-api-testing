@@ -655,14 +655,13 @@ export const bulkFetchUsersSchema = Joi.object({
 });
 
 /**
- * Schema for Affiliation Role Object
+ * Schema for Affiliation Role Object (GET response)
+ * Used when getting user affiliations
  */
-export const affiliationRoleSchema = Joi.object({
+export const affiliationRoleGetSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
-  affiliation_id: Joi.number().integer().positive().optional(),
-  role_id: Joi.number().integer().positive().optional(),
+  role_id: Joi.number().integer().positive().required(),
   creator_user_id: Joi.number().integer().positive().allow(null).required(),
-  user_id: Joi.number().integer().positive().optional(),
   created_at: Joi.number().integer().positive().required(),
   updated_at: Joi.number().integer().positive().required(),
   role: Joi.object({
@@ -672,8 +671,29 @@ export const affiliationRoleSchema = Joi.object({
     name: Joi.string().allow(null).max(255).required(),
     default: Joi.boolean().allow(null).required(),
     can_see_private_data: Joi.boolean().required(),
-    created_at: Joi.number().integer().positive().optional(),
-    updated_at: Joi.number().integer().positive().optional(),
+  }).required(),
+});
+
+/**
+ * Schema for Affiliation Role Object (POST/PUT/PATCH response)
+ * Used when creating/updating affiliations
+ */
+export const affiliationRoleSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  affiliation_id: Joi.number().integer().positive().required(),
+  creator_user_id: Joi.number().integer().positive().allow(null).required(),
+  user_id: Joi.number().integer().positive().required(),
+  created_at: Joi.number().integer().positive().required(),
+  updated_at: Joi.number().integer().positive().required(),
+  role: Joi.object({
+    id: Joi.number().integer().positive().required(),
+    remote_id: Joi.string().allow('').max(255).required(),
+    organization_id: Joi.number().integer().positive().required(),
+    name: Joi.string().allow(null).max(255).required(),
+    default: Joi.boolean().allow(null).required(),
+    can_see_private_data: Joi.boolean().required(),
+    created_at: Joi.number().integer().positive().required(),
+    updated_at: Joi.number().integer().positive().required(),
   }).required(),
 });
 
@@ -688,34 +708,51 @@ export const affiliationOrganizationSchema = Joi.object({
 });
 
 /**
- * Schema for Affiliation Object
+ * Schema for Affiliation Object (GET response)
+ * Used when getting user affiliations
+ */
+export const affiliationGetSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  organization_id: Joi.number().integer().positive().required(),
+  remote_user_id: Joi.any().allow(null).required(),
+  contact_id: Joi.any().allow(null).required(),
+  legacy_user_id: Joi.any().allow(null).required(),
+  organization: affiliationOrganizationSchema.required(),
+  created_at: Joi.number().integer().positive().required(),
+  updated_at: Joi.number().integer().positive().required(),
+  affiliation_roles: Joi.array().items(affiliationRoleGetSchema).required(),
+});
+
+/**
+ * Schema for Affiliation Object (POST/PUT/PATCH response)
+ * Used when creating/updating affiliations
  */
 export const affiliationSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
-  organization_id: Joi.number().integer().positive().optional(),
-  remote_user_id: Joi.string().allow(null).optional(),
-  contact_id: Joi.number().integer().positive().allow(null).required(),
-  legacy_user_id: Joi.number().integer().positive().allow(null).optional(),
+  user_id: Joi.number().integer().positive().required(),
+  remote_user_id: Joi.any().allow(null).required(),
+  contact_id: Joi.any().allow(null).required(),
+  legacy_user_id: Joi.any().allow(null).required(),
+  organization: affiliationOrganizationSchema.required(),
   created_at: Joi.number().integer().positive().required(),
   updated_at: Joi.number().integer().positive().required(),
-  organization: affiliationOrganizationSchema.optional(),
   affiliation_roles: Joi.array().items(affiliationRoleSchema).required(),
 });
 
 /**
- * Schema for array of affiliations
+ * Schema for array of affiliations (GET response)
  */
-export const affiliationsArraySchema = Joi.array().items(affiliationSchema).min(0);
+export const affiliationsArraySchema = Joi.array().items(affiliationGetSchema).min(0);
 
 /**
- * Schema for Affiliation Request Object
+ * Schema for Affiliation Request Object (PENDING status)
+ * Used when creating a new request or listing pending requests
  */
-export const affiliationRequestSchema = Joi.object({
+export const affiliationRequestPendingSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
-  data: Joi.object().optional(),
+  data: Joi.object().allow(null).required(),
   committed: Joi.boolean().required(),
-  status: Joi.string().valid('PENDING', 'APPROVED', 'DENIED').required(),
-  affiliation: affiliationSchema.allow(null).optional(), // Only present when APPROVED
+  status: Joi.string().valid('PENDING').required(),
   organization: affiliationOrganizationSchema.required(),
   user: Joi.object({
     id: Joi.number().integer().positive().required(),
@@ -729,48 +766,142 @@ export const affiliationRequestSchema = Joi.object({
     mfa_enabled_at: Joi.any().allow(null).required(),
     updated_at: Joi.number().integer().positive().required(),
   }).required(),
-  moderator: Joi.object().allow(null).optional(),
-  moderated_at: Joi.number().integer().positive().allow(null).required(),
+  moderator: Joi.any().allow(null).required(),
+  moderated_at: Joi.any().allow(null).required(),
   created_at: Joi.number().integer().positive().required(),
   updated_at: Joi.number().integer().positive().required(),
 });
+
+/**
+ * Schema for Affiliation Request Object (APPROVED status)
+ * Used when request is approved by moderator
+ */
+export const affiliationRequestApprovedSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  data: Joi.object().allow(null).required(),
+  committed: Joi.boolean().required(),
+  status: Joi.string().valid('APPROVED').required(),
+  organization: affiliationOrganizationSchema.required(),
+  user: Joi.object({
+    id: Joi.number().integer().positive().required(),
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    has_linkedin_identities: Joi.boolean().required(),
+    saml_user_id: Joi.any().allow(null).required(),
+    changed_at: Joi.number().integer().positive().required(),
+    confirmed_at: Joi.number().integer().positive().required(),
+    created_at: Joi.number().integer().positive().required(),
+    mfa_enabled_at: Joi.any().allow(null).required(),
+    updated_at: Joi.number().integer().positive().required(),
+  }).required(),
+  moderator: Joi.object({
+    id: Joi.number().integer().positive().required(),
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    has_linkedin_identities: Joi.boolean().required(),
+    saml_user_id: Joi.any().allow(null).required(),
+    changed_at: Joi.number().integer().positive().required(),
+    confirmed_at: Joi.number().integer().positive().required(),
+    created_at: Joi.number().integer().positive().required(),
+    mfa_enabled_at: Joi.any().allow(null).required(),
+    updated_at: Joi.number().integer().positive().required(),
+  }).required(),
+  moderated_at: Joi.number().integer().positive().required(),
+  affiliation: affiliationSchema.required(),
+  created_at: Joi.number().integer().positive().required(),
+  updated_at: Joi.number().integer().positive().required(),
+});
+
+/**
+ * Schema for Affiliation Request Object (Generic)
+ * For backwards compatibility - use specific schemas when possible
+ */
+export const affiliationRequestSchema = affiliationRequestPendingSchema;
 
 /**
  * Schema for array of affiliation requests
+ * Can contain requests with different statuses
  */
-export const affiliationRequestsArraySchema = Joi.array().items(affiliationRequestSchema).min(0);
+export const affiliationRequestsArraySchema = Joi.array()
+  .items(Joi.alternatives().try(affiliationRequestPendingSchema, affiliationRequestApprovedSchema))
+  .min(0);
 
 /**
- * Schema for Affiliation Invitation Object
- * Note: POST returns invited_by as number, GET returns inviter as object
+ * Schema for Affiliation Invitation Object (POST response)
+ * Used when creating a new invitation
  */
-export const affiliationInvitationSchema = Joi.object({
+export const affiliationInvitationPostSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
-  invited_by: Joi.number().integer().positive().optional(), // POST response
-  inviter: Joi.object().optional(), // GET response
-  email: Joi.string().email().optional(), // Not in GET response
+  invited_by: Joi.number().integer().positive().required(),
+  email: Joi.string().email().required(),
   name: Joi.string().allow(null).required(),
   contact_id: Joi.number().integer().positive().allow(null).required(),
-  role_ids: Joi.array()
-    .items(Joi.alternatives().try(Joi.number().integer().positive(), Joi.string()))
-    .min(1)
-    .required(),
-  affiliation_id: Joi.number().integer().positive().allow(null).optional(), // Not always present
-  application_name: Joi.string().optional(), // POST response
-  application: Joi.object().optional(), // GET response
-  organization: Joi.object().optional(), // GET response
-  status: Joi.string().optional(), // GET response
-  saml_user_id: Joi.string().allow(null).optional(),
+  role_ids: Joi.array().items(Joi.string()).min(1).required(),
+  affiliation_id: Joi.number().integer().positive().allow(null).required(),
+  application_name: Joi.string().required(),
+  saml_user_id: Joi.string().allow(null).required(),
   created_at: Joi.number().integer().positive().required(),
   updated_at: Joi.number().integer().positive().required(),
   accepted_at: Joi.number().integer().positive().allow(null).required(),
-  invite_email_sent_at: Joi.number().integer().positive().allow(null).optional(), // Not always present
+  invite_email_sent_at: Joi.number().integer().positive().allow(null).required(),
 });
 
 /**
- * Schema for array of affiliation invitations
+ * Schema for Affiliation Invitation Object (GET response)
+ * Used when retrieving invitation details
  */
-export const affiliationInvitationsArraySchema = Joi.array().items(affiliationInvitationSchema).min(0);
+export const affiliationInvitationGetSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  name: Joi.string().allow(null).required(),
+  contact_id: Joi.number().integer().positive().allow(null).required(),
+  status: Joi.string().required(),
+  created_at: Joi.number().integer().positive().required(),
+  updated_at: Joi.number().integer().positive().required(),
+  accepted_at: Joi.number().integer().positive().allow(null).required(),
+  inviter: Joi.object({
+    id: Joi.number().integer().positive().required(),
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    has_linkedin_identities: Joi.boolean().required(),
+    saml_user_id: Joi.string().allow(null).required(),
+    changed_at: Joi.number().integer().positive().required(),
+    confirmed_at: Joi.number().integer().positive().required(),
+    created_at: Joi.number().integer().positive().required(),
+    mfa_enabled_at: Joi.number().integer().positive().allow(null).required(),
+    updated_at: Joi.number().integer().positive().required(),
+  }).required(),
+  application: Joi.object({
+    id: Joi.number().integer().positive().required(),
+    name: Joi.string().required(),
+    key: Joi.string().required(),
+    created_at: Joi.number().integer().positive().required(),
+    updated_at: Joi.number().integer().positive().required(),
+    admin_only: Joi.boolean().required(),
+    super_user_id: Joi.number().integer().positive().required(),
+  }).required(),
+  role_ids: Joi.array().items(Joi.string()).min(1).required(),
+  organization: Joi.object({
+    id: Joi.number().integer().positive().required(),
+    name: Joi.string().required(),
+    slug: Joi.string().required(),
+    sso_method: Joi.string().required(),
+    mfa_required: Joi.boolean().required(),
+    created_at: Joi.number().integer().positive().required(),
+    updated_at: Joi.number().integer().positive().required(),
+  }).required(),
+});
+
+/**
+ * Schema for Affiliation Invitation Object (Generic)
+ * For backwards compatibility - use specific schemas when possible
+ */
+export const affiliationInvitationSchema = affiliationInvitationPostSchema;
+
+/**
+ * Schema for array of affiliation invitations (GET list)
+ * List endpoint returns GET-style objects
+ */
+export const affiliationInvitationsArraySchema = Joi.array().items(affiliationInvitationGetSchema).min(0);
 
 /**
  * Schema for School Division Department Object

@@ -1,7 +1,11 @@
 import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
-import { affiliationRequestSchema, affiliationRequestsArraySchema } from '../../schemas/auth.schemas';
+import {
+  affiliationRequestPendingSchema,
+  affiliationRequestApprovedSchema,
+  affiliationRequestsArraySchema,
+} from '../../schemas/auth.schemas';
 
 /**
  * Auth API Tests - Affiliation Requests (Positive Tests)
@@ -9,7 +13,7 @@ import { affiliationRequestSchema, affiliationRequestsArraySchema } from '../../
  */
 test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
   let authToken: string;
-  let userId: number;
+  let _userId: number;
 
   test.beforeAll(async ({ request }) => {
     // Create session with Super Admin user for moderation endpoints
@@ -18,14 +22,14 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
         'Device-ID': config.headers.deviceId,
-        'host': config.headers.host,
-        'Authorization': `Basic ${config.auth.superAdminToken}`,
+        host: config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
     const session = await response.json();
     authToken = session.token;
-    userId = session.user.id;
+    _userId = session.user.id;
   });
 
   test.describe('GET /auth/affiliation_requests - Get moderation requests (for admins)', () => {
@@ -34,8 +38,8 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -70,40 +74,40 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
 
     test('should create affiliation invitation for org 464', async ({ request }) => {
       invitationEmail = `test.registration.${Date.now()}@evertrue.com`;
-      
+
       // First, get available roles for org 464
       const rolesResponse = await request.get('/auth/roles', {
         params: {
           oid: '464',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
-      
+
       const roles = await rolesResponse.json();
       console.log('Available roles for org 464:', JSON.stringify(roles, null, 2));
-      
+
       // Find GivingTree User role for givingtree app
       const givingTreeRole = roles.find((role: any) => role.remote_id === 'GivingTree User');
-      const roleIds = givingTreeRole ? [givingTreeRole.id] : (roles.length > 0 ? [roles[0].id] : []);
-      
+      const roleIds = givingTreeRole ? [givingTreeRole.id] : roles.length > 0 ? [roles[0].id] : [];
+
       // Create invitation for org 464 (NOT 463)
       const response = await request.post('/auth/affiliation_invitations', {
         params: {
-          oid: '464',  // Different organization
+          oid: '464', // Different organization
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
+          'Content-Type': 'application/json; charset=UTF-8',
         },
         data: {
           name: `Test User ${Date.now()}`,
           email: invitationEmail,
           contact_id: null,
           app: 'givingtree',
-          role_ids: roleIds
-        }
+          role_ids: roleIds,
+        },
       });
 
       console.log('Invitation response status:', response.status());
@@ -118,11 +122,11 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       // This is a special testing endpoint that returns user data including confirmation_token
       const response = await request.get('/auth/internal_testing/user_data', {
         params: {
-          oid: '464',  // Use org 464 where invitation was created
+          oid: '464', // Use org 464 where invitation was created
           app_key: getAppKey('console'),
           auth: authToken,
-          email: invitationEmail
-        }
+          email: invitationEmail,
+        },
       });
 
       console.log('User data response status:', response.status());
@@ -131,24 +135,24 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
 
       expect(response.status()).toBe(200);
       expect(responseBody.confirmation_token).toBeDefined();
-      
+
       confirmationToken = responseBody.confirmation_token;
     });
 
     test('should request confirmation instructions', async ({ request }) => {
       const response = await request.post('/auth/registrations/confirmation', {
         params: {
-          oid: '464',  // Use org 464
-          app_key: getAppKey('console')
+          oid: '464', // Use org 464
+          app_key: getAppKey('console'),
         },
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
+          'Content-Type': 'application/json; charset=UTF-8',
         },
         data: {
           user: {
-            email: invitationEmail
-          }
-        }
+            email: invitationEmail,
+          },
+        },
       });
 
       console.log('Confirmation instructions response status:', response.status());
@@ -159,11 +163,11 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       const response = await request.post('/skiff/register', {
         params: {
           app_key: getAppKey('console'),
-          oid: '464'  // Register in org 464
+          oid: '464', // Register in org 464
         },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         data: {
           user: {
@@ -171,9 +175,9 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
             name: `Test User ${Date.now()}`,
             password: '12341234',
             password_confirmation: '12341234',
-            invite_token: confirmationToken
-          }
-        }
+            invite_token: confirmationToken,
+          },
+        },
       });
 
       console.log('Registration response status:', response.status());
@@ -185,10 +189,10 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       expect(responseBody.user.id).toBeDefined();
       expect(responseBody.session).toBeDefined();
       expect(responseBody.session.token).toBeDefined();
-      
+
       newUserId = responseBody.user.id;
       newUserToken = responseBody.session.token;
-      
+
       console.log('User registered with ID:', newUserId);
       console.log('Session token received:', newUserToken);
       console.log('User has affiliation with org 464, will request access to org 463');
@@ -199,22 +203,22 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       // Note: User has GivingTree User role, so must use givingtree app_key
       const response = await request.post('/auth/affiliation_requests', {
         params: {
-          oid: '463'  // Request access to org 463
+          oid: '463', // Request access to org 463
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': newUserToken,
-          'Application-Key': getAppKey('givingtree'),  // Use givingtree app key
+          Authorization: newUserToken,
+          'Application-Key': getAppKey('givingtree'), // Use givingtree app key
         },
         data: {
           commit: true,
           data: {
             class_year: 2020,
-            reason: 'Test request for automated testing - requesting access from org 464 to org 463'
-          }
-        }
+            reason: 'Test request for automated testing - requesting access from org 464 to org 463',
+          },
+        },
       });
 
       console.log('Request response status:', response.status());
@@ -226,14 +230,14 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
 
       affiliationRequestId = responseBody.id;
 
-      // Verify response schema
-      expectSchema(responseBody, affiliationRequestSchema);
+      // Verify response schema (POST returns PENDING status)
+      expectSchema(responseBody, affiliationRequestPendingSchema);
 
       // Verify request data
       expect(responseBody.status).toBe('PENDING');
       expect(responseBody.organization).toBeDefined();
       expect(responseBody.organization.id).toBe(463);
-      
+
       console.log('Created affiliation request:', affiliationRequestId);
     });
 
@@ -245,18 +249,18 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       // Use Super Admin token for moderation (admins moderate requests)
       const response = await request.post(`/auth/affiliation_requests/${affiliationRequestId}/moderate`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
         },
         data: {
-          approve: true
-        }
+          approve: true,
+        },
       });
 
       console.log('Moderation response status:', response.status());
@@ -266,9 +270,9 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       // Verify status code is 202
       expect(response.status()).toBe(202);
 
-      // Verify response schema
-      expectSchema(responseBody, affiliationRequestSchema);
-      
+      // Verify response schema (moderation returns APPROVED status)
+      expectSchema(responseBody, affiliationRequestApprovedSchema);
+
       // Verify request was approved
       expect(responseBody.status).toBe('APPROVED');
       expect(responseBody.affiliation).toBeDefined();
@@ -278,27 +282,27 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       // Get user affiliations to find all created ones
       const affiliationsResponse = await request.get(`/auth/users/${newUserId}/affiliations`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
       const affiliations = await affiliationsResponse.json();
-      
+
       if (Array.isArray(affiliations) && affiliations.length > 0) {
         // Delete affiliation with org 463
         const affiliation463 = affiliations.find((aff: any) => aff.organization_id === 463);
         if (affiliation463) {
           const deleteResponse = await request.delete(`/auth/affiliations/${affiliation463.id}`, {
             params: {
-              oid: '463'
+              oid: '463',
             },
             headers: {
               'Application-Key': config.headers.applicationKey,
               'Authorization-Provider': 'EvertrueAuthToken',
-              'Authorization': authToken,
+              Authorization: authToken,
             },
           });
           expect(deleteResponse.status()).toBe(204);
@@ -310,12 +314,12 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
         if (affiliation464) {
           const deleteResponse = await request.delete(`/auth/affiliations/${affiliation464.id}`, {
             params: {
-              oid: '464'
+              oid: '464',
             },
             headers: {
               'Application-Key': config.headers.applicationKey,
               'Authorization-Provider': 'EvertrueAuthToken',
-              'Authorization': authToken,
+              Authorization: authToken,
             },
           });
           expect(deleteResponse.status()).toBe(204);
@@ -328,9 +332,9 @@ test.describe('Auth API - Affiliation Requests (Positive Tests)', () => {
       const response = await request.delete(`/auth/users/${newUserId}`, {
         headers: {
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Application-Key': getAppKey('console'),
-        }
+        },
       });
 
       expect(response.status()).toBe(204);

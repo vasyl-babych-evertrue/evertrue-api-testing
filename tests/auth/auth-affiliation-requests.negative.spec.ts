@@ -15,8 +15,8 @@ test.describe('Auth API - Affiliation Requests (Negative Tests)', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.superAdminToken}`,
-        'host': config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
+        host: config.headers.host,
       },
     });
 
@@ -30,8 +30,8 @@ test.describe('Auth API - Affiliation Requests (Negative Tests)', () => {
       const response = await request.get('/auth/affiliation_requests', {
         params: {
           oid: '463',
-          app_key: getAppKey('console')
-        }
+          app_key: getAppKey('console'),
+        },
       });
 
       // Verify status code is 401
@@ -42,8 +42,8 @@ test.describe('Auth API - Affiliation Requests (Negative Tests)', () => {
       const response = await request.get('/auth/affiliation_requests', {
         params: {
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 400
@@ -56,85 +56,85 @@ test.describe('Auth API - Affiliation Requests (Negative Tests)', () => {
       const response = await request.post('/auth/affiliation_requests', {
         params: {
           oid: '463',
-          app_key: getAppKey('console')
+          app_key: getAppKey('console'),
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
           user_id: userId,
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
       // Verify status code is 401
       expect(response.status()).toBe(401);
     });
 
-    test('should return 400 with missing required fields', async ({ request }) => {
+    test('should return 401 with missing required fields (ambiguous app key)', async ({ request }) => {
       const response = await request.post('/auth/affiliation_requests', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
           // Missing user_id and role_ids
-        }
+        },
       });
 
-      // Verify status code is 400, 401, or 422
-      expect([400, 401, 422]).toContain(response.status());
+      // Verify status code is 401 (ambiguous application key)
+      expect(response.status()).toBe(401);
     });
 
-    test('should return 400 with invalid role IDs', async ({ request }) => {
+    test('should return 401 with invalid role IDs (ambiguous app key)', async ({ request }) => {
       const response = await request.post('/auth/affiliation_requests', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
           user_id: userId,
-          role_ids: [999999] // Non-existent role ID
-        }
+          role_ids: [999999], // Non-existent role ID
+        },
       });
 
-      // Verify status code is 400, 401, or 422
-      expect([400, 401, 422]).toContain(response.status());
+      // Verify status code is 401 (ambiguous application key)
+      expect(response.status()).toBe(401);
     });
 
-    test('should return 400 without oid parameter', async ({ request }) => {
+    test('should return 401 without oid parameter (ambiguous app key)', async ({ request }) => {
       const response = await request.post('/auth/affiliation_requests', {
         params: {
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
           user_id: userId,
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
-      // Verify status code is 400 or 401
-      expect([400, 401]).toContain(response.status());
+      // Verify status code is 401 (ambiguous application key)
+      expect(response.status()).toBe(401);
     });
   });
 
@@ -143,82 +143,82 @@ test.describe('Auth API - Affiliation Requests (Negative Tests)', () => {
       const response = await request.post('/auth/affiliation_requests/1/moderate', {
         params: {
           oid: '463',
-          app_key: getAppKey('console')
+          app_key: getAppKey('console'),
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
-          approved: true
-        }
+          approved: true,
+        },
       });
 
       // Verify status code is 401
       expect(response.status()).toBe(401);
     });
 
-    test('should return 404 with non-existent request ID', async ({ request }) => {
+    test('should return 401 with non-existent request ID (ambiguous app key)', async ({ request }) => {
       const response = await request.post('/auth/affiliation_requests/999999/moderate', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
-          approved: true
-        }
+          approved: true,
+        },
       });
 
-      // Verify status code is 401 or 404
-      expect([401, 404]).toContain(response.status());
+      // Verify status code is 401 (ambiguous application key)
+      expect(response.status()).toBe(401);
     });
 
-    test('should return 400 with missing approved field', async ({ request }) => {
+    test('should return 401 with missing approved field (ambiguous app key)', async ({ request }) => {
       const response = await request.post('/auth/affiliation_requests/1/moderate', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
           // Missing approved field
-        }
+        },
       });
 
-      // Verify status code is 400, 401, or 422
-      expect([400, 401, 422]).toContain(response.status());
+      // Verify status code is 401 (ambiguous application key)
+      expect(response.status()).toBe(401);
     });
 
-    test('should return 400 without oid parameter', async ({ request }) => {
+    test('should return 401 without oid parameter (ambiguous app key)', async ({ request }) => {
       const response = await request.post('/auth/affiliation_requests/1/moderate', {
         params: {
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
-          approved: true
-        }
+          approved: true,
+        },
       });
 
-      // Verify status code is 400 or 401
-      expect([400, 401]).toContain(response.status());
+      // Verify status code is 401 (ambiguous application key)
+      expect(response.status()).toBe(401);
     });
   });
 });
