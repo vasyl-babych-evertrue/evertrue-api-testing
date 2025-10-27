@@ -51,36 +51,35 @@ test.describe('Hub API - Positive Flow', () => {
       if (status !== 201) {
         console.error('Authentication failed with status:', status);
         console.error('Response body:', responseBody);
-        throw new Error(`Authentication failed with status ${status}: ${responseBody}`);
+        expect(status, `Authentication failed with status ${status}: ${responseBody}`).toBe(201);
       }
 
       try {
         const body = JSON.parse(responseBody);
-        if (!body.token) {
-          throw new Error('No token in response');
-        }
+        expect(body.token, 'No token in response').toBeTruthy();
         authToken = body.token;
         console.log('Authentication successful, token received');
 
         // Verify the token is not empty
-        if (!authToken) {
-          throw new Error('Received empty token');
-        }
+        expect(authToken, 'Received empty token').toBeTruthy();
 
         // Log the first few characters of the token (for debugging, don't log the whole token)
         console.log('Token received (first 10 chars):', authToken.substring(0, 10) + '...');
       } catch (e) {
         console.error('Failed to parse authentication response:', e);
         console.error('Raw response body:', responseBody);
-        throw new Error(`Failed to parse authentication response: ${e.message}`);
+        expect(false, `Failed to parse authentication response: ${(e as Error).message}`).toBe(true);
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      if (error.response) {
-        console.error('Error response status:', error.response.status);
-        console.error('Error response body:', await error.response.text().catch(() => 'Could not read response body'));
+      if ((error as any).response) {
+        console.error('Error response status:', (error as any).response.status);
+        console.error(
+          'Error response body:',
+          await (error as any).response.text().catch(() => 'Could not read response body')
+        );
       }
-      throw error;
+      expect(false, `Authentication error: ${(error as Error).message}`).toBe(true);
     }
   });
 
