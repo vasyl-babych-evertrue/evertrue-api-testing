@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { getAppKey, getAppToken } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
 import { linkTokenSchema, createSessionSchema } from '../../schemas/auth.schemas';

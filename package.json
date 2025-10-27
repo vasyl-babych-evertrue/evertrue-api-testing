@@ -17,6 +17,13 @@
     "report:properties": "set PLAYWRIGHT_HTML_REPORT=reports\\properties&& playwright test tests/properties --reporter=html&& playwright show-report reports\\properties --port=57774",
     "report:open": "playwright show-report --port=9330",
     "test:list": "playwright test --reporter=list",
+    "baseline:create": "playwright test",
+    "baseline:compare": "ts-node scripts/compare-baselines.ts",
+    "baseline:compare-latest": "ts-node scripts/compare-baselines.ts api-baseline-reports/baseline-latest.json api-baseline-reports/baseline-latest.json",
+    "report:save": "xcopy playwright-report playwright-report-before-deploy /E /I /H /Y",
+    "report:before": "start playwright-report-before-deploy\\index.html",
+    "report:after": "start playwright-report\\index.html",
+    "baseline:save": "copy api-baseline-reports\\baseline-latest.json api-baseline-reports\\baseline-before-deploy.json",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
@@ -28,6 +35,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.44.1",
     "@types/joi": "^17.2.2",
     "@types/node": "^24.7.2",
@@ -38,7 +46,8 @@
     "eslint-plugin-playwright": "^1.5.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2"
   },
   "dependencies": {
     "joi": "^18.0.1"

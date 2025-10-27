@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
 import { createSessionSchema, userPickerSchema } from '../../schemas/auth.schemas';
@@ -122,21 +122,21 @@ test.describe('Auth API - LinkedIn Access Token Authentication', () => {
       });
 
       // API може повернути 403 (недійсний токен) або 404 (профіль не знайдено)
-      expect([403, 404]).toContain(response.status());
+      expect([404]).toContain(response.status());
     });
 
     test('should handle callback with invalid code/state', async ({ request }) => {
       const response = await request.get('/lids/callback?code=invalid_code&state=invalid_state');
 
       // Очікуємо клієнтську помилку, НЕ 500 (це баг сервера)
-      expect([400, 403]).toContain(response.status());
+      expect([400]).toContain(response.status());
     });
 
     test('should return error for callback without parameters', async ({ request }) => {
       const response = await request.get('/lids/callback');
 
       // Очікуємо клієнтську помилку, НЕ 500 (це баг сервера)
-      expect([400, 422]).toContain(response.status());
+      expect([400]).toContain(response.status());
     });
   });
 

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
 import {
@@ -20,6 +20,7 @@ import {
  */
 test.describe('Auth API - Users Management (Positive Tests)', () => {
   let authToken: string;
+  let regularUserToken: string;
 
   test.beforeAll(async ({ request }) => {
     // Create session with working credentials (Super Admin)
@@ -62,9 +63,6 @@ test.describe('Auth API - Users Management (Positive Tests)', () => {
 
       // Verify status code is 200
       expect(response.status()).toBe(200);
-
-      // Parse response body
-      //const responseBody = await response.json();
 
       // Verify response schema
       expectSchema(responseBody, userSchema);
