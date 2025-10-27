@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import {
   createPropertyResponseSchema,
   createNestedPropertyResponseSchema,
@@ -95,8 +95,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
-      const { valid, errors } = validateSchema(data, createPropertyResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(data, createPropertyResponseSchema);
     });
   });
 
@@ -150,8 +149,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
-      const { valid, errors } = validateSchema(data, createNestedPropertyResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(data, createNestedPropertyResponseSchema);
     });
   });
 
@@ -211,8 +209,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
-      const { valid, errors } = validateSchema(data, updatePropertyResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(data, updatePropertyResponseSchema);
     });
   });
 
@@ -231,8 +228,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
-      const { valid, errors } = validateSchema(data, getPropertiesResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(data, getPropertiesResponseSchema);
     });
   });
 
@@ -273,8 +269,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
-      const { valid, errors } = validateSchema(data, contactsSearchResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(data, contactsSearchResponseSchema);
     });
   });
 
@@ -307,8 +302,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
-      const { valid, errors } = validateSchema(data, dynamicListCreateResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(data, dynamicListCreateResponseSchema);
     });
   });
 
@@ -331,8 +325,7 @@ test.describe('Properties API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const text = await response.text();
-      const { valid, errors } = validateSchema(text, deleteResponseSchema);
-      expect(valid, errors.join(', ')).toBe(true);
+      expectSchema(text as unknown as any, deleteResponseSchema);
     });
   });
 

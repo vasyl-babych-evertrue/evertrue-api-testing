@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config } from '../../config/env.config';
-import { validateSchema } from '../../helpers/schema-validator';
+import { expectSchema } from '../../helpers/schema-validator';
 import {
   createNestedPropertyResponseSchema,
   updatePropertyResponseSchema,
@@ -8,9 +8,8 @@ import {
 } from '../../schemas/properties.schemas';
 import { contactsSearchResponseSchema } from '../../schemas/search.schemas';
 import { hubListSchema, hubSearchResponseSchema } from '../../schemas/hub.schemas';
-// comment
 // Hub API - Positive Flow (as per provided Postman-style endpoints)
-// 10 requests, each with status + schema tests
+// Each test asserts a single expected status code and validates schema
 
 test.describe.configure({ mode: 'serial' });
 
@@ -23,64 +22,17 @@ test.describe('Hub API - Positive Flow', () => {
   let createdNestedPropertyUpdatedAt: number | undefined;
 
   test.beforeAll(async ({ request }) => {
-    console.log('Starting authentication...');
-    console.log('Using Application Key:', config.headers.applicationKey);
-    console.log('Using Authorization Provider:', config.headers.authorizationProvider);
-
-    try {
-      // First, make sure we can reach the auth endpoint
-      const pingResponse = await request.get('/auth/ping');
-      console.log('Auth ping status:', pingResponse.status());
-
-      // Make the authentication request
-      const authResponse = await request.post('/auth/session', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Application-Key': config.headers.applicationKey,
-          'Authorization-Provider': config.headers.authorizationProvider,
-          Authorization: `Basic ${config.auth.superAdminToken}`,
-        },
-      });
-
-      const status = authResponse.status();
-      const responseBody = await authResponse.text();
-
-      console.log('Auth response status:', status);
-      console.log('Auth response body:', responseBody);
-
-      if (status !== 201) {
-        console.error('Authentication failed with status:', status);
-        console.error('Response body:', responseBody);
-        expect(status, `Authentication failed with status ${status}: ${responseBody}`).toBe(201);
-      }
-
-      try {
-        const body = JSON.parse(responseBody);
-        expect(body.token, 'No token in response').toBeTruthy();
-        authToken = body.token;
-        console.log('Authentication successful, token received');
-
-        // Verify the token is not empty
-        expect(authToken, 'Received empty token').toBeTruthy();
-
-        // Log the first few characters of the token (for debugging, don't log the whole token)
-        console.log('Token received (first 10 chars):', authToken.substring(0, 10) + '...');
-      } catch (e) {
-        console.error('Failed to parse authentication response:', e);
-        console.error('Raw response body:', responseBody);
-        expect(false, `Failed to parse authentication response: ${(e as Error).message}`).toBe(true);
-      }
-    } catch (error) {
-      console.error('Authentication error:', error);
-      if ((error as any).response) {
-        console.error('Error response status:', (error as any).response.status);
-        console.error(
-          'Error response body:',
-          await (error as any).response.text().catch(() => 'Could not read response body')
-        );
-      }
-      expect(false, `Authentication error: ${(error as Error).message}`).toBe(true);
-    }
+    const authResponse = await request.post('/auth/session', {
+      headers: {
+        'Application-Key': config.headers.applicationKey,
+        'Authorization-Provider': config.headers.authorizationProvider,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
+      },
+    });
+    expect(authResponse.status()).toBe(201);
+    const body = await authResponse.json();
+    authToken = body.token;
+    expect(authToken).toBeTruthy();
   });
 
   // 1-2. Contacts Properties flow removed for Hub tests
@@ -91,16 +43,13 @@ test.describe('Hub API - Positive Flow', () => {
     const appKey = config.headers.applicationKey;
     const paramsBase = (token: string) => ({ oid: OID, auth: token, app_key: appKey });
 
-    test('Status: GET /hub/v1/filters?query=interests -> 200', async ({ request }) => {
+    test('Status+Schema: GET /hub/v1/filters?query=interests -> 200', async ({ request }) => {
       const response = await request.get('/hub/v1/filters', {
         params: { ...paramsBase(authToken), query: 'interests' },
       });
       expect(response.status()).toBe(200);
       const body = await response.json();
-      const isArray = Array.isArray(body);
-      const schemaValid = validateSchema(body, hubListSchema).valid;
-      const ok = isArray || schemaValid;
-      expect(ok).toBe(true);
+      expectSchema(body, hubListSchema);
     });
 
     test('Status: GET /hub/v1/filters/134/facets -> 200', async ({ request }) => {
@@ -124,23 +73,16 @@ test.describe('Hub API - Positive Flow', () => {
       expect(response.status()).toBe(200);
     });
 
-    test('Status: GET /hub/v1/filters/quick/contacts -> 200 or 404', async ({ request }) => {
+    test('Status: GET /hub/v1/filters/quick/contacts -> 200', async ({ request }) => {
       const response = await request.get('/hub/v1/filters/quick/contacts', {
         params: { ...paramsBase(authToken) },
       });
-      const status = response.status();
-      const body = await response.json().catch(() => ({}));
-      const isArray = Array.isArray(body);
-      const items = (body as Record<string, unknown>)?.items as unknown;
-      const hasItemsArray = Array.isArray(items);
-      const schemaValid = hasItemsArray ? validateSchema(body, hubListSchema).valid : true;
-      const ok =
-        status === 404 ||
-        (status === 200 && (isArray || (hasItemsArray && schemaValid) || (!isArray && typeof body === 'object')));
-      expect(ok).toBe(true);
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      expectSchema(body, hubListSchema);
     });
 
-    test('Status: POST /hub/v1/filters/search/contact -> 200 or 404', async ({ request }) => {
+    test('Status+Schema: POST /hub/v1/filters/search/contact -> 200', async ({ request }) => {
       const payload = {
         columns: [],
         filters: {
@@ -152,15 +94,12 @@ test.describe('Hub API - Positive Flow', () => {
         params: { ...paramsBase(authToken) },
         data: payload,
       });
-      const status = response.status();
-      const body = status === 200 ? await response.json() : {};
-      const { valid, errors } =
-        status === 200 ? validateSchema(body, hubSearchResponseSchema) : { valid: true, errors: [] as string[] };
-      const ok = status === 404 || (status === 200 && valid);
-      expect(ok, errors.join(', ')).toBe(true);
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      expectSchema(body, hubSearchResponseSchema);
     });
 
-    test('Status: POST /hub/v1/filters/search/interaction -> 200 or 404', async ({ request }) => {
+    test('Status+Schema: POST /hub/v1/filters/search/interaction -> 200', async ({ request }) => {
       const payload = {
         columns: [],
         filters: {
@@ -179,14 +118,12 @@ test.describe('Hub API - Positive Flow', () => {
         params: { ...paramsBase(authToken) },
         data: payload,
       });
-      const status = response.status();
-      const body = status === 200 ? await response.json() : {};
-      const { valid } = status === 200 ? validateSchema(body, hubSearchResponseSchema) : { valid: true };
-      const ok = status === 404 || (status === 200 && valid);
-      expect(ok).toBe(true);
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      expectSchema(body, hubSearchResponseSchema);
     });
 
-    test('Status: POST /hub/v1/filters/search/proposal -> 200 or 404', async ({ request }) => {
+    test('Status+Schema: POST /hub/v1/filters/search/proposal -> 200', async ({ request }) => {
       const payload = {
         quick_filters: [],
         filters: {
@@ -211,11 +148,9 @@ test.describe('Hub API - Positive Flow', () => {
         params: { ...paramsBase(authToken), 'facets?oid': OID, sort: 'created_date', sort_order: 'desc' },
         data: payload,
       });
-      const status = response.status();
-      const body = status === 200 ? await response.json() : {};
-      const { valid } = status === 200 ? validateSchema(body, hubSearchResponseSchema) : { valid: true };
-      const ok = status === 404 || (status === 200 && valid);
-      expect(ok).toBe(true);
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      expectSchema(body, hubSearchResponseSchema);
     });
   });
 
