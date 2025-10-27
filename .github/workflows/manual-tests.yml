@@ -1,0 +1,89 @@
+name: Manual Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_folder:
+        description: 'Виберіть папку для запуску тестів'
+        required: true
+        type: choice
+        options:
+          - 'tests/auth'
+          - 'tests/Importer'
+          - 'tests/events'
+          - 'tests/searchAPI'
+          - 'tests' # Всі тести
+      reporter:
+        description: 'Формат звіту'
+        required: false
+        type: choice
+        default: 'list'
+        options:
+          - 'list'
+          - 'html'
+          - 'json'
+          - 'junit'
+      workers:
+        description: 'Кількість паралельних workers (1-10)'
+        required: false
+        type: number
+        default: 4
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: 🧪 Run Playwright tests
+        run: |
+          npx playwright test ${{ inputs.test_folder }} \
+            --reporter=${{ inputs.reporter }} \
+            --workers=${{ inputs.workers }}
+        env:
+          # Додайте ваші secrets в GitHub Settings → Secrets and variables → Actions
+          SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
+          SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
+          REGULAR_USER_EMAIL: ${{ secrets.REGULAR_USER_EMAIL }}
+          REGULAR_USER_PASSWORD: ${{ secrets.REGULAR_USER_PASSWORD }}
+
+      - name: 📊 Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always() && inputs.reporter == 'html'
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: playwright-report/
+          retention-days: 30
+
+      - name: 📄 Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.run_number }}
+          path: test-results/
+          retention-days: 30
+
+      - name: 📝 Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Folder:** \`${{ inputs.test_folder }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reporter:** \`${{ inputs.reporter }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workers:** \`${{ inputs.workers }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY

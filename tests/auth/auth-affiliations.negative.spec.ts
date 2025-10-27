@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/global-api-tracking.fixture';
-import { config, getAppKey } from '../../config/env.config';
+import { config } from '../../config/env.config';
 
 /**
  * Auth API Tests - Affiliations Management (Negative Tests)
@@ -16,8 +16,8 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.superAdminToken}`,
-        'host': config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
+        host: config.headers.host,
       },
     });
 
@@ -28,10 +28,10 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     // Get user affiliations to have test data
     const affiliationsResponse = await request.get(`/auth/users/${userId}/affiliations`, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': 'EvertrueAuthToken',
-        'Authorization': authToken,
+        Authorization: authToken,
       },
     });
 
@@ -45,7 +45,7 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 401 without authentication token', async ({ request }) => {
       const response = await request.get(`/auth/users/${userId}/affiliations`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
       });
@@ -57,10 +57,10 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 401 with invalid token', async ({ request }) => {
       const response = await request.get(`/auth/users/${userId}/affiliations`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': 'invalid-token-12345',
+          Authorization: 'invalid-token-12345',
         },
       });
 
@@ -68,20 +68,20 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
       expect(response.status()).toBe(401);
     });
 
-    test('should return 403 when accessing other user affiliations', async ({ request }) => {
+    test('should return 404 when accessing other user affiliations', async ({ request }) => {
       const otherUserId = 999999; // Non-existent or unauthorized user
 
       const response = await request.get(`/auth/users/${otherUserId}/affiliations`, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
-      // Verify status code is 403 or 404
-      expect([403, 404]).toContain(response.status());
+      // Verify status code is 404
+      expect(response.status()).toBe(404);
     });
   });
 
@@ -89,17 +89,17 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 401 without authentication', async ({ request }) => {
       const response = await request.post('/auth/affiliations', {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
           user_id: userId,
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
       // Verify status code is 401
@@ -109,59 +109,59 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 400 with missing required fields', async ({ request }) => {
       const response = await request.post('/auth/affiliations', {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
           // Missing user_id and role_ids
-        }
+        },
       });
 
-      // Verify status code is 400 or 422
-      expect([400, 422]).toContain(response.status());
+      // Verify status code is 400
+      expect(response.status()).toBe(400);
     });
 
-    test('should return 400 with invalid role IDs', async ({ request }) => {
+    test('should return 422 with invalid role IDs', async ({ request }) => {
       const response = await request.post('/auth/affiliations', {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
           user_id: userId,
-          role_ids: [999999] // Non-existent role ID
-        }
+          role_ids: [999999], // Non-existent role ID
+        },
       });
 
-      // Verify status code is 400 or 422
-      expect([400, 422]).toContain(response.status());
+      // Verify status code is 422
+      expect(response.status()).toBe(422);
     });
 
     test('should return 400 without oid parameter', async ({ request }) => {
       const response = await request.post('/auth/affiliations', {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
           user_id: userId,
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
       // Verify status code is 400
@@ -173,83 +173,83 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 401 without authentication', async ({ request }) => {
       const response = await request.put(`/auth/affiliations/${testAffiliationId}`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
       // Verify status code is 401
       expect(response.status()).toBe(401);
     });
 
-    test('should return 404 with non-existent affiliation ID', async ({ request }) => {
+    test('should return 422 with non-existent affiliation ID', async ({ request }) => {
       const response = await request.put('/auth/affiliations/999999', {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
-      // Verify status code is 404 or 422
-      expect([404, 422]).toContain(response.status());
+      // Verify status code is 422
+      expect(response.status()).toBe(422);
     });
 
-    test('should return 400 with invalid role IDs', async ({ request }) => {
+    test('should return 422 with invalid role IDs', async ({ request }) => {
       const response = await request.put(`/auth/affiliations/${testAffiliationId}`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
-          role_ids: [999999]
-        }
+          role_ids: [999999],
+        },
       });
 
-      // Verify status code is 400 or 422
-      expect([400, 422]).toContain(response.status());
+      // Verify status code is 422
+      expect(response.status()).toBe(422);
     });
 
-    test('should return 400 with empty role_ids array', async ({ request }) => {
+    test('should return 202 with empty role_ids array (removes all roles)', async ({ request }) => {
       const response = await request.put(`/auth/affiliations/${testAffiliationId}`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
-          role_ids: []
-        }
+          role_ids: [],
+        },
       });
 
-      // Verify status code is 202, 400 or 422
-      expect([202, 400, 422]).toContain(response.status());
+      // Verify status code is 202 (empty array removes all roles)
+      expect(response.status()).toBe(202);
     });
   });
 
@@ -257,60 +257,60 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 401 without authentication', async ({ request }) => {
       const response = await request.patch(`/auth/affiliations/${testAffiliationId}`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
         },
         data: {
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
       // Verify status code is 401
       expect(response.status()).toBe(401);
     });
 
-    test('should return 404 with non-existent affiliation ID', async ({ request }) => {
+    test('should return 422 with non-existent affiliation ID', async ({ request }) => {
       const response = await request.patch('/auth/affiliations/999999', {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
         data: {
-          role_ids: [1]
-        }
+          role_ids: [1],
+        },
       });
 
-      // Verify status code is 404 or 422
-      expect([404, 422]).toContain(response.status());
+      // Verify status code is 422
+      expect(response.status()).toBe(422);
     });
 
-    test('should return 400 with missing role_ids', async ({ request }) => {
+    test('should return 202 with missing role_ids (no changes)', async ({ request }) => {
       const response = await request.patch(`/auth/affiliations/${testAffiliationId}`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
-        data: {}
+        data: {},
       });
 
-      // Verify status code is 202, 400 or 422
-      expect([202, 400, 422]).toContain(response.status());
+      // Verify status code is 202 (missing role_ids means no changes)
+      expect(response.status()).toBe(202);
     });
   });
 
@@ -318,7 +318,7 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 401 without authentication', async ({ request }) => {
       const response = await request.delete(`/auth/affiliations/${testAffiliationId}`, {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
           'Application-Key': config.headers.applicationKey,
@@ -332,12 +332,12 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
     test('should return 404 with non-existent affiliation ID', async ({ request }) => {
       const response = await request.delete('/auth/affiliations/999999', {
         params: {
-          oid: '463'
+          oid: '463',
         },
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -350,7 +350,7 @@ test.describe('Auth API - Affiliations (Negative Tests)', () => {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 

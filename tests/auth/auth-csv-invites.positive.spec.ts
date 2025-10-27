@@ -6,16 +6,16 @@ import { csvInvitesListSchema, csvInviteSingleSchema, csvInviteCreateSchema } fr
 /**
  * Auth API Tests - CSV Invites (Positive Tests)
  * Based on documentation: CSV Invites endpoints
- * 
+ *
  * CSV invites are used to bulk invite users to the core platform using a standard set of headers.
- * This used to exist as a bulk user creation page, but due to performance and maintainability 
+ * This used to exist as a bulk user creation page, but due to performance and maintainability
  * reasons it was rewritten as a CSV import.
- * 
+ *
  * Test User: Super Admin (vasyl.babych@evertrue.com) - required for CSV invite operations
  */
 test.describe('Auth API - CSV Invites (Positive Tests)', () => {
   let authToken: string;
-  let createdCsvInviteId: number;
+  let _createdCsvInviteId: number;
 
   test.beforeAll(async ({ request }) => {
     // Create session with Super Admin credentials
@@ -23,7 +23,7 @@ test.describe('Auth API - CSV Invites (Positive Tests)', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.basicToken}`,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
       },
     });
 
@@ -37,7 +37,7 @@ test.describe('Auth API - CSV Invites (Positive Tests)', () => {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -64,7 +64,7 @@ test.describe('Auth API - CSV Invites (Positive Tests)', () => {
         expect(firstInvite).toHaveProperty('created_at');
         expect(firstInvite).toHaveProperty('updated_at');
         expect(firstInvite).toHaveProperty('url');
-        
+
         // Validate data types
         expect(typeof firstInvite.id).toBe('number');
         expect(typeof firstInvite.organization_id).toBe('number');
@@ -72,7 +72,7 @@ test.describe('Auth API - CSV Invites (Positive Tests)', () => {
         expect(typeof firstInvite.csv_content_type).toBe('string');
         expect(typeof firstInvite.csv_file_size).toBe('number');
         expect(typeof firstInvite.url).toBe('string');
-        
+
         // Validate URL format
         expect(firstInvite.url).toMatch(/^https?:\/\//);
       }
@@ -83,17 +83,17 @@ test.describe('Auth API - CSV Invites (Positive Tests)', () => {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
       expect(response.status()).toBe(200);
 
       const body = await response.json();
-      
+
       // Validate response schema
       expectSchema(body, csvInvitesListSchema);
-      
+
       // Should have csv_invites property even if empty
       expect(body).toHaveProperty('csv_invites');
       expect(Array.isArray(body.csv_invites)).toBe(true);
@@ -106,7 +106,7 @@ test.describe('Auth API - CSV Invites (Positive Tests)', () => {
       const csvContent = `email,first_name,last_name,role_id
 test.user1@example.com,Test,User1,1
 test.user2@example.com,Test,User2,1`;
-      
+
       // Convert to base64
       const base64Data = Buffer.from(csvContent).toString('base64');
 
@@ -114,12 +114,12 @@ test.user2@example.com,Test,User2,1`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       expect(response.status()).toBe(201);
@@ -151,40 +151,40 @@ test.user2@example.com,Test,User2,1`;
 
       // Validate URL format
       expect(body.csv_invite.url).toMatch(/^https?:\/\//);
-      
+
       // Validate file size (API returns 0, which is acceptable)
       expect(body.csv_invite.csv_file_size).toBeGreaterThanOrEqual(0);
 
       // Store created ID for subsequent tests
-      createdCsvInviteId = body.csv_invite.id;
+      _createdCsvInviteId = body.csv_invite.id;
     });
 
     test('should create CSV invite with minimal valid CSV data', async ({ request }) => {
       // Minimal CSV with just headers and one user
       const csvContent = `email,first_name,last_name
 minimal@example.com,Min,User`;
-      
+
       const base64Data = Buffer.from(csvContent).toString('base64');
 
       const response = await request.post('/auth/csv_invites?oid=463', {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       expect(response.status()).toBe(201);
 
       const body = await response.json();
-      
+
       // Validate response schema
       expectSchema(body, csvInviteCreateSchema);
-      
+
       expect(body.csv_invite).toHaveProperty('id');
       expect(body.csv_invite.csv_file_size).toBeGreaterThanOrEqual(0);
     });
@@ -197,28 +197,28 @@ user2@example.com,User,Two,1
 user3@example.com,User,Three,1
 user4@example.com,User,Four,1
 user5@example.com,User,Five,1`;
-      
+
       const base64Data = Buffer.from(csvContent).toString('base64');
 
       const response = await request.post('/auth/csv_invites?oid=463', {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       expect(response.status()).toBe(201);
 
       const body = await response.json();
-      
+
       // Validate response schema
       expectSchema(body, csvInviteCreateSchema);
-      
+
       expect(body.csv_invite).toHaveProperty('id');
       expect(body.csv_invite.csv_file_size).toBeGreaterThanOrEqual(0);
     });
@@ -235,12 +235,12 @@ getbyid@example.com,Get,ById`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       const createBody = await createResponse.json();
@@ -251,7 +251,7 @@ getbyid@example.com,Get,ById`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -298,12 +298,12 @@ consistency@example.com,Consistency,Test`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       const createBody = await createResponse.json();
@@ -314,7 +314,7 @@ consistency@example.com,Consistency,Test`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -329,8 +329,12 @@ consistency@example.com,Consistency,Test`;
       expect(retrievedInvite.csv_file_size).toBe(createdInvite.csv_file_size);
       expect(retrievedInvite.url).toBe(createdInvite.url);
       // Timestamps may have different precision (milliseconds vs seconds), so we check they're within 2 seconds
-      const createdTimeDiff = Math.abs(new Date(retrievedInvite.created_at).getTime() - new Date(createdInvite.created_at).getTime());
-      const updatedTimeDiff = Math.abs(new Date(retrievedInvite.updated_at).getTime() - new Date(createdInvite.updated_at).getTime());
+      const createdTimeDiff = Math.abs(
+        new Date(retrievedInvite.created_at).getTime() - new Date(createdInvite.created_at).getTime()
+      );
+      const updatedTimeDiff = Math.abs(
+        new Date(retrievedInvite.updated_at).getTime() - new Date(createdInvite.updated_at).getTime()
+      );
       expect(createdTimeDiff).toBeLessThan(2000);
       expect(updatedTimeDiff).toBeLessThan(2000);
     });
@@ -347,12 +351,12 @@ delete@example.com,Delete,Test`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       const createBody = await createResponse.json();
@@ -363,7 +367,7 @@ delete@example.com,Delete,Test`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -381,12 +385,12 @@ verify-delete@example.com,Verify,Delete`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       const createBody = await createResponse.json();
@@ -397,7 +401,7 @@ verify-delete@example.com,Verify,Delete`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -408,7 +412,7 @@ verify-delete@example.com,Verify,Delete`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -428,18 +432,18 @@ workflow@example.com,Work,Flow,1`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
           'Content-Type': 'application/json',
         },
         data: {
-          csv: base64Data
-        }
+          csv: base64Data,
+        },
       });
 
       expect(createResponse.status()).toBe(201);
       const createBody = await createResponse.json();
       const csvInviteId = createBody.csv_invite.id;
-      
+
       console.log('Step 1 - Created CSV Invite ID:', csvInviteId);
 
       // Step 2: READ (Get by ID)
@@ -447,14 +451,14 @@ workflow@example.com,Work,Flow,1`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
       expect(getResponse.status()).toBe(200);
       const getBody = await getResponse.json();
       expect(getBody.csv_invite.id).toBe(csvInviteId);
-      
+
       console.log('Step 2 - Retrieved CSV Invite:', getBody.csv_invite.csv_file_name);
 
       // Step 3: READ (Verify in list)
@@ -462,7 +466,7 @@ workflow@example.com,Work,Flow,1`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
@@ -470,7 +474,7 @@ workflow@example.com,Work,Flow,1`;
       const listBody = await listResponse.json();
       const foundInList = listBody.csv_invites.some((invite: any) => invite.id === csvInviteId);
       expect(foundInList).toBe(true);
-      
+
       console.log('Step 3 - Found in list:', foundInList);
 
       // Step 4: DELETE
@@ -478,12 +482,12 @@ workflow@example.com,Work,Flow,1`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
       expect(deleteResponse.status()).toBe(200);
-      
+
       console.log('Step 4 - Deleted CSV Invite ID:', csvInviteId);
 
       // Step 5: VERIFY deletion
@@ -491,12 +495,12 @@ workflow@example.com,Work,Flow,1`;
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': authToken,
+          Authorization: authToken,
         },
       });
 
       expect(verifyResponse.status()).toBe(404);
-      
+
       console.log('Step 5 - Verified deletion, status:', verifyResponse.status());
     });
   });

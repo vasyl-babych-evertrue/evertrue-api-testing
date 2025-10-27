@@ -1,7 +1,11 @@
 import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
-import { affiliationInvitationSchema, affiliationInvitationsArraySchema } from '../../schemas/auth.schemas';
+import {
+  affiliationInvitationPostSchema,
+  affiliationInvitationGetSchema,
+  affiliationInvitationsArraySchema,
+} from '../../schemas/auth.schemas';
 
 /**
  * Auth API Tests - Affiliation Invitations (Positive Tests)
@@ -17,8 +21,8 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
       headers: {
         'Application-Key': config.headers.applicationKey,
         'Authorization-Provider': config.headers.authorizationProvider,
-        'Authorization': `Basic ${config.auth.superAdminToken}`,
-        'host': config.headers.host,
+        Authorization: `Basic ${config.auth.superAdminToken}`,
+        host: config.headers.host,
       },
     });
 
@@ -33,8 +37,8 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -51,9 +55,13 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
       expect(Array.isArray(responseBody)).toBe(true);
 
       if (responseBody.length > 0) {
-        // Verify first invitation has required fields
+        // Verify first invitation has required fields (GET response structure)
         expect(responseBody[0].id).toBeDefined();
-        expect(responseBody[0].email).toBeDefined();
+        expect(responseBody[0].name).toBeDefined();
+        expect(responseBody[0].status).toBeDefined();
+        expect(responseBody[0].inviter).toBeDefined();
+        expect(responseBody[0].application).toBeDefined();
+        expect(responseBody[0].organization).toBeDefined();
         expect(responseBody[0].role_ids).toBeDefined();
         expect(Array.isArray(responseBody[0].role_ids)).toBe(true);
       }
@@ -72,46 +80,46 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       const roles = await rolesResponse.json();
       console.log('Available roles for org 463:', JSON.stringify(roles, null, 2));
-      
+
       // Find GivingTree User role for givingtree app
       const givingTreeRole = roles.find((role: any) => role.remote_id === 'GivingTree User');
-      const roleIds = givingTreeRole ? [givingTreeRole.id] : (roles.length > 0 ? [roles[0].id] : []);
+      const roleIds = givingTreeRole ? [givingTreeRole.id] : roles.length > 0 ? [roles[0].id] : [];
 
       const response = await request.post('/auth/affiliation_invitations', {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
+          auth: authToken,
         },
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
+          'Content-Type': 'application/json; charset=UTF-8',
         },
         data: {
           name: 'Test Invitation User',
           email: inviteeEmail,
           contact_id: null,
           app: 'givingtree',
-          role_ids: roleIds
-        }
+          role_ids: roleIds,
+        },
       });
 
       console.log('Create invitation response status:', response.status());
       const responseBody = await response.json();
       console.log('Create invitation response:', JSON.stringify(responseBody, null, 2));
-      
+
       // Verify status code is 200
       expect(response.status()).toBe(200);
 
       invitationId = responseBody.id;
 
-      // Verify response schema
-      expectSchema(responseBody, affiliationInvitationSchema);
+      // Verify response schema (POST returns different structure)
+      expectSchema(responseBody, affiliationInvitationPostSchema);
 
       // Verify invitation data
       expect(responseBody.email).toBe(inviteeEmail);
@@ -130,8 +138,8 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 200
@@ -140,8 +148,8 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
       const responseBody = await response.json();
       console.log('Specific invitation:', JSON.stringify(responseBody, null, 2));
 
-      // Verify response schema
-      expectSchema(responseBody, affiliationInvitationSchema);
+      // Verify response schema (GET returns different structure)
+      expectSchema(responseBody, affiliationInvitationGetSchema);
 
       // Verify invitation data
       expect(responseBody.id).toBe(invitationId);
@@ -157,8 +165,8 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
         params: {
           oid: '463',
           app_key: getAppKey('console'),
-          auth: authToken
-        }
+          auth: authToken,
+        },
       });
 
       // Verify status code is 204
@@ -167,5 +175,4 @@ test.describe('Auth API - Affiliation Invitations (Positive Tests)', () => {
       console.log('Deleted invitation:', invitationId);
     });
   });
-
 });

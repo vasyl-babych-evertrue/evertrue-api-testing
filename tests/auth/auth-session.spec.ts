@@ -26,7 +26,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -57,7 +57,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -86,7 +86,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
           'Content-Type': 'application/json',
         },
         data: {
@@ -129,11 +129,12 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
-      expect([400]).toContain(response.status());
+      // Missing Application-Key returns 400
+      expect(response.status()).toBe(400);
     });
   });
 
@@ -151,7 +152,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': testDeviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -224,7 +225,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -263,7 +264,8 @@ test.describe('Auth API - Session Management', () => {
         },
       });
 
-      expect([401, 403]).toContain(response.status());
+      // Missing authorization returns 401
+      expect(response.status()).toBe(401);
     });
 
     test('should return 401 with invalid token', async ({ request }) => {
@@ -327,7 +329,7 @@ test.describe('Auth API - Session Management', () => {
       const response = await request.fetch('https://stage-api.evertrue.com/auth/', {
         method: 'OPTIONS',
         headers: {
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -345,7 +347,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
@@ -388,7 +390,8 @@ test.describe('Auth API - Session Management', () => {
         },
       });
 
-      expect([401, 403]).toContain(response.status());
+      // Missing token returns 401
+      expect(response.status()).toBe(401);
     });
   });
 
@@ -403,7 +406,7 @@ test.describe('Auth API - Session Management', () => {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
           host: config.headers.host,
-          Authorization: `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
