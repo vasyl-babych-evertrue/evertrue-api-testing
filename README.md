@@ -28,6 +28,20 @@ evertrue-api-testing/
 └── README.md
 ```
 
+## 📚 Documentation
+
+### For Developers:
+- [Testing Guidelines](./docs/TESTING_GUIDELINES.md) - Повні правила написання тестів
+- [Quick Testing Rules](./docs/QUICK_TESTING_RULES.md) - Швидкі правила (must-read!)
+- [Test Data Generation](./docs/TEST_DATA_GENERATION.md) - 🎲 Генерація тестових даних з Faker
+- [Credentials Migration](./docs/CREDENTIALS_MIGRATION.md) - Як працювати з credentials
+- [Windsurf Global Rules](./WINDSURF_RULES.md) - 🌊 Правила для Windsurf/Cascade AI
+
+### For API Baseline Testing:
+- [Quick Start Guide](./docs/QUICK_START_BASELINE.md) - Швидкий старт
+- [Full Documentation](./docs/API_BASELINE_TESTING.md) - Повна документація
+- [Baseline Workflow](./docs/BASELINE_WORKFLOW.md) - Workflow до/після деплою
+
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
@@ -357,6 +371,62 @@ After test execution, an HTML report is automatically generated:
 
 ```bash
 npm run report
+```
+
+## 🔄 API Baseline Testing (Response Comparison)
+
+Система для автоматичного збереження та порівняння API responses між різними запусками тестів. Ідеально підходить для виявлення змін після деплою.
+
+### Quick Start
+
+```bash
+# 1. Створити baseline ПЕРЕД деплоєм
+npm run test
+copy api-baseline-reports\baseline-latest.json api-baseline-reports\baseline-before-deploy.json
+
+# 2. Виконати deploy
+# ... ваш процес деплою ...
+
+# 3. Створити baseline ПІСЛЯ деплою
+npm run test
+
+# 4. Порівняти результати
+npm run baseline:compare -- api-baseline-reports/baseline-before-deploy.json api-baseline-reports/baseline-latest.json
+```
+
+### Що зберігається?
+
+- ✅ Всі API requests (method, URL, headers, body)
+- ✅ Всі responses (status code, headers, body)
+- ✅ Timestamp кожного виклику
+- ✅ Статус тестів
+
+### Що порівнюється?
+
+- 🔴 **Critical**: Зміни status codes (200 → 500), нові 5xx помилки
+- 🟡 **Warning**: Відсутні поля в response, зміни в тестах
+- 🔵 **Info**: Нові поля, нові endpoints
+
+### Детальна документація
+
+- [Quick Start Guide](./docs/QUICK_START_BASELINE.md) - швидкий старт
+- [Full Documentation](./docs/API_BASELINE_TESTING.md) - повна документація
+- [Baseline Workflow](./docs/BASELINE_WORKFLOW.md) - повний workflow до/після деплою
+
+### Доступні команди
+
+```bash
+# Тестування
+npm run test              # Запустити всі тести
+
+# HTML репорти (з Attachments)
+npm run report:save       # Зберегти репорт перед деплоєм
+npm run report:before     # Відкрити репорт ДО деплою
+npm run report:after      # Відкрити репорт ПІСЛЯ деплою
+
+# JSON baselines
+npm run baseline:save     # Зберегти JSON baseline
+npm run baseline:compare -- <baseline-file> <current-file>
 ```
 
 ## 🎯 Playwright Advantages for API Testing

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
 import {

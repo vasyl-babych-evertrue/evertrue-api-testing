@@ -25,6 +25,7 @@ export default defineConfig({
     ['list'],
     ['junit', { outputFile: 'playwright-report/junit-results.xml' }],
     ['json', { outputFile: 'playwright-report/report.json' }],
+    ['./reporters/api-response-reporter.ts', { outputDir: 'api-baseline-reports' }],
   ],
   
   /* Timeout for each test */

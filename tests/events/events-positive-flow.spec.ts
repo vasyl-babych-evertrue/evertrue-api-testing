@@ -3,7 +3,7 @@
  * Covers all main endpoints with valid requests
  */
 
-import { test as base, expect, APIRequestContext } from '@playwright/test';
+import { test as base, expect, APIRequestContext } from '../../fixtures/global-api-tracking.fixture';
 import { expectSchema } from '../../helpers/schema-validator';
 import { eventSchema, createEventFullResponseSchema } from '../../schemas/events.schemas';
 import { config } from '../../config/env.config';

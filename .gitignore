@@ -10,6 +10,11 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
+# API Baseline Reports
+/api-baseline-reports/
+# Keep baseline reports structure but ignore content
+!/api-baseline-reports/.gitkeep
+
 # IDE
 .vscode/
 .idea/
