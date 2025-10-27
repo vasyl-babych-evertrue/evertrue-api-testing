@@ -74,9 +74,11 @@ jobs:
       - name: 🎭 Install Playwright Browsers
         run: |
           if [ "${{ inputs.browser }}" = "all" ]; then
-            npx playwright install --with-deps
+            npx playwright install
+            npx playwright install-deps
           else
-            npx playwright install --with-deps ${{ inputs.browser }}
+            npx playwright install ${{ inputs.browser }}
+            npx playwright install-deps ${{ inputs.browser }}
           fi
 
       - name: 🧪 Run tests
