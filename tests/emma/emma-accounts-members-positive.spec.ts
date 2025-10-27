@@ -22,26 +22,25 @@ import { generateFullName } from '../../helpers/test-data-generator';
 const OID_READ = process.env.EMMA_OID_READ || '158';
 const OID_WRITE = process.env.EMMA_OID_WRITE || '463';
 
-test.describe.configure({ mode: 'serial' });
+// Common auth setup reused by both describes
+let authToken: string;
 
-test.describe('Emma API - Accounts and Members (Positive)', () => {
-  let authToken: string;
-  let createdAccount: { id: number; remote_id: number } | null = null;
-
-  test.beforeAll(async ({ request }) => {
-    const auth = await request.post('/auth/session', {
-      headers: {
-        'Application-Key': config.headers.applicationKey,
-        'Authorization-Provider': config.headers.authorizationProvider,
-        Authorization: `Basic ${config.auth.superAdminToken}`,
-      },
-    });
-    expect(auth.status()).toBe(201);
-    const body = await auth.json();
-    authToken = body.token;
-    expect(authToken).toBeTruthy();
+test.beforeAll(async ({ request }) => {
+  const auth = await request.post('/auth/session', {
+    headers: {
+      'Application-Key': config.headers.applicationKey,
+      'Authorization-Provider': config.headers.authorizationProvider,
+      Authorization: `Basic ${config.auth.superAdminToken}`,
+    },
   });
+  expect(auth.status()).toBe(201);
+  const body = await auth.json();
+  authToken = body.token;
+  expect(authToken).toBeTruthy();
+});
 
+// Read-only tests (idempotent) – should always run regardless of write flow
+test.describe('Emma API - Read-only (OID_READ=158)', () => {
   test('GET /emma/v1/account/?oid={oid} returns accounts array', async ({ request }) => {
     const resp = await request.get('/emma/v1/account/', {
       params: { oid: OID_READ, auth: authToken, app_key: config.headers.applicationKey },
@@ -51,9 +50,24 @@ test.describe('Emma API - Accounts and Members (Positive)', () => {
     expectSchema(data, emmaAccountsArraySchema);
   });
 
-  test('POST /emma/v1/account/?oid={oid} creates an account', async ({ request }) => {
+  test('GET /emma/v1/member/?oid={oid} returns members list', async ({ request }) => {
+    const resp = await request.get('/emma/v1/member/', {
+      params: { oid: OID_READ, auth: authToken, app_key: config.headers.applicationKey },
+    });
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expectSchema(data, emmaMembersListSchema);
+  });
+});
+
+// Write flow tests – serial and dependent on creation
+test.describe.configure({ mode: 'serial' });
+test.describe('Emma API - Write flow (OID_WRITE=463)', () => {
+  let createdAccount: { id: number; remote_id: number } | null = null;
+
+  test('POST /emma/v1/account/?oid={oid} creates an account', async ({ request }, testInfo) => {
     const name = generateFullName();
-    const remoteId = Math.floor(Date.now() / 1000);
+    const remoteId = Date.now(); // ms precision for uniqueness
     const resp = await request.post('/emma/v1/account/', {
       params: { oid: OID_WRITE, auth: authToken, app_key: config.headers.applicationKey },
       data: {
@@ -63,6 +77,10 @@ test.describe('Emma API - Accounts and Members (Positive)', () => {
         private_api_key: Buffer.from('private_key_' + remoteId).toString('base64'),
       },
     });
+    if (resp.status() !== 200) {
+      const errBody = await resp.text();
+      await testInfo.attach('emma-create-error', { body: Buffer.from(errBody), contentType: 'text/plain' });
+    }
     expect(resp.status()).toBe(200);
     const data = await resp.json();
     expectSchema(data, emmaAccountCreateResponseSchema);
@@ -89,33 +107,32 @@ test.describe('Emma API - Accounts and Members (Positive)', () => {
     expectSchema(data, emmaAccountSchema);
   });
 
-  test('PUT /emma/v1/account/{id}/credentials?oid={oid} updates credentials', async ({ request }) => {
+  test('PUT /emma/v1/account/{id}/credentials?oid={oid} updates credentials', async ({ request }, testInfo) => {
     expect(createdAccount).toBeTruthy();
-    const newSuffix = Math.floor(Date.now() / 1000);
+    const newSuffix = Date.now();
     const resp = await request.put(`/emma/v1/account/${createdAccount!.id}/credentials`, {
       params: { oid: OID_WRITE, auth: authToken, app_key: config.headers.applicationKey },
       data: {
         public_key: Buffer.from('updated_public_' + newSuffix).toString('base64'),
-        private_key: 'updated_private_' + newSuffix,
+        private_key: Buffer.from('updated_private_' + newSuffix).toString('base64'),
       },
     });
+    if (resp.status() !== 200) {
+      const errBody = await resp.text();
+      await testInfo.attach('emma-update-credentials-error', { body: Buffer.from(errBody), contentType: 'text/plain' });
+    }
     expect(resp.status()).toBe(200);
   });
 
-  test('GET /emma/v1/member/?oid={oid} returns members list', async ({ request }) => {
-    const resp = await request.get('/emma/v1/member/', {
-      params: { oid: OID_READ, auth: authToken, app_key: config.headers.applicationKey },
-    });
-    expect(resp.status()).toBe(200);
-    const data = await resp.json();
-    expectSchema(data, emmaMembersListSchema);
-  });
-
-  test('DELETE /emma/v1/account/{id}?oid={oid} deletes the created account', async ({ request }) => {
+  test('DELETE /emma/v1/account/{id}?oid={oid} deletes the created account', async ({ request }, testInfo) => {
     expect(createdAccount).toBeTruthy();
     const resp = await request.delete(`/emma/v1/account/${createdAccount!.id}`, {
       params: { oid: OID_WRITE, auth: authToken, app_key: config.headers.applicationKey },
     });
+    if (resp.status() !== 200) {
+      const errBody = await resp.text();
+      await testInfo.attach('emma-delete-error', { body: Buffer.from(errBody), contentType: 'text/plain' });
+    }
     expect(resp.status()).toBe(200);
     const text = await resp.text();
     expectSchema(text as unknown as any, emmaDeleteEmptyResponseSchema);
