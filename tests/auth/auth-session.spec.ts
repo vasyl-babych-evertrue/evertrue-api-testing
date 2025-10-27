@@ -1,15 +1,13 @@
 import { test, expect } from '../../fixtures/global-api-tracking.fixture';
 import { config, getAppKey } from '../../config/env.config';
 import { expectSchema } from '../../helpers/schema-validator';
-import { 
-  createSessionSchema, 
+import {
+  createSessionSchema,
   createSessionWithDeviceSchema,
   createScopedSessionSchema,
   createSessionFromPrimeTokenSchema,
-  currentSessionSchema, 
-  statusSchema, 
-  emptyResponseSchema, 
-  loginsArraySchema 
+  currentSessionSchema,
+  loginsArraySchema,
 } from '../../schemas/auth.schemas';
 
 /**
@@ -18,18 +16,17 @@ import {
  */
 test.describe('Auth API - Session Management', () => {
   let authToken: string;
-  let primeToken: string;
+  let _primeToken: string;
 
   test.describe('POST /auth/session - Create session', () => {
-    
     test('should create session with valid credentials and return 201', async ({ request }) => {
       const response = await request.post('/auth/session', {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -44,7 +41,7 @@ test.describe('Auth API - Session Management', () => {
 
       // Store tokens for subsequent tests
       authToken = responseBody.token;
-      primeToken = responseBody.prime_token || responseBody.token;
+      _primeToken = responseBody.prime_token || responseBody.token;
 
       // Verify token is not empty
       expect(authToken).toBeTruthy();
@@ -53,14 +50,14 @@ test.describe('Auth API - Session Management', () => {
 
     test('should create session with Device ID and return Prime Token', async ({ request }) => {
       const deviceId = 'test-device-' + Date.now();
-      
+
       const response = await request.post('/auth/session', {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -79,7 +76,7 @@ test.describe('Auth API - Session Management', () => {
       expect(responseBody.device_id).toBe(deviceId);
 
       // Store prime token for subsequent tests
-      primeToken = responseBody.prime_token;
+      _primeToken = responseBody.prime_token;
     });
 
     test('should create scoped session with OID', async ({ request }) => {
@@ -88,14 +85,14 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
           'Content-Type': 'application/json',
         },
         data: {
           type: 'SCOPED',
-          oid: 463
-        }
+          oid: 463,
+        },
       });
 
       // Verify status code is 201
@@ -118,8 +115,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': 'Basic invalid_credentials',
+          host: config.headers.host,
+          Authorization: 'Basic invalid_credentials',
         },
       });
 
@@ -131,8 +128,8 @@ test.describe('Auth API - Session Management', () => {
         headers: {
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -147,14 +144,14 @@ test.describe('Auth API - Session Management', () => {
     test.beforeAll(async ({ request }) => {
       // Create a session with Device ID to get Prime Token
       testDeviceId = 'test-device-' + Date.now();
-      
+
       const response = await request.post('/auth/session', {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': testDeviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -168,8 +165,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertruePrimeToken',
           'Device-ID': testDeviceId,
-          'host': config.headers.host,
-          'Authorization': testPrimeToken,
+          host: config.headers.host,
+          Authorization: testPrimeToken,
         },
       });
 
@@ -193,8 +190,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertruePrimeToken',
           'Device-ID': testDeviceId,
-          'host': config.headers.host,
-          'Authorization': 'invalid_prime_token',
+          host: config.headers.host,
+          Authorization: 'invalid_prime_token',
         },
       });
 
@@ -207,8 +204,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertruePrimeToken',
           'Device-ID': 'wrong-device-id',
-          'host': config.headers.host,
-          'Authorization': testPrimeToken,
+          host: config.headers.host,
+          Authorization: testPrimeToken,
         },
       });
 
@@ -226,8 +223,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -238,11 +235,11 @@ test.describe('Auth API - Session Management', () => {
     test('should get current session with valid token and return 200', async ({ request }) => {
       const response = await request.get('/auth/session', {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': sessionToken,
+          Authorization: sessionToken,
         },
       });
 
@@ -274,7 +271,7 @@ test.describe('Auth API - Session Management', () => {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': 'invalid_token_12345',
+          Authorization: 'invalid_token_12345',
         },
       });
 
@@ -284,11 +281,11 @@ test.describe('Auth API - Session Management', () => {
     test('should track OID context when provided', async ({ request }) => {
       const response = await request.get('/auth/session', {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': sessionToken,
+          Authorization: sessionToken,
           'Authorization-OID': '463',
         },
       });
@@ -306,11 +303,11 @@ test.describe('Auth API - Session Management', () => {
     test('should work with different app keys', async ({ request }) => {
       const response = await request.get('/auth/session', {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           'Application-Key': getAppKey('auth_api'),
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': sessionToken,
+          Authorization: sessionToken,
         },
       });
 
@@ -326,12 +323,11 @@ test.describe('Auth API - Session Management', () => {
   });
 
   test.describe('OPTIONS /auth/ - CORS preflight', () => {
-    
     test('should return 204 for OPTIONS request', async ({ request }) => {
       const response = await request.fetch('https://stage-api.evertrue.com/auth/', {
         method: 'OPTIONS',
         headers: {
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -341,7 +337,6 @@ test.describe('Auth API - Session Management', () => {
   });
 
   test.describe('DELETE /auth/session - Destroy session (logout)', () => {
-    
     test('should logout and destroy session with 204', async ({ request }) => {
       // First, create a session
       const createResponse = await request.post('/auth/session', {
@@ -349,8 +344,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -360,7 +355,7 @@ test.describe('Auth API - Session Management', () => {
       // Now delete the session
       const deleteResponse = await request.delete('/auth/session', {
         headers: {
-          'Authorization': sessionToken,
+          Authorization: sessionToken,
           'Authorization-Provider': 'EvertrueAuthToken',
           'Application-Key': config.headers.applicationKey,
         },
@@ -371,14 +366,14 @@ test.describe('Auth API - Session Management', () => {
 
       // Verify response body is empty (204 No Content should have no body)
       const deleteResponseText = await deleteResponse.text();
-      expectSchema(deleteResponseText, emptyResponseSchema);
+      expect(deleteResponseText).toBe('');
 
       // Verify session is actually destroyed by trying to use it
       const verifyResponse = await request.get('/auth/session', {
         headers: {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': sessionToken,
+          Authorization: sessionToken,
         },
       });
 
@@ -407,8 +402,8 @@ test.describe('Auth API - Session Management', () => {
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': config.headers.authorizationProvider,
           'Device-ID': config.headers.deviceId,
-          'host': config.headers.host,
-          'Authorization': `Basic ${config.auth.basicToken}`,
+          host: config.headers.host,
+          Authorization: `Basic ${config.auth.basicToken}`,
         },
       });
 
@@ -419,10 +414,10 @@ test.describe('Auth API - Session Management', () => {
     test('should list active logins for current user', async ({ request }) => {
       const response = await request.get('/auth/settings/logins', {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
-          'Authorization': managementToken,
+          Authorization: managementToken,
         },
       });
 
@@ -455,5 +450,4 @@ test.describe('Auth API - Session Management', () => {
       expect(response.status()).toBe(401);
     });
   });
-
 });
