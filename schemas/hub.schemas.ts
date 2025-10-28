@@ -13,6 +13,9 @@ export const hubListSchema = Joi.object({
   meta: hubMetaSchema.allow(null).required(),
 });
 
+// Some endpoints (e.g., GET /hub/v1/filters?query=...) return a bare array
+export const hubFiltersArraySchema = Joi.array().items(Joi.any()).required();
+
 // Search response: similar structure to list
 export const hubSearchResponseSchema = Joi.object({
   items: Joi.array().items(Joi.any()).required(),

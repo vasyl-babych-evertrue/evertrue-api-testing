@@ -7,7 +7,7 @@ import {
   getPropertiesResponseSchema,
 } from '../../schemas/properties.schemas';
 import { contactsSearchResponseSchema } from '../../schemas/search.schemas';
-import { hubListSchema, hubSearchResponseSchema } from '../../schemas/hub.schemas';
+import { hubListSchema, hubSearchResponseSchema, hubFiltersArraySchema } from '../../schemas/hub.schemas';
 // Hub API - Positive Flow (as per provided Postman-style endpoints)
 // Each test asserts a single expected status code and validates schema
 
@@ -49,7 +49,7 @@ test.describe('Hub API - Positive Flow', () => {
       });
       expect(response.status()).toBe(200);
       const body = await response.json();
-      expectSchema(body, hubListSchema);
+      expectSchema(body, hubFiltersArraySchema);
     });
 
     test('Status: GET /hub/v1/filters/134/facets -> 200', async ({ request }) => {

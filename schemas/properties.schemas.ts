@@ -28,6 +28,9 @@ export const getPropertiesResponseSchema = Joi.object({
   items: Joi.array().items(propertySchema).required(),
 });
 
+// Some environments return a bare array for GET /contacts/v1/properties
+export const propertiesArraySchema = Joi.array().items(propertySchema).required();
+
 export const dynamicListCreateResponseSchema = Joi.object({
   id: Joi.number().required(),
   name: Joi.string().required(),
@@ -45,6 +48,7 @@ export default {
   createNestedPropertyResponseSchema,
   updatePropertyResponseSchema,
   getPropertiesResponseSchema,
+  propertiesArraySchema,
   dynamicListCreateResponseSchema,
   deleteResponseSchema,
 };
