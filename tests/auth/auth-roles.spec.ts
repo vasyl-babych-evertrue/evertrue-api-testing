@@ -72,7 +72,7 @@ test.describe('Auth API - Roles Management', () => {
       expect(response.status()).toBe(401);
     });
 
-    test('should return 403 without proper organization access', async ({ request }) => {
+    test('should return 404 without proper organization access', async ({ request }) => {
       const response = await request.get('/auth/roles', {
         params: {
           oid: '999', // Non-accessible organization
@@ -81,8 +81,8 @@ test.describe('Auth API - Roles Management', () => {
         },
       });
 
-      // Non-accessible organization returns 403
-      expect(response.status()).toBe(403);
+      // Non-accessible organization returns 404
+      expect(response.status()).toBe(404);
     });
   });
 

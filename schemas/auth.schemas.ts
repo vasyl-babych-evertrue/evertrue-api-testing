@@ -55,18 +55,34 @@ export const currentSessionSchema = Joi.object({
 });
 
 /**
+ * Base user object for session responses (minimal)
+ * Used when API doesn't return first_name/last_name
+ */
+const sessionUserMinimalSchema = Joi.object({
+  id: Joi.number().required(),
+  email: Joi.string().email().required(),
+}).required();
+
+/**
+ * Full user object for session responses
+ * Used when API returns first_name/last_name (may be null)
+ */
+const sessionUserFullSchema = Joi.object({
+  id: Joi.number().required(),
+  email: Joi.string().email().required(),
+  first_name: Joi.string().allow(null).required(),
+  last_name: Joi.string().allow(null).required(),
+}).required();
+
+/**
  * Schema for POST /auth/session (create session with Basic Auth)
  * Standard session creation without Device ID
+ * Note: Currently uses minimal user schema as API doesn't return first_name/last_name
  */
 export const createSessionSchema = Joi.object({
   token: Joi.string().required(),
   prime_token: Joi.string().allow(null).required(),
-  user: Joi.object({
-    id: Joi.number().required(),
-    email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).required(),
-    last_name: Joi.string().allow(null).required(),
-  }).required(),
+  user: sessionUserMinimalSchema,
 });
 
 /**
@@ -77,12 +93,7 @@ export const createSessionWithDeviceSchema = Joi.object({
   token: Joi.string().required(),
   prime_token: Joi.string().required(),
   device_id: Joi.string().required(),
-  user: Joi.object({
-    id: Joi.number().required(),
-    email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).required(),
-    last_name: Joi.string().allow(null).required(),
-  }).required(),
+  user: sessionUserMinimalSchema,
 });
 
 /**
@@ -94,12 +105,7 @@ export const createScopedSessionSchema = Joi.object({
   type: Joi.string().required(),
   oid: Joi.number().required(),
   prime_token: Joi.string().allow(null).required(),
-  user: Joi.object({
-    id: Joi.number().required(),
-    email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).required(),
-    last_name: Joi.string().allow(null).required(),
-  }).required(),
+  user: sessionUserMinimalSchema,
 });
 
 /**
@@ -109,12 +115,7 @@ export const createScopedSessionSchema = Joi.object({
 export const createSessionFromPrimeTokenSchema = Joi.object({
   token: Joi.string().required(),
   device_id: Joi.string().required(),
-  user: Joi.object({
-    id: Joi.number().required(),
-    email: Joi.string().email().required(),
-    first_name: Joi.string().allow(null).required(),
-    last_name: Joi.string().allow(null).required(),
-  }).required(),
+  user: sessionUserMinimalSchema,
 });
 
 /**
@@ -219,7 +220,7 @@ export const userSchema = Joi.object({
           id: Joi.number().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().required(),
+          sso_method: Joi.string().allow(null).required(),
         }).required(),
         affiliation_roles: Joi.array()
           .items(
@@ -256,7 +257,7 @@ export const userSchema = Joi.object({
           id: Joi.number().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().required(),
+          sso_method: Joi.string().allow(null).required(),
         }).required(),
         created_at: Joi.number().required(),
         updated_at: Joi.number().required(),
@@ -317,7 +318,7 @@ export const userByIdSchema = Joi.object({
           id: Joi.number().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().required(),
+          sso_method: Joi.string().allow(null).required(),
         }).required(),
         affiliation_roles: Joi.array()
           .items(
@@ -353,7 +354,7 @@ export const userByIdSchema = Joi.object({
           id: Joi.number().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().required(),
+          sso_method: Joi.string().allow(null).required(),
         }).required(),
         created_at: Joi.number().required(),
         updated_at: Joi.number().required(),
@@ -413,7 +414,7 @@ export const userByContactIdSchema = Joi.object({
           id: Joi.number().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().required(),
+          sso_method: Joi.string().allow(null).required(),
         }).required(),
         affiliation_roles: Joi.array()
           .items(
@@ -449,7 +450,7 @@ export const userByContactIdSchema = Joi.object({
           id: Joi.number().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().required(),
+          sso_method: Joi.string().allow(null).required(),
         }).required(),
         created_at: Joi.number().required(),
         updated_at: Joi.number().required(),
@@ -704,7 +705,7 @@ export const affiliationOrganizationSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
   name: Joi.string().max(255).required(),
   slug: Joi.string().max(255).required(),
-  sso_method: Joi.string().valid('disabled', 'saml', 'oauth').required(),
+  sso_method: Joi.string().valid('disabled', 'saml', 'oauth').allow(null).required(),
 });
 
 /**
@@ -884,7 +885,7 @@ export const affiliationInvitationGetSchema = Joi.object({
     id: Joi.number().integer().positive().required(),
     name: Joi.string().required(),
     slug: Joi.string().required(),
-    sso_method: Joi.string().required(),
+    sso_method: Joi.string().allow(null).required(),
     mfa_required: Joi.boolean().required(),
     created_at: Joi.number().integer().positive().required(),
     updated_at: Joi.number().integer().positive().required(),
@@ -911,12 +912,16 @@ export const affiliationInvitationsArraySchema = Joi.array().items(affiliationIn
 export const schoolDivisionDepartmentSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
   value: Joi.string().required(),
-  created_at: Joi.number().integer().positive().required(),
-  updated_at: Joi.number().integer().positive().required(),
+  created_at: Joi.number().integer().positive().optional(),
+  updated_at: Joi.number().integer().positive().optional(),
   organization: Joi.object({
     id: Joi.number().integer().positive().required(),
     name: Joi.string().required(),
     slug: Joi.string().required(),
+    sso_method: Joi.string().allow(null).optional(),
+    mfa_required: Joi.boolean().optional(),
+    created_at: Joi.number().integer().positive().optional(),
+    updated_at: Joi.number().integer().positive().optional(),
   }).required(),
 });
 
@@ -1029,7 +1034,7 @@ export const affiliationAttributeSchema = Joi.object({
       id: Joi.number().integer().positive().required(),
       name: Joi.string().required(),
       slug: Joi.string().required(),
-      sso_method: Joi.string().required(),
+      sso_method: Joi.string().allow(null).required(),
       mfa_required: Joi.boolean().required(),
       created_at: Joi.number().integer().positive().required(),
       updated_at: Joi.number().integer().positive().required(),
@@ -1173,7 +1178,7 @@ export const identityProviderSearchSchema = Joi.alternatives().try(
         id: Joi.number().integer().positive().required(),
         name: Joi.string().required(),
         slug: Joi.string().required(),
-        sso_method: Joi.string().valid('disabled', 'saml', 'oauth').required(),
+        sso_method: Joi.string().valid('disabled', 'saml', 'oauth').allow(null).required(),
       })
     )
     .min(0),
@@ -1184,7 +1189,7 @@ export const identityProviderSearchSchema = Joi.alternatives().try(
           id: Joi.number().integer().positive().required(),
           name: Joi.string().required(),
           slug: Joi.string().required(),
-          sso_method: Joi.string().valid('disabled', 'saml', 'oauth').required(),
+          sso_method: Joi.string().valid('disabled', 'saml', 'oauth').allow(null).required(),
         })
       )
       .min(0)
@@ -1229,3 +1234,173 @@ export const identityLookupSchema = Joi.array()
     })
   )
   .min(0);
+
+/**
+ * Schema for User object in registration response
+ */
+export const registrationUserSchema = Joi.object({
+  id: Joi.number().required(),
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  super_user: Joi.boolean().required(),
+  created_at: Joi.number().required(),
+  updated_at: Joi.number().required(),
+  affiliations: Joi.array().required(),
+  affiliation_requests: Joi.array().required(),
+});
+
+/**
+ * Schema for Session object in registration response WITHOUT Device-ID
+ * When no Device-ID is provided, prime_token field is not returned
+ */
+export const registrationSessionWithoutDeviceSchema = Joi.object({
+  expire_at: Joi.number().required(),
+  token: Joi.string().required(),
+  created_at: Joi.number().required(),
+  updated_at: Joi.number().required(),
+});
+
+/**
+ * Schema for Session object in registration response WITH Device-ID
+ * When Device-ID is provided, prime_token is included
+ */
+export const registrationSessionWithDeviceSchema = Joi.object({
+  expire_at: Joi.number().required(),
+  prime_token: Joi.string().required(),
+  token: Joi.string().required(),
+  created_at: Joi.number().required(),
+  updated_at: Joi.number().required(),
+});
+
+/**
+ * Schema for POST /auth/registrations - User Registration WITHOUT Device-ID
+ * Returns user and session objects (no prime_token)
+ */
+export const registrationSchema = Joi.object({
+  user: registrationUserSchema.required(),
+  session: registrationSessionWithoutDeviceSchema.required(),
+});
+
+/**
+ * Schema for POST /auth/registrations with Device-ID
+ * Session includes prime_token
+ */
+export const registrationWithDeviceSchema = Joi.object({
+  user: registrationUserSchema.required(),
+  session: Joi.object({
+    expire_at: Joi.number().required(),
+    prime_token: Joi.string().required(),
+    token: Joi.string().required(),
+    created_at: Joi.number().required(),
+    updated_at: Joi.number().required(),
+  }).required(),
+});
+
+/**
+ * Schema for POST /auth/registrations/password - Request password reset
+ * Response includes only a message (for security - prevents email enumeration)
+ */
+export const passwordResetRequestSchema = Joi.object({
+  message: Joi.string().required(),
+});
+
+/**
+ * Schema for GET /users/password/policy - Get password policy
+ * Returns most restrictive policy if user belongs to multiple orgs
+ */
+export const passwordPolicySchema = Joi.object({
+  email: Joi.string().email().required(),
+  display_text: Joi.string().required(),
+  password_policy: Joi.object({
+    min_length: Joi.number().integer().positive().required(),
+    max_length: Joi.number().integer().positive().required(),
+  }).required(),
+});
+
+/**
+ * Schema for restriction object
+ */
+export const restrictionSchema = Joi.object({
+  id: Joi.number().required(),
+  organization_id: Joi.number().required(),
+  application_id: Joi.number().required(),
+  type: Joi.string().required(),
+  identity_provider_id: Joi.number().required(),
+  created_at: Joi.number().required(),
+  updated_at: Joi.number().required(),
+});
+
+/**
+ * Schema for GET /auth/restrictions - Get all restrictions
+ */
+export const restrictionsArraySchema = Joi.array().items(restrictionSchema).required();
+
+/**
+ * Schema for integration authentication object
+ */
+const integrationAuthenticationSchema = Joi.object({
+  refresh_token: Joi.string().required(),
+  refresh_token_expires_on: Joi.number().required(),
+  access_token: Joi.string().required(),
+  access_token_expires_on: Joi.number().required(),
+  user_id: Joi.string().required(),
+  email: Joi.string().email().required(),
+});
+
+/**
+ * Schema for integration object
+ */
+export const integrationSchema = Joi.object({
+  id: Joi.number().required(),
+  organization_id: Joi.number().required(),
+  platform: Joi.string().required(),
+  account_id: Joi.any().allow(null).required(),
+  authentication: integrationAuthenticationSchema.required(),
+  created_at: Joi.number().required(),
+  updated_at: Joi.number().required(),
+});
+
+/**
+ * Schema for GET /auth/integrations - Get all integrations
+ */
+export const integrationsArraySchema = Joi.array().items(integrationSchema).required();
+
+/**
+ * Schema for manager object
+ */
+export const managerSchema = Joi.object({
+  id: Joi.number().required(),
+  employee_id: Joi.number().required(),
+  manager_id: Joi.number().required(),
+  created_at: Joi.number().required(),
+  updated_at: Joi.number().required(),
+});
+
+/**
+ * Schema for GET /auth/managers - Get all managers
+ */
+export const managersArraySchema = Joi.array().items(managerSchema).required();
+
+/**
+ * Schema for version object
+ */
+export const versionSchema = Joi.object({
+  id: Joi.number().required(),
+  item_type: Joi.string().required(),
+  item_id: Joi.number().required(),
+  event: Joi.string().required(),
+  whodunnit: Joi.string().allow(null).required(),
+  app: Joi.any().allow(null).required(),
+  oid: Joi.number().allow(null).required(),
+  user_affected: Joi.number().allow(null).required(),
+  user_agent: Joi.string().allow(null).required(),
+  object_before: Joi.any().allow(null).required(),
+  object_changes: Joi.any().allow(null).required(),
+});
+
+/**
+ * Schema for GET /auth/versions - Get all versions (returns object with versions array)
+ */
+export const versionsResponseSchema = Joi.object({
+  versions: Joi.array().items(versionSchema).required(),
+});

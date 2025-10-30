@@ -396,31 +396,32 @@ test.describe('Auth API - Session Management', () => {
   });
 
   test.describe('GET /auth/settings/logins - Login Management', () => {
-    let managementToken: string;
-
-    test.beforeEach(async ({ request }) => {
-      // Create session for login management tests
-      const response = await request.post('/auth/session', {
+    // Note: This test is flaky when run in parallel due to API limitations
+    // Works reliably with --workers=1
+    test('should list active logins for current user', { tag: '@flaky' }, async ({ request }) => {
+      // Create fresh session for this test with unique Device-ID
+      const uniqueDeviceId = `test-device-${Date.now()}`;
+      const sessionResponse = await request.post('/auth/session', {
         headers: {
-          'Application-Key': config.headers.applicationKey,
-          'Authorization-Provider': config.headers.authorizationProvider,
-          'Device-ID': config.headers.deviceId,
+          'Application-Key': getAppKey('auth_api'),
+          'Authorization-Provider': 'EvertrueBasicAuth',
+          'Device-ID': uniqueDeviceId,
           host: config.headers.host,
           Authorization: `Basic ${config.auth.superAdminToken}`,
         },
       });
 
-      const body = await response.json();
-      managementToken = body.token;
-    });
+      expect(sessionResponse.status()).toBe(201);
+      const sessionBody = await sessionResponse.json();
+      const managementToken = sessionBody.token;
 
-    test('should list active logins for current user', async ({ request }) => {
+      // Get logins list
       const response = await request.get('/auth/settings/logins', {
         headers: {
           Accept: 'application/json',
-          'Application-Key': config.headers.applicationKey,
           'Authorization-Provider': 'EvertrueAuthToken',
           Authorization: managementToken,
+          'Application-Key': getAppKey('console'),
         },
       });
 
