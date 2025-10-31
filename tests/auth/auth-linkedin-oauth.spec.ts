@@ -192,7 +192,7 @@ test.describe('Auth API - LinkedIn Access Token Authentication', () => {
 
     const response = await request.post('/auth/session', {
       headers: {
-        'Application-Key': config.headers.applicationKey,
+        'Application-Key': getAppKey('auth_api'),
         'Authorization-Provider': 'EvertrueBasicAuth',
         Authorization: `Basic ${config.auth.superAdminToken}`,
       },

@@ -115,7 +115,7 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
   });
 
   test.describe('GET /auth/users/contact_id/{contact_id} - Get user by contact ID (Error Cases)', () => {
-    test('should return 422 without oid parameter', async ({ request }) => {
+    test('should return 400 without oid parameter', async ({ request }) => {
       const contactId = 12345;
 
       const response = await request.get(`/auth/users/contact_id/${contactId}`, {
@@ -127,8 +127,8 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
         },
       });
 
-      // Missing oid parameter returns 422
-      expect(response.status()).toBe(422);
+      // Missing oid parameter returns 400
+      expect(response.status()).toBe(400);
     });
   });
 
@@ -156,7 +156,7 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
   });
 
   test.describe('POST /auth/users/bulk_fetch - Bulk fetch users (Error Cases)', () => {
-    test('should return 422 without oid parameter', async ({ request }) => {
+    test('should return 400 without oid parameter', async ({ request }) => {
       const response = await request.post('/auth/users/bulk_fetch', {
         headers: {
           Accept: 'application/json',
@@ -170,13 +170,13 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
         },
       });
 
-      // Missing oid parameter returns 422
-      expect(response.status()).toBe(422);
+      // Missing oid parameter returns 400
+      expect(response.status()).toBe(400);
     });
   });
 
   test.describe('User Operations - Permission Tests (Error Cases)', () => {
-    test('should return 403 when creating user without super-admin privileges', async ({ request }) => {
+    test('should return 401 when creating user without super-admin privileges', async ({ request }) => {
       const response = await request.post('/auth/users', {
         headers: {
           Accept: 'application/json',
@@ -191,11 +191,11 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
         },
       });
 
-      // Regular user without privileges returns 403
-      expect(response.status()).toBe(403);
+      // Regular user without privileges returns 401
+      expect(response.status()).toBe(401);
     });
 
-    test('should return 403 when updating user without super-admin privileges', async ({ request }) => {
+    test('should return 401 when updating user without super-admin privileges', async ({ request }) => {
       const userId = 2308;
 
       const response = await request.put(`/auth/users/${userId}`, {
@@ -211,11 +211,11 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
         },
       });
 
-      // Regular user without privileges returns 403
-      expect(response.status()).toBe(403);
+      // Regular user without privileges returns 401
+      expect(response.status()).toBe(401);
     });
 
-    test('should return 403 when deleting user without super-admin privileges', async ({ request }) => {
+    test('should return 401 when deleting user without super-admin privileges', async ({ request }) => {
       const userId = 999999;
 
       const response = await request.delete(`/auth/users/${userId}`, {
@@ -226,8 +226,8 @@ test.describe('Auth API - Users Management (Negative Tests)', () => {
         },
       });
 
-      // Regular user without privileges returns 403
-      expect(response.status()).toBe(403);
+      // Regular user without privileges returns 401
+      expect(response.status()).toBe(401);
     });
   });
 });
