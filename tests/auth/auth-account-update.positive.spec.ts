@@ -60,8 +60,7 @@ test.describe('Auth API - Account Update (Positive Tests)', () => {
   });
 
   test('Step 2: Create affiliation invitation', async ({ request }) => {
-    registeredEmail = `test.${Date.now()}@evertrue.com`;
-    const name = `Test ${Date.now()}`;
+    registeredEmail = `test.${Date.now()}@example.com`;
 
     const response = await request.post('/auth/affiliation_invitations', {
       params: {

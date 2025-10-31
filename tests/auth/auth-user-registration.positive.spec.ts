@@ -497,7 +497,6 @@ test.describe('Auth API - User Registration (Positive Tests)', () => {
     const email = `test.${Date.now()}@example.com`;
     const name = generateUserName();
     const password = 'TestPassword123!';
-    let inviteToken: string;
     let newUserId: number;
 
     // Step 1: Get available roles for the organization
@@ -558,8 +557,8 @@ test.describe('Auth API - User Registration (Positive Tests)', () => {
     });
 
     expect(userDataResponse.status()).toBe(200);
-    const userData = await userDataResponse.json();
-    inviteToken = userData.confirmation_token;
+    const responseBody = await userDataResponse.json();
+    const inviteToken = responseBody.confirmation_token;
     expect(inviteToken).toBeTruthy();
     console.log('✓ Invite token received');
 

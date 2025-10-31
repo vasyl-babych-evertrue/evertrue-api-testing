@@ -16,7 +16,7 @@ test.describe('Auth API - User Password Reset (Positive Tests)', () => {
   let superAdminToken: string;
   let testUserId: number;
   let testUserEmail: string;
-  let resetPasswordToken: string;
+  let _resetPasswordToken: string;
 
   test.beforeAll(async ({ request }) => {
     // Create super-admin session for user management
@@ -158,7 +158,7 @@ test.describe('Auth API - User Password Reset (Positive Tests)', () => {
     // Create a new test user for this flow
     const flowEmail = `test.full.flow.${Date.now()}@example.com`;
     const oldPassword = 'OldPassword123!';
-    const newPassword = 'NewPassword456!';
+    const _newPassword = 'NewPassword456!';
 
     // Step 1: Create user
     const createResponse = await request.post('/auth/registrations', {

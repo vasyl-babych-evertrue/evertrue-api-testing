@@ -66,7 +66,9 @@ const sessionUserMinimalSchema = Joi.object({
 /**
  * Full user object for session responses
  * Used when API returns first_name/last_name (may be null)
+ * Reserved for future use when API starts returning these fields
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const sessionUserFullSchema = Joi.object({
   id: Joi.number().required(),
   email: Joi.string().email().required(),
