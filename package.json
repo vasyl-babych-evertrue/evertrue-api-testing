@@ -32,7 +32,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@faker-js/faker": "^10.1.0",
+    "@faker-js/faker": "^8.4.1",
     "@playwright/test": "^1.44.1",
     "@types/joi": "^17.2.2",
     "@types/node": "^24.7.2",
